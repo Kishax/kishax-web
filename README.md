@@ -10,7 +10,6 @@ It is for FMC developers to collaborate on web development.
 ## Column
 
 This repository is based on [Learning -ToDoApp](https://github.com/bella2391/Learning/tree/js/ts), which I first developed in typescript.  
-If anyone is interested, please refer to [”Introduction to Creating Web Applications with Node.js”](https://zenn.dev/wkb/books/node-tutorial).
 
 ## My Wish
 
