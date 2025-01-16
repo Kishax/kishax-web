@@ -20,4 +20,4 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 ## Credits
 
-This project uses other external assets someone creates - see the [CREDIT.txt](CREDIT.txt)
+This project uses other external assets someone creates - see the [CREDITS.txt](CREDITS.txt)
