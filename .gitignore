@@ -1,9 +1,8 @@
 test.ts
-fmcapp/src/public/images/avatar/default/*
+app/src/public/images/avatar/default/*
 client.js
 test
 error
-envlink.txt
 # Quotes from https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
 logs

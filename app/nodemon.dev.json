@@ -1,0 +1,7 @@
+{
+    "restartable": "rs",
+    "watch": ["./app/src", "./client/src"],
+    "ignore": ["tests/**/*.ts"],
+    "ext": "ts",
+    "exec": "npm run start:app:independence"
+  }

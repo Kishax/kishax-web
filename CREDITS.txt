@@ -5,26 +5,19 @@ This project includes the following fonts, logos, and illustrations:
    - Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)
    - © Keitarou Hiraki, Font Silo 1990-2015.
 
-2. **いらすとや** (Irasutoya Illustrations):
-   - This project uses illustrations from Irasutoya (https://www.irasutoya.com/).
-   - Please refer to the official terms of use (https://www.irasutoya.com/p/terms.html).
-   - Illustrations are free to use under the conditions specified in the terms of use.
-   - Do not redistribute or sell the illustrations on their own.
-   - For specific inquiries or permissions regarding the use of illustrations, please contact Irasutoya directly.
-
-3. **Discord Logo**:
+2. **Discord Logo**:
    - Used in accordance with the official brand guidelines (https://discord.com/branding).
    - Do not edit, alter, distort, recolor, or reconfigure the logo.
    - The logo is for non-commercial use only.
    - For inquiries or permissions regarding logo usage, please contact the official Discord team.
 
-4. **X Logo**:
+3. **X Logo**:
    - Used in accordance with the official brand toolkit (https://about.x.com/ja/who-we-are/brand-toolkit).
    - Do not edit, alter, distort, recolor, or reconfigure the logo.
    - The logo is for non-commercial use only.
    - For inquiries or permissions regarding logo usage, please contact the official X team.
 
-5. **Google Logo**:
+4. **Google Logo**:
    - Used in accordance with the official branding guidelines (https://developers.google.com/identity/branding-guidelines?hl=ja).
    - Unless otherwise noted, the content on this page is licensed under the Creative Commons Attribution 4.0 License.
    - Code samples are licensed under the Apache 2.0 License.

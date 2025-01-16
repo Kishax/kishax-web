@@ -1,35 +1,33 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title><%= application_name %></title>
+        <meta charset='utf-8'>
+        <title><%= title %></title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link rel="stylesheet" href="<%= rootpath %>/stylesheets/style.css"/>
-        <link rel="stylesheet" href="<%= rootpath %>/stylesheets/loading.css"/>
+        <link rel="stylesheet" href="<%= rootpath %>/stylesheets/style.css" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
               integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     </head>
     <body>
-        <%- include('./include/header'); %>
+        <%- include('../include/header'); %>
 
-        <%- include('./include/message'); %>
+        <%- include('../include/message'); %>
 
-        <div class="center">
-            <h1>現在リダイレクト中です...</h1>
-            <div class="font0-75">
-                (しばらく待ってもリダイレクトされない場合は<a class="under" href="<% if (typeof redirect_url !== 'undefined') { %><%= redirect_url %><% } %>">ココ</a>をクリックしてください。)
-            </div>
-            <%- include('./include/loading'); %>
+        <div class="container">
+            <form id="myform" action="<%= rootpath %>/auth<%= auth_path %>" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% if (typeof token !== 'undefined') { %>
+                    <input type="hidden" name="token" value="<%= token %>">
+                <% } %>
+                <label><%= label %></label>
+                <input required id="focus" type="text" name="<%= input_name %>"/>
+                <br><br>
+                <input class="btn btn-primary" type="submit" value="送信する"/>
+            </form>
         </div>
 
-        <%- include('./include/footer'); %>
-
-        <% if (typeof timeout !== 'undefined' && typeof redirect_url !== 'undefined') { %>
-            <script>
-                setTimeout(function() {
-                    window.location.href = "<%= redirect_url %>";
-                }, Number("<%= timeout %>"));
-            </script>
-        <% } %>
+        <script src="<%=rootpath %>/javascripts/conform.js"></script>
+        <script src="<%= rootpath %>/javascripts/focus.js"></script>
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                 integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

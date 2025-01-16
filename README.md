@@ -1,53 +1,23 @@
-# Java-TypeScript
+# FMCWebApp
 
 ## Description
 
-The `express` module was used to host the server environment on the back end, and the `webpack` module was used to develop on the front end for differentiation.
+This project is actually in use on the [FMC web](https://keypforev.f5.si/dev/).  
+It is for FMC developers to collaborate on web development.  
 
-## Note
+## Column
 
-For safety, `typescript` is used in the production environment.
+This repository is based on [todoapp](https://github.com/bella2391/Learning/tree/js/ts), which I first developed in typescript.  
+If anyone is interested, please refer to [”Introduction to Creating Web Applications with Node.js”](https://zenn.dev/wkb/books/node-tutorial).
 
-## Env
+## My Wish
 
-```env
-MYSQL_HOST=localhost
-MYSQL_USER=node
-MYSQL_PASSWORD=mysqlsecret
-MYSQL_DATABASE=node
+I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, please contact [me](https://github.com/bella2391).
 
-COOKIE_SECRET=randomsecretispreferred
+## License
 
-DISCORD_CLIENT_ID=0000000000000000000
-DISCORD_CLIENT_SECRET=discordappssecret
+This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt)
 
-GOOGLE_CLIENT_ID=000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=googleoauthclientsecrets
+## Credits
 
-X_CONSUMER_KEY=generatedfromxdeveloperportal
-X_CONSUMER_SECRET=xoauthsecret
-
-ORG_NAME=FMC
-ORG_YEAR=20XX
-ORG_LOGO_URL=https://~/xxx.png
-PRODUCTION_HOST=example.com
-IS_HTTPS=true
-
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=user@sample.com
-SMTP_PASS=smtpsecret
-
-JWT_SECRET=randomsecret
-
-APP_NAME=Sample App
-
-SUCCESS_REDIRECT=/
-```
-
-## Learning Directory
-
-- `link.txt`:
- Links referenced to create this repository
-- `cmd.txt`:
- A collection of commands you may use later
+This project uses other external assets someone creates - see the [CREDIT.txt](CREDIT.txt)
