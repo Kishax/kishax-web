@@ -13,7 +13,7 @@ This repository is based on [Learning -ToDoApp](https://github.com/bella2391/Lea
 
 ## My Wish
 
-I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, please contact [me](https://github.com/bella2391).
+I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, please contact [me](https://github.com/bella2391#contact-).
 
 ## License
 
