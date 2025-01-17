@@ -107,6 +107,9 @@ function toggleDataset(...keys) {
 
 document.getElementById('toggleAdcount')?.addEventListener('click', () => toggleDataset('adloadcount', 'adipcount'));
 
-fetchData('month').then(data => {
+const urlParams = new URLSearchParams(window.location.search);
+const type = urlParams.get('type') || 'month';
+
+fetchData(type).then(data => {
     createChart(data);
 }).catch(error => console.error('Error fetching data:', error));
