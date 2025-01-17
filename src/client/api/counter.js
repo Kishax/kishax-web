@@ -70,7 +70,7 @@ function createChart(data) {
 
     const datasets = Object.keys(datanames).map((key, _) => {
         const values = labels.map(label => {
-            return data[label].map(/** @type {MysqlRow} */item => {
+            return data[label].map(/** @type {MysqlRow} */ (/** @type {MysqlRow} */ item) => {
                 let count = item[key];
                 totalCounts[key] += count;
                 return count;
