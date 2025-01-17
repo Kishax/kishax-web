@@ -18,18 +18,6 @@ export async function getLastEntriesEachDay() {
     return rows;
 }
 
-// interface Counter {
-//    allaccess: number;
-//    todayloadcount: number;
-//    todayipcount: number;
-// }
-
-// var countResult: Counter;
-// export function getResult(): Counter {
-//    if (!countResult) {
-//    }
-// }
-
 function disnum(num: number): number[] {
     const b: number[] = [];
 
