@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build:client": "webpack --config ./client/webpack/prod.config.js",
-    "start:server:client": "webpack serve --config ./client/webpack/webpack.config.js --mode=development",
-    "build:app": "cd app && tsc",
-    "start:app:dev": "cross-env NODE_ENV=development PORT=3001 nodemon --config ./app/nodemon.dev.json",
-    "start:app:prod": "cross-env NODE_ENV=production PROXY_REVERSE_PASS=/dev nodemon --config ./app/nodemon.prod.json",
+    "build:client": "webpack",
+
+    "build:app": "tsc",
+    "start:app:dev": "cross-env NODE_ENV=development PORT=3001 nodemon",
+    "start:app:prod": "cross-env NODE_ENV=production PROXY_REVERSE_PASS=/dev nodemon",
     "start:app:prod:js": "npm run build:app && node ./dist/bin/www.js",
-    "start:app:independence": "ts-node --files ./app/src/bin/www.ts"
+    "start:app:independence": "ts-node --files ./src/bin/www.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
