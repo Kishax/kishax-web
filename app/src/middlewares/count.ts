@@ -1,7 +1,34 @@
-import express ,{ Request, Response, NextFunction } from 'express';
-import path from 'path';
+import { Request, Response, NextFunction } from 'express';
 import dns from 'dns';
+import Knex from 'knex';
 import knex from '../db/knex';
+
+export async function getLastEntriesEachDay() {
+    const subquery: Knex.QueryBuilder = knex('counter3')
+        .select(knex.raw('DATE(dtime) as date'), knex.raw('MAX(dtime) as max_dtime'))
+        .groupBy('date')
+        .as('sub');
+
+    const rows = await knex('counter3')
+        .join(subquery as ('sub'), function() {
+            this.on('counter3.dtime', '=', 'sub.max_dtime');
+        })
+        .select('counter3.*');
+
+    return rows;
+}
+
+// interface Counter {
+//    allaccess: number;
+//    todayloadcount: number;
+//    todayipcount: number;
+// }
+
+// var countResult: Counter;
+// export function getResult(): Counter {
+//    if (!countResult) {
+//    }
+// }
 
 function disnum(num: number): number[] {
     const b: number[] = [];
@@ -15,27 +42,41 @@ function disnum(num: number): number[] {
     return b;
 }
 
+function getHost(ip: string): string {
+    dns.reverse(ip, (err, hostnames: string[]) => {
+        if (err) {
+            throw err;
+        } else {
+            console.log("hostnames: ", hostnames);
+            return hostnames[0];
+        }
+    });
+
+    return ip;
+}
+
 const counter = async (req: Request, res: Response, next: NextFunction) => {
     if (req.method !== "GET") {
         next();
         return;
     }
 
+    // グラフの計算をここでやっといて、その日の新規が来たとき、
+    // 計算結果に足せばいい
+    // ここは別に/counterにアクセスがあったときに計算してもいいかも
+    //const rows = await knex('counter3').select('*');
+
     try {
+        const [{ count }] = await knex('counter3').count<{ count: number }[]>('* as count');
+        var todaycount: number = count;
+
         const ip: string = String(req.headers['x-forwarded-for']);
 
-        dns.reverse(ip, (err, hostnames: string[]) => {
-            if (err) {
-                console.error("DNS reverse lookup error: ", err);
-            } else {
-                console.log("hostnames: ", hostnames);
-            }
-        });
-
-        if (typeof req.ip !== "string") {
+        if (typeof req.headers['x-forwarded-for'] !== "string") {
             throw new Error("Invalid type of IP");
         }
-        const iphost: string = req.ip;
+
+        var iphost: string = getHost(ip);
 
         const excephost = [
             "aterm.me",
@@ -63,16 +104,7 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
             .where('dtime', '>=', today.toISOString()).whereNot('ip', '').select();
         const ips = rows.map(row => row.ip);
 
-        let first = false;
         if (ips.length === 0) {
-            first = true;
-
-            const [{ count }] = await knex('counter3').count<{ count: number }[]>('* as count');
-
-            const d: number[] = disnum(count + 1);
-
-            res.locals.count_array = d;
-
             if (excephostcheck) {
                 if (excephost.includes(iphost)) {
                     await knex('counter3').insert({
@@ -84,6 +116,7 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
                         ip: iphost,
                     });
                 } else {
+                    todaycount = count + 1;
                     await knex('counter3').insert({
                         loadcount: 1,
                         ipcount: 1,
@@ -95,6 +128,9 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
                 }
             }
         }
+
+        const todaycountArray: number[] = disnum(todaycount);
+        res.locals.count_array = todaycountArray;
     } catch (error) {
         console.error(error);
         res.status(500).send('Server failed to calc your access count');
