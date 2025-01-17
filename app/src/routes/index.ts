@@ -1,10 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import knex from '../db/knex';
+import basepath from '../utils/basepath';
 import signupRouter from './signup';
 import signinRouter from './signin';
 import logoutRouter from './logout';
 import authRouter from './auth';
-import basepath from '../utils/basepath';
+import counterRouter from './counter';
+import devRouter from './dev';
 
 const router: express.Router = express.Router();
 
@@ -68,5 +70,7 @@ router.use('/signup', signupRouter);
 router.use('/signin', signinRouter);
 router.use('/logout', logoutRouter);
 router.use('/auth', authRouter);
+router.use('/counter', counterRouter);
+router.use('/dev', devRouter);
 
 export { router as indexRouter };
