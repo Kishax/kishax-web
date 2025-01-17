@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build:client": "webpack",
-
     "build:app": "tsc",
     "start:app:dev": "cross-env NODE_ENV=development PORT=3001 nodemon",
     "start:app:prod": "cross-env NODE_ENV=production PROXY_REVERSE_PASS=/dev nodemon",
@@ -44,6 +43,8 @@
     "xmldom": "^0.6.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "@types/bcrypt": "^5.0.2",
     "@types/connect-flash": "^0.0.40",
     "@types/cookie-parser": "^1.4.8",
@@ -68,6 +69,7 @@
     "@types/serve-favicon": "^2.5.7",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
+    "babel-loader": "^9.2.1",
     "body-parser": "^1.20.3",
     "cheerio": "^1.0.0",
     "cjs-loader": "^0.1.0",
