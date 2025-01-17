@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "commonjs",
+    "module": "CommonJS",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -10,6 +10,6 @@
     "typeRoots": ["node_modules/@types", "src/@types"],
     "noImplicitAny": false,
   },
-  "include": ["src/**/*", "src/@types"],
+  "include": ["src/**/*", "src/@types", "webpack.config.js"],
   "exclude": ["node_modules", "dist"]
 }
