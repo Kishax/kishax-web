@@ -8,7 +8,7 @@ Chart.register(...registerables);
  * @returns {Promise<any>}
  */
 async function fetchData(type) {
-    const response = await fetch(`http://localhost:3001/counter?type=${type}`);
+    const response = await fetch(`http://localhost:3001/api/counter?type=${type}`);
     const data = await response.json();
     return data;
 }

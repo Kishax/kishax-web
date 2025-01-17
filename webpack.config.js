@@ -11,7 +11,7 @@ const SRC_ROOT = path.join(__dirname, './src/client');
 const config = {
     context: SRC_ROOT,
     entry: {
-        counter: path.resolve(SRC_ROOT, 'counter.js'),
+        counter: path.resolve(SRC_ROOT, './api/counter.js'),
     },
     output: {
         filename: '[name].bundle.js',

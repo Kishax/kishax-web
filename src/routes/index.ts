@@ -5,8 +5,9 @@ import signupRouter from './signup';
 import signinRouter from './signin';
 import logoutRouter from './logout';
 import authRouter from './auth';
-import counterRouter from './counter';
 import devRouter from './dev';
+import apiRouter from './api';
+import counterRouter from './counter';
 
 const router: express.Router = express.Router();
 
@@ -70,7 +71,8 @@ router.use('/signup', signupRouter);
 router.use('/signin', signinRouter);
 router.use('/logout', logoutRouter);
 router.use('/auth', authRouter);
-router.use('/counter', counterRouter);
 router.use('/dev', devRouter);
+router.use('/api', apiRouter);
+router.use('/counter', counterRouter);
 
 export { router as indexRouter };
