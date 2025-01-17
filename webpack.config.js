@@ -1,6 +1,6 @@
-import nodeExternals from 'webpack-node-externals';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import TerserPlugin from 'terser-webpack-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,7 +13,6 @@ const config = {
     entry: {
         counter: path.resolve(SRC_ROOT, 'counter.js'),
     },
-    externals: [nodeExternals()],
     output: {
         filename: '[name].bundle.js',
         path: BUILD_ROOT,
@@ -23,9 +22,11 @@ const config = {
             {
                 test: /\.ts$/,
                 exclude: /node_modules/,
-                loader: 'ts-loader',
-                options: {
-                    configFile: 'tsconfig.json'
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
                 }
             }
         ]
@@ -36,6 +37,11 @@ const config = {
             '@': SRC_ROOT
         }
     },
+    optimization: {
+        minimizer: [new TerserPlugin({
+            extractComments: false,
+        })],
+      },
     mode: 'production',
 }
 
