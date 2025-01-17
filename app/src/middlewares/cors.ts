@@ -2,7 +2,7 @@ import cors from 'cors';
 
 const mycors = cors({
     origin: (origin, callback) => {
-        const allowedOrigins = [ 'http://localhost:3001' ];
+        const allowedOrigins = [ 'http://localhost:3001', null ];
 
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
