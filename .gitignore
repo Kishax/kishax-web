@@ -1,8 +1,8 @@
-test.txt
-test.ts
-app/src/public/images/avatar/default/*
-client.js
+*.bundle.js
+test.*
 test
+src/public/images/avatar/default/*
+client.js
 error
 # Quotes from https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
