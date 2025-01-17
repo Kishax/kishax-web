@@ -92,9 +92,11 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
             .where('dtime', '>=', today.toISOString()).whereNot('ip', '').select();
         const ips = rows.map(row => row.ip);
 
+        const isAdminHost: boolean = excephost.includes(iphost);
+
         if (ips.length === 0) {
             if (excephostcheck) {
-                if (excephost.includes(iphost)) {
+                if (isAdminHost) {
                     await knex('counter3').insert({
                         loadcount: 0,
                         ipcount: 0,
@@ -114,6 +116,26 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
                         ip: iphost,
                     });
                 }
+            }
+        } else {
+            if (isAdminHost) {
+                await knex('counter3').insert({
+                    loadcount: 0,
+                    ipcount: 0,
+                    adloadcount: 1,
+                    adipcount: 0,
+                    url: req.path,
+                    ip: iphost,
+                });
+            } else {
+                await knex('counter3').insert({
+                    loadcount: 1,
+                    ipcount: 0,
+                    adloadcount: 0,
+                    adipcount: 0,
+                    url: req.path,
+                    ip: iphost,
+                });
             }
         }
 
