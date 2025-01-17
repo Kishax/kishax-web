@@ -35,10 +35,10 @@ async function fetchData(type) {
 }
 
 const datanames = {
-    loadcount: { name: 'ロード数', color: 'rgba(255, 0, 0, 1)' },
-    ipcount: { name: '訪問者数', color: 'rgba(0, 0, 255, 1)' },
-    adipcount: { name: '訪問者数(管理者含む)', color: 'rgba(0, 255, 0, 1)' },
-    adloadcount: { name: 'ロード数(管理者含む)', color: 'rgba(255, 255, 0, 1)' },
+    loadcount: { name: 'ロード数', color: 'rgba(255, 0, 0, 1)', type: 'nonadmin' },
+    ipcount: { name: '訪問者数', color: 'rgba(0, 0, 255, 1)', type: 'common' },
+    adipcount: { name: '訪問者数(管理者含む)', color: 'rgba(0, 255, 0, 1)', type: 'admin' },
+    adloadcount: { name: 'ロード数(管理者含む)', color: 'rgba(255, 255, 0, 1)', type: 'admin' },
 };
 
 /** @type {Chart | null} */
