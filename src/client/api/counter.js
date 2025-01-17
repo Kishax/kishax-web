@@ -4,6 +4,27 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 /**
+ * @typedef {Object} MysqlRow
+ * @property {number} id
+ * @property {number} loadcount
+ * @property {number} ipcount
+ * @property {number} adloadcount
+ * @property {number} adipcount
+ * @property {string} url
+ * @property {number} ip
+ * @property {string} time
+ * @property {Date} dtime
+ */
+
+/**
+ * @typedef {Object} TotalCounts
+ * @property {number} loadcount
+ * @property {number} ipcount
+ * @property {number} adloadcount
+ * @property {number} adipcount
+ */
+
+/**
  * @param {string} type - year/month/day
  * @returns {Promise<any>}
  */
@@ -23,6 +44,14 @@ const datanames = {
 /** @type {Chart | null} */
 let chart;
 
+/** @type {TotalCounts} */
+const totalCounts = {
+    loadcount: 0,
+    ipcount: 0,
+    adloadcount: 0,
+    adipcount: 0
+};
+
 /**
  * @param {any} data
  */
@@ -39,16 +68,9 @@ function createChart(data) {
     }
     const labels = Object.keys(data);
 
-    let totalCounts = {
-        loadcount: 0,
-        ipcount: 0,
-        adloadcount: 0,
-        adipcount: 0
-    };
-
     const datasets = Object.keys(datanames).map((key, _) => {
         const values = labels.map(label => {
-            return data[label].map(item => {
+            return data[label].map(/** @type {MysqlRow} */item => {
                 let count = item[key];
                 totalCounts[key] += count;
                 return count;
