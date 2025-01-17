@@ -1,4 +1,4 @@
-import { format, startOfDay, subDays } from 'date-fns';
+import { format, subDays } from 'date-fns';
 
 export function categorizeData(rows: any[], type: string) {
     const categorizedData: any = {};
@@ -22,19 +22,16 @@ export function categorizeData(rows: any[], type: string) {
                 categorizedData[month].push(row);
             })
             break;
-        case 'week':
-            const today = startOfDay(new Date());
-            const last7Days = subDays(today, 7);
+        case 'last7days':
+            const last7Days = rows.slice(-7);
 
-            rows.forEach(row => {
+            last7Days.forEach(row => {
                 const date = new Date(row.dtime);
-                if (date >= last7Days && date <= today) {
-                    const day = format(date, 'yyyy-MM-dd');
-                    if (!categorizedData[day]) {
-                        categorizedData[day] = [];
-                    }
-                    categorizedData[day].push(row);
+                const last7days = format(date, 'yyyy-MM-dd');
+                if (!categorizedData[last7days]) {
+                    categorizedData[last7days] = [];
                 }
+                categorizedData[last7days].push(row);
             })
             break;
     }
