@@ -1,5 +1,7 @@
 // @ts-check
-import { Chart } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 /**
  * @param {string} type - year/month/day
