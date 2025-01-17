@@ -47,11 +47,13 @@ function createChart(data) {
     };
 
     const datasets = Object.keys(datanames).map((key, _) => {
-        const values = labels.map(label => data[label].map(item => {
-            let count = item[key];
-            totalCounts[key] += count;
-            return count;
-        }));
+        const values = labels.map(label => {
+            return data[label].map(item => {
+                let count = item[key];
+                totalCounts[key] += count;
+                return count;
+            });
+        }).flat();
 
         return {
             label: datanames[key]['name'],
