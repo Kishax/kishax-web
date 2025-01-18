@@ -30,17 +30,17 @@ function disnum(num: number): number[] {
     return b;
 }
 
-function getHost(ip: string): string {
-    dns.reverse(ip, (err, hostnames: string[]) => {
-        if (err) {
-            throw err;
-        } else {
-            console.log("hostnames: ", hostnames);
-            return hostnames[0];
-        }
+async function getHost(ip: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        dns.reverse(ip, (err, hostnames: string[]) => {
+            if (err) {
+                reject(err);
+            } else {
+                console.log("throughs hostnames: ", hostnames);
+                resolve(hostnames[0]);
+            }
+        });
     });
-
-    return ip;
 }
 
 const counter = async (req: Request, res: Response, next: NextFunction) => {
@@ -49,25 +49,29 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
         return;
     }
 
-    // グラフの計算をここでやっといて、その日の新規が来たとき、
-    // 計算結果に足せばいい
-    // ここは別に/counterにアクセスがあったときに計算してもいいかも
-    //const rows = await knex('counter3').select('*');
-
     try {
         const [{ count }] = await knex('counter3').count<{ count: number }[]>('* as count');
         var todaycount: number = count;
 
-        const ip: string = String(req.headers['x-forwarded-for']);
+        var ip: string;
 
-        if (typeof req.headers['x-forwarded-for'] !== "string") {
-            throw new Error("Invalid type of IP");
+        if (process.env.NODE_ENV === "development") {
+            if (!req.ip) {
+                throw new Error("Invalid type of req.ip");
+            }
+            ip = req.ip;
+        } else {
+            if (typeof req.headers['x-forwarded-for'] !== "string") {
+                throw new Error("Invalid type of IP");
+            }
+            ip = String(req.headers['x-forwarded-for'])
         }
 
-        var iphost: string = getHost(ip);
+        var iphost: string = await getHost(ip);
 
         const excephost = [
             "aterm.me",
+            "ip6-loopback"
         ];
 
         const excephostkeyRows = await knex('hostnotcount').select('host');
