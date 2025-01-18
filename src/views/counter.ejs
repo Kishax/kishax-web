@@ -2,13 +2,16 @@
 <html>
 <head>
     <title>FMC Visiter Graph</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="<%= rootpath %>/stylesheets/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="<%= rootpath %>/javascripts/counter.bundle.js" defer></script>
 </head>
 <body>
-    <div id="access"></div>
-    <div id="todayloadcount"></div>
-    <div id="todayipcount"></div>
+    <div id="ipcount"></div>
+    <div id="loadcount"></div>
+    <div id="adipcount"></div>
+    <div id="adloadcount"></div>
     <button id="toggleAdcount">管理者を含める</button>
     <canvas id="myChart"></canvas>
 </body>
