@@ -1,6 +1,5 @@
 // @ts-check
 import { Chart, registerables } from 'chart.js';
-// import { disnum } from '../../middlewares/counter';
 
 Chart.register(...registerables);
 
