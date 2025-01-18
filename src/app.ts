@@ -14,6 +14,7 @@ import preErrorHandler from './middlewares/pre-error-handler';
 import csrfProtection from './middlewares/csurf';
 import mycors from './middlewares/cors';
 import errorHandler from './middlewares/error-handler';
+import counter from './middlewares/counter';
 
 const app = express();
 
@@ -42,6 +43,8 @@ app.use(passport.session());
 app.use(csrfProtection);
 
 app.use(localvals);
+
+app.use(counter);
 
 app.use(preErrorHandler);
 
