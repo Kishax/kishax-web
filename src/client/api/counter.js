@@ -43,6 +43,19 @@ const DataType = {
  */
 
 /**
+ * @typedef {Object} CountFlag
+ * @property {boolean} loadcount
+ * @property {boolean} ipcount
+ * @property {boolean} adloadcount
+ * @property {boolean} adipcount
+ */
+
+/** @typedef {'year' | 'month' | 'last7days'} TimeType */
+
+/** @type {{ [key in TimeType]: string }} */
+const timenames = { 'year': '年間のグラフ', 'month': '月間のグラフ', 'last7days': '過去7日間のグラフ' };
+
+/**
  * @param {string} type - year/month/day
  * @returns {Promise<any>}
  */
@@ -71,10 +84,19 @@ var totalCounts = {
     adipcount: 0
 };
 
+/** @type {CountFlag} */
+let countFlags = {
+    loadcount: false,
+    ipcount: false,
+    adloadcount: false,
+    adipcount: false
+};
+
 /**
+ * @param {TimeType} type
  * @param {any} data
  */
-function createChart(data) {
+function createChart(type, data) {
     const canvas = /** @type {HTMLCanvasElement | null} */ (document.getElementById('myChart'));
     if (!canvas) {
         console.error('Canvas element not found');
@@ -105,8 +127,6 @@ function createChart(data) {
         };
     });
 
-    console.log('totalCounts:', totalCounts);
-
     chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -121,15 +141,31 @@ function createChart(data) {
                 }
             },
             plugins: {
+                title: {
+                    display: true,
+                    text: timenames[type]
+                },
                 legend: {
                     onClick: function(e, legendItem) {
-                        console.log('plugins.block!');
                         const index = legendItem.datasetIndex;
                         const ci = this.chart;
-                        if (index) {
+                        if (index !== undefined) {
                             const meta = ci.getDatasetMeta(index);
+
+                            if (meta.hidden === null || meta.hidden === undefined) {
+                                meta.hidden = !ci.data.datasets[index].hidden;
+                            } else {
+                                meta.hidden = !meta.hidden;
+                            }
+                            ci.update();
+                        } else {
+                            console.error('Index is undefined');
                         }
-                        console.log(`グラフの見出し: ${legendItem.text} がクリックされました。`)
+
+                        const matchingKey = Object.entries(datanames).find(([key, value]) => value.name === legendItem.text)?.[0];
+                        if (matchingKey) {
+                            countFlags[matchingKey] = !countFlags[matchingKey];
+                        }
                     }
                 }
             }
@@ -149,51 +185,119 @@ function toggleDataset(...keys) {
         return;
     }
 
-    const currentChart = /** @type {Chart} */ (chart);
+    //var currentChart = /** @type {Chart} */ (chart);
     keys.forEach(key => {
         if (key in datanames) {
-            const dataset = currentChart.data.datasets.find(ds => ds.label === datanames[key]['name']);
+            const dataset = (/** @type {Chart} */ (chart)).data.datasets.find(ds => ds.label === datanames[key]['name']);
             if (dataset) {
                 if (!isAdminView) {
-                    // 含めるPUSH
-                    if (dataset.hidden) {
-                        dataset.hidden = !dataset.hidden;
-                    }
-                    const buttonDiv = document.getElementById('toggleAdcount');
-                    if (buttonDiv) {
-                        buttonDiv.textContent = '';
-                        const newText = document.createTextNode('管理者を除外する');
-                        buttonDiv.appendChild(newText);
+                    // include setting
+                    if (!countFlags[key]) {
+                        dataset.hidden = false;
+                        countFlags[key] = !countFlags[key];
+                    } else {
+                        // dataset.hidden = true;
                     }
                 } else {
-                    // 省くPUSH
-                    if (!dataset.hidden) {
-                        dataset.hidden = !dataset.hidden;
-                    }
-                    const buttonDiv = document.getElementById('toggleAdcount');
-                    if (buttonDiv) {
-                        buttonDiv.textContent = '';
-                        const newText = document.createTextNode('管理者を含める');
-                        buttonDiv.appendChild(newText);
+                    // exclude setting
+                    if (countFlags[key]) {
+                        dataset.hidden = true;
+                        countFlags[key] = !countFlags[key];
+                    } else {
+                        // dataset.hidden = false;
                     }
                 }
-                isAdminView = !isAdminView;
-            } else {
-                console.error(`Dataset not found: ${key}`);
             }
+        } else {
+            console.error('not key in datanames');
         }
     });
     chart.update();
+    isAdminView = !isAdminView;
 }
 
-document.getElementById('toggleAdcount')?.addEventListener('click', () => toggleDataset('adloadcount', 'adipcount'));
-
 const urlParams = new URLSearchParams(window.location.search);
-const type = urlParams.get('type') || 'month';
+const getType = urlParams.get('type');
+
+/**
+ * @param {string | null} value
+ * @returns {value is TimeType}
+ */
+function isValidTimeType(value) {
+    if (value === null) {
+        return false;
+    }
+    return ['year', 'month', 'last7days'].includes(value);
+}
+
+if (!isValidTimeType(getType)) {
+    throw new Error("Wrong get query!");
+}
+
+/** @type {TimeType} */
+const type = getType || 'month';
+
+/** @param {...string} labels */
+function hideShowElement(...labels) {
+    labels.forEach(label => {
+        const labelDiv = document.getElementById(label);
+        if (labelDiv) {
+            if (labelDiv.style.display === "none") {
+                labelDiv.style.display = '';
+                labelDiv.style.display = "block";
+            } else {
+                labelDiv.style.display = "none";
+            }
+        }
+    });
+}
+
+/** @param {TimeType} targetType */
+function updateGetButton(targetType) {
+    Object.keys(timenames).forEach(timename => {
+        if (timename === targetType) {
+            hideShowElement(timename);
+        } else {
+            let elmDiv = document.getElementById(timename);
+            if (elmDiv) {
+                const text = document.createTextNode(timenames[timename]);
+                elmDiv?.appendChild(text);
+                elmDiv.addEventListener('click', () => {
+                    window.location.href = `?type=${timename}`;
+                });
+            }
+        }
+    });
+}
+
+/** @param {string} label */
+function updateButtonLabel(label) {
+    const buttonDiv = document.getElementById('toggleAdcount');
+    if (buttonDiv) {
+        buttonDiv.textContent = '';
+        const newText = document.createTextNode(label);
+        buttonDiv.appendChild(newText);
+    }
+}
+
+updateGetButton(type);
+updateButtonLabel('管理者を含める');
+hideShowElement('adipcount', 'adloadcount');
+
+document.getElementById('toggleAdcount')?.addEventListener('click', () => {
+    toggleDataset('adloadcount', 'adipcount');
+    updateButtonLabel(isAdminView ? '管理者を除外する' : '管理者を含める');
+    hideShowElement('adipcount', 'adloadcount', 'br', 'ipcount', 'loadcount');
+});
 
 fetchData(type).then(data => {
-    createChart(data);
+    createChart(type, data);
     const ids = [ 'ipcount', 'loadcount', 'adipcount', 'adloadcount' ];
+
+    const br = document.createElement('br');
+
+    const brDiv = document.getElementById('br');
+    brDiv?.appendChild(br);
 
     ids.forEach(id => {
         /** @type {number} */
@@ -203,12 +307,16 @@ fetchData(type).then(data => {
             elm.className = 'count-num';
 
             elm.textContent = '';
-            const text = document.createTextNode(datanames[id]['sumname'] + ': ' + countnum.toString());
-            const br = document.createElement('br');
+            var text;
+            if (['adloadcount', 'adipcount'].includes(id)) {
+                const notAdcountName = id.slice(2);
+                const notAdcountnum = totalCounts[notAdcountName];
+                const adcountnum = countnum - notAdcountnum;
+                text = document.createTextNode(`${datanames[notAdcountName]['sumname']}: ${notAdcountnum} + ${adcountnum} = ${countnum}`);
+            } else {
+                text = document.createTextNode(datanames[id]['sumname'] + ': ' + countnum.toString());
+            }
             elm.appendChild(text);
-            elm.appendChild(br);
-        } else {
-            console.error('elm nothing!');
         }
     });
 }).catch(error => console.error('Error fetching data:', error));

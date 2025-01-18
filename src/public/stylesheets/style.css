@@ -246,3 +246,8 @@ form > label {
 .simple-flex {
     display: flex;
 }
+
+.gap-flex {
+    display: flex;
+    gap: 20px 10px;
+}
