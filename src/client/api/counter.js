@@ -216,7 +216,7 @@ function toggleDataset(...keys) {
 }
 
 const urlParams = new URLSearchParams(window.location.search);
-const getType = urlParams.get('type');
+const getType = urlParams.get('type') || 'month';
 
 /**
  * @param {string | null} value
