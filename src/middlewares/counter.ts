@@ -88,17 +88,12 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const startTime = Date.now();
         const rows: any = await knex('counter3')
             .where('dtime', '>=', today)
             .whereNot('ip', '')
             .select('*');
 
         const ips = rows.map(row => row.ip);
-        const queryDuration = Date.now() - startTime;
-
-        console.log(`Database query took ${queryDuration} ms`);
-        console.log(`取得された行: ${rows.length}`);
 
 
         const last = await knex('counter3').orderBy('id', 'desc').first();
