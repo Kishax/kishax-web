@@ -18,21 +18,14 @@ export async function getLastEntriesEachDay() {
     return rows;
 }
 
-function disnum(num: number): number[] {
-    const b: number[] = [];
-
-    while (num > 0) {
-        const digit = num % 10;
-        b.unshift(digit);
-        num = Math.floor(num / 10);
-    }
-
-    return b;
-}
-
 async function getHost(ip: string): Promise<string> {
     return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error("DNS lookup timed out"));
+        }, 5000);
+
         dns.reverse(ip, (err, hostnames: string[]) => {
+            clearTimeout(timeout);
             if (err) {
                 reject(err);
             } else {
@@ -59,20 +52,23 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
             if (!req.ip) {
                 throw new Error("Invalid type of req.ip");
             }
-            ip = req.ip;
+            ip = req.ip ?? '0.0.0.0';
         } else {
             if (typeof req.headers['x-forwarded-for'] !== "string") {
                 throw new Error("Invalid type of IP");
             }
-            ip = String(req.headers['x-forwarded-for'])
+            ip = req.headers['x-forwarded-for'] as string;
         }
 
-        var iphost: string = await getHost(ip);
+        let iphost: string;
+        try {
+            iphost = await getHost(ip);
+        } catch (error) {
+            console.error('Failed to resolve hostname:', error);
+            iphost = ip;
+        }
 
-        const excephost = [
-            "aterm.me",
-            "ip6-loopback"
-        ];
+        const excephost = [ "aterm.me", "ip6-loopback" ];
 
         const excephostkeyRows = await knex('hostnotcount').select('host');
         const excephostkeys = excephostkeyRows.map(row => row.host);
@@ -92,59 +88,73 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const rows = await knex('counter3')
-            .where('dtime', '>=', today.toISOString()).whereNot('ip', '').select();
+        const startTime = Date.now();
+        const rows: any = await knex('counter3')
+            .where('dtime', '>=', today)
+            .whereNot('ip', '')
+            .select('*');
+
         const ips = rows.map(row => row.ip);
+        const queryDuration = Date.now() - startTime;
+
+        console.log(`Database query took ${queryDuration} ms`);
+        console.log(`取得された行: ${rows.length}`);
+
+
+        const last = await knex('counter3').orderBy('id', 'desc').first();
 
         const isAdminHost: boolean = excephost.includes(iphost);
+        const formattedDate = `${today.getFullYear() % 100}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
 
         if (ips.length === 0) {
             if (excephostcheck) {
                 if (isAdminHost) {
                     await knex('counter3').insert({
-                        loadcount: 0,
-                        ipcount: 0,
-                        adloadcount: 1,
-                        adipcount: 1,
+                        loadcount: last.loadcount,
+                        ipcount: last.ipcount,
+                        adloadcount: last.adloadcount + 1,
+                        adipcount: last.adipcount + 1,
                         url: req.path,
                         ip: iphost,
+                        time: formattedDate,
                     });
                 } else {
                     todaycount = count + 1;
                     await knex('counter3').insert({
-                        loadcount: 1,
-                        ipcount: 1,
-                        adloadcount: 0,
-                        adipcount: 0,
+                        loadcount: last.loadcount + 1,
+                        ipcount: last.ipcount + 1,
+                        adloadcount: last.adloadcount,
+                        adipcount: last.adipcount,
                         url: req.path,
                         ip: iphost,
+                        time: formattedDate,
                     });
                 }
             }
+        } else if (isAdminHost) {
+            await knex('counter3').insert({
+                loadcount: last.loadcount,
+                ipcount: last.ipcount,
+                adloadcount: last.adloadcount + 1,
+                adipcount: last.adipcount,
+                url: req.path,
+                ip: iphost,
+                time: formattedDate,
+            });
         } else {
-            if (isAdminHost) {
-                await knex('counter3').insert({
-                    loadcount: 0,
-                    ipcount: 0,
-                    adloadcount: 1,
-                    adipcount: 0,
-                    url: req.path,
-                    ip: iphost,
-                });
-            } else {
-                await knex('counter3').insert({
-                    loadcount: 1,
-                    ipcount: 0,
-                    adloadcount: 0,
-                    adipcount: 0,
-                    url: req.path,
-                    ip: iphost,
-                });
-            }
+            await knex('counter3').insert({
+                loadcount: last.loadcount + 1,
+                ipcount: last.ipcount,
+                adloadcount: last.adloadcount,
+                adipcount: last.adipcount,
+                url: req.path,
+                ip: iphost,
+                time: formattedDate,
+            });
         }
 
-        const todaycountArray: number[] = disnum(todaycount);
-        res.locals.count_array = todaycountArray;
+        res.locals.today_count = todaycount;
+        next();
     } catch (error) {
         console.error(error);
         res.status(500).send('Server failed to calc your access count');
