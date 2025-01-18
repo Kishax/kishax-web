@@ -14,6 +14,11 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'trs_million';
+    src: url('../fonts/trs-million/trs-million.regular.otf') format('opentype');
+}
+
 body {
     padding: 50px;
     letter-spacing: 5px;
@@ -54,6 +59,10 @@ body {
 
 .misaki_gothic {
     font-family: 'misaki_gothic_2nd' !important;
+}
+
+.count-num {
+    font-family: trs_million;
 }
 
 h1,
