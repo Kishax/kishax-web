@@ -251,3 +251,14 @@ form > label {
     display: flex;
     gap: 20px 10px;
 }
+
+.justify-flex {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.column-flex {
+    display:flex;
+    flex-flow: column;
+}

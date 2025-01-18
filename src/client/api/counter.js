@@ -303,7 +303,7 @@ fetchData(type).then(data => {
         let countnum = totalCounts[id];
         let elm = document.getElementById(id);
         if (elm) {
-            elm.className = 'count-num';
+            elm.classList.add('count-num', 'font1-5');
 
             elm.textContent = '';
             var text;
