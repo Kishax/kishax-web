@@ -12,6 +12,19 @@ const router: express.Router = express.Router();
 
 setupAuthRoutes(router, [ 'google', 'x', 'discord' ]);
 
+router.get('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
+    if (req.isAuthenticated()) {
+        //
+    } else {
+        res.render('auth/verify-form', { title: 'password setting', auth_path: '/set-email', label: 'メールアドレス', input_name: 'email', });
+    }
+});
+
+router.post('/reset-password', async ( req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    // require validation
+});
+
 router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
     if (!req.payload) {
         res.status(400).send('Invalid Payload');
@@ -47,6 +60,7 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
     }
 
     const { email } = req.body;
+    // require validation
 
     const oldtoken: string = await getToken(req.payload);
 
