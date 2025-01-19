@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
+import { z } from 'zod';
 import '../config';
 import basepath from '../utils/basepath';
 import knex from '../db/knex';
@@ -11,6 +12,8 @@ import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
 const router: express.Router = express.Router();
 
 setupAuthRoutes(router, [ 'google', 'x', 'discord' ]);
+
+const emailSchema = z.string().email();
 
 router.get('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
     if (req.isAuthenticated()) {
@@ -27,7 +30,7 @@ router.post('/reset-password', async ( req: Request, res: Response, next: NextFu
 
 router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
     if (!req.payload) {
-        res.status(400).send('Invalid Payload');
+        res.status(400).send('Invalid Access');
         return;
     }
 
@@ -50,13 +53,17 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
     }
 
     const token = req.query.token;
+    if (!token) {
+        res.status(400).send('Invalid Access');
+        return;
+    }
     res.render('auth/verify-form', { token, title: 'email setting', auth_path: '/set-email', label: 'メールアドレス', input_name: 'email', });
 });
 
 router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request, res: Response) => {
     if (!req.payload) {
-        res.status(400).send('Invalid Payload');
-        throw new Error('Invalid Access.');
+        res.status(400).send('Invalid Access');
+        throw new Error('Invalid Access');
     }
 
     const { email } = req.body;
@@ -67,7 +74,7 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
     const newPayload: JwtPayload = { id: req.payload.id, name: req.payload.name, email };
     const newtoken = await generateToken(req.payload, false, newPayload);
 
-    const redirectUrl: string =  `${basepath.rooturl}auth/set-email?token=${oldtoken}&token2=${newtoken}`;
+    const redirectUrl: string = `${basepath.rooturl}auth/set-email?token=${oldtoken}&token2=${newtoken}`;
 
     const send = await sendVertificationEmail(email, redirectUrl);
     if (send) {
@@ -79,7 +86,7 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
 
 router.get('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request, res: Response) => {
     if (!req.payload) {
-        res.status(400).send('Invalid Payload');
+        res.status(400).send('Invalid Access');
         return;
     }
 
@@ -90,7 +97,7 @@ router.get('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request,
 
 router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.payload) {
-        res.status(400).send('Invalid Payload');
+        res.status(400).send('Invalid Access');
         return;
     }
 
@@ -99,7 +106,7 @@ router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request
     try {
         const isValid = await knex('users').where({ id: req.payload.id, name: req.payload.name, otp }).first();
         if (!isValid) {
-            res.status(400).send('Invalid OTP');
+            res.status(400).send('Invalid Access');
             return;
         }
 
@@ -109,7 +116,7 @@ router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request
 
         loginRedirect(req, res, next, user, { 'successMessage': [ 'OTP setting done successfully' ] });
     } catch (error) {
-        res.status(500).send('Error verifying OTP.');
+        res.status(500).send('Invalid Access');
     }
 });
 
