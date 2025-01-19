@@ -14,3 +14,9 @@ export const defineFlashMessages = (req: Request, res: Response, type: FlashLoca
 
     res.locals[type] = flashMessages;
 };
+
+export const redefineFlashMessages = ((req: Request, params: { [key: string]: any }) => {
+    for (const [key, value] of Object.entries(params)) {
+        req.flash(key.toLowerCase(), value);
+    }
+});
