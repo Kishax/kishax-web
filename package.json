@@ -40,7 +40,8 @@
     "sequelize": "^6.37.5",
     "serve-favicon": "^2.5.0",
     "sqlite3": "^5.1.7",
-    "xmldom": "^0.6.0"
+    "xmldom": "^0.6.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
