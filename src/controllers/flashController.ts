@@ -1,32 +1,47 @@
 import { Request, Response } from 'express';
 import { FlashLocalVal, FlashParams, FlashLocalPath, FlashRequire } from '../@types/flashType';
 
-export const defineFlashMessages = (req: Request, res: Response, path: FlashLocalPath, params: FlashParams) => {
+export const saveSession = (req: Request): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        req.session.save((err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
+export const defineFlashMessages = (req: Request, res: Response, params: FlashParams, path: FlashLocalPath = FlashLocalPath.NON_PATH) => {
     const flashMessages: { [key: string]: any } = {};
 
+    const lastflash = req.flash();
+
     for (const [key, value] of Object.entries(params)) {
+        const flashValue = lastflash[key] && Array.isArray(lastflash[key]) ? lastflash[key] : undefined;
         if (value === FlashLocalVal.DEFAULT_EMPTY) {
-            flashMessages[key] = req.flash(key)[0] || '';
+            flashMessages[key] = flashValue || '';
         } else if (value === FlashLocalVal.DEFAULT_UNDEFINED) {
-            flashMessages[key] = req.flash(key)[0] || undefined;
+            flashMessages[key] = flashValue || undefined;
         } else if (value as any) {
-            flashMessages[key] = req.flash(key)[0] || value;
+            flashMessages[key] = value;
             req.flash(key, value);
         }
     }
 
-    if (path !== FlashLocalPath.MIDDLES) {
-        res.locals[path] = flashMessages;
-    } else {
+    if (path === FlashLocalPath.NON_PATH) {
         for (const [key, value] of Object.entries(flashMessages)) {
             res.locals[key] = value;
         }
+    } else {
+        res.locals[path] = flashMessages;
     }
 };
 
 export const redefineFlashMessages = ((req: Request, params: { [key: string]: any }) => {
     for (const [key, value] of Object.entries(params)) {
-        req.flash(key.toLowerCase(), value);
+        req.flash(key, value);
     }
 });
 
@@ -35,5 +50,12 @@ export const defineMiddleFlashMessages = (req: Request, res: Response, paramKeys
         acc[key] = FlashLocalVal.DEFAULT_UNDEFINED;
         return acc;
     }, {} as { [key: string]: FlashRequire });
-    defineFlashMessages(req, res, FlashLocalPath.MIDDLES, formatParams);
+
+    defineFlashMessages(req, res, formatParams);
+};
+
+export const redefine = (req: Request, flashMessages) => {
+    for (const key in flashMessages) {
+        req.flash(key, flashMessages[key]);
+    }
 };
