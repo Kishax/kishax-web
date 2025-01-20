@@ -163,18 +163,18 @@ passport.use(new LocalStrategy({
     try {
         const user = await knex('users').where({ name: username }).first();
         if (!user) {
-            return done(null, false, { message: 'Invalid username or password' });
+            return done(null, false, { message: 'Authentication failed', errorMessage: [ 'Invalid username or password' ] });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return done(null, false, { message: 'Invalid username or password' });
+            return done(null, false, { message: 'Authentication failed', errorMessage: [ 'Invalid username or password' ] });
         }
 
         const token = await generateToken(user, true);
         if (!user.email) {
             const redirectUrl = `${basepath.rooturl}auth/set-email?token=${token}`;
-            return done(null, false, { message: 'Email not set', redirectUrl } as IVerifyOptions);
+            return done(null, false, { message: 'This is Default: Email not set', redirectUrl } as IVerifyOptions);
         }
 
         const otp = generateOTP();
@@ -183,7 +183,7 @@ passport.use(new LocalStrategy({
 
         const redirectUrl: string = `${basepath.rooturl}auth/verify-otp?token=${token}`;
 
-        return done(null, false, { message: 'Email not set', redirectUrl } as IVerifyOptions);
+        return done(null, false, { successMessage: [ 'Enter onetime password' ], redirectUrl } as IVerifyOptions);
     } catch (err) {
         console.error('Error in LocalStrategy: ', err);
         return done(err);

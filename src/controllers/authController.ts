@@ -3,6 +3,7 @@ import passport from 'passport';
 import '../config';
 import basepath from '../utils/basepath';
 import { requireNonLogin } from '../middlewares/checker';
+import { defineFlashMessages, saveSession } from '../controllers/flashController';
 
 export function setupAuthRoutes(router: express.Router, authtypes: string[]) {
     authtypes.forEach(authtype => {
@@ -12,7 +13,7 @@ export function setupAuthRoutes(router: express.Router, authtypes: string[]) {
 }
 
 export const commonAuth = (authtype: string) => (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate(authtype, (err, user, info) => {
+    passport.authenticate(authtype, async (err, user, info) => {
         if (err) {
             return next(err);
         }
@@ -20,10 +21,18 @@ export const commonAuth = (authtype: string) => (req: Request, res: Response, ne
         const authlocal: boolean = authtype === 'local';
 
         if (!user) {
+            defineFlashMessages(req, res, {
+                errorMessage: info.errorMessage || undefined,
+                successMessage: info.successMessage || undefined,
+            });
+
+            await saveSession(req);
+
             if (authlocal && info && info.redirectUrl) {
                 return res.redirect(info.redirectUrl);
             }
-            return res.status(401).send(info.message || 'Authentication failed')
+
+            return res.render('signin', { title: 'Sign in' });
         }
 
         const data = { successMessage: [ (!authlocal ? authtype : 'default') + ' login successfully!' ] };
