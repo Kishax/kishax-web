@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 import { z } from 'zod';
-import flash from 'connect-flash';
 import '../config';
 import basepath from '../utils/basepath';
 import knex from '../db/knex';
@@ -10,7 +9,7 @@ import { sendVertificationEmail } from '../controllers/emailController';
 import { requireNonLogin } from '../middlewares/checker';
 import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
 import { defineFlashMessages, redefineFlashMessages } from '../controllers/flashController';
-import { FlashLocalPath, FlashParams, FlashLocalVal } from '../@types/flashType';
+import { FlashLocalPath, FlashParams } from '../@types/flashType';
 
 const router: express.Router = express.Router();
 
@@ -78,15 +77,13 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
     }
 
     const { email } = req.body;
-    // require validation
     try {
         emailSchema.parse(email);
     } catch (e) {
-        const flashParams = {
+        redefineFlashMessages(req, {
             errorMessage: [ 'Invalid email pattern!' ],
-        }
+        });
 
-        redefineFlashMessages(req, flashParams);
         res.redirect(req.originalUrl);
         return;
     }
