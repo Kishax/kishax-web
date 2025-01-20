@@ -10,10 +10,9 @@
     <body>
         <%- include('./include/header'); %>
 
-        <%- include('./include/message'); %>
-
         <% if (isAuth) { %>
             <div class="container">
+                <%- include('./include/message'); %>
                 <div class="row">
                     <div class="col-md-6">
                         <form action="<%= rootpath %>/" method="post">
@@ -33,8 +32,9 @@
                 </div>
             </div>
         <% } else { %>
-            <h1>ようこそ、<%= application_name %>へ！</h1>
             <div class="center">
+                <%- include('./include/message'); %>
+                <h1>ようこそ、<%= application_name %>へ！</h1>
                 <a class="btn btn-primary" href="<%= rootpath %>/signup" role="button">サインアップはこちら</a>
             </div>
         <% } %>

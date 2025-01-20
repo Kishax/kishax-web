@@ -11,9 +11,8 @@
     <body>
         <%- include('./include/header'); %>
 
-        <%- include('./include/message'); %>
-
         <div class="center">
+            <%- include('./include/message'); %>
             <h1>現在リダイレクト中です...</h1>
             <div class="font0-75">
                 (しばらく待ってもリダイレクトされない場合は<a class="under" href="<% if (typeof redirect_url !== 'undefined') { %><%= redirect_url %><% } %>">ココ</a>をクリックしてください。)
