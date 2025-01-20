@@ -5,7 +5,7 @@ const TABLE_NAME: string = "users";
 async function findById(userId: number) {
     const user = await where({ id: userId });
     if (user == null) {
-        throw new Error('User not found');
+        throw new Error('This user is maybe deleted');
     }
     return { ...user };
 }
