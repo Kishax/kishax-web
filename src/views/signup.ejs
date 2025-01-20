@@ -11,9 +11,8 @@
     <body>
         <%- include('./include/header'); %>
 
-        <%- include('./include/message'); %>
-
         <div class="container">
+            <%- include('./include/message'); %>
             <div class="wrapper">
                 <div>
                     <a href="<%= rootpath %>/auth/discord"><img class="auth-logo" src="<%= rootpath %>/images/svg/logo/discord/icon_clyde_blurple_RGB.svg"></a>
@@ -34,7 +33,7 @@
                 <input required type="password" name="password"/>
                 <br>
                 <label>パスワード再入力</label>
-                <input required type="text" name="repassword"/>
+                <input required type="password" name="repassword"/>
                 <br><br>
                 <input class="btn btn-primary" type="submit" value="サインアップ"/>
             </form>
