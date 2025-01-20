@@ -32,6 +32,12 @@ This repository includes the logos of Discord, X, and Google. The use of each lo
    - The logo is for non-commercial use only.
    - For inquiries or permissions regarding logo usage, please contact the official Google team.
 
+4. **GitHub Logo**:
+   - Follow the official branding guidelines (https://github.com/logos).
+   - Do not edit, alter, distort, recolor, or reconfigure the logo.
+   - The logo is for non-commercial use only.
+   - For inquiries or permissions regarding logo usage, please contact the official GitHub team.
+
 For the usage of each logo, please refer to the above guidelines.
 
 ---
