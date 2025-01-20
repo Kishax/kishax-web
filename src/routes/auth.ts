@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 import { z } from 'zod';
+import flash from 'connect-flash';
 import '../config';
 import basepath from '../utils/basepath';
 import knex from '../db/knex';
@@ -8,6 +9,8 @@ import authenticateJWT, { generateToken, getToken } from '../middlewares/jwt';
 import { sendVertificationEmail } from '../controllers/emailController';
 import { requireNonLogin } from '../middlewares/checker';
 import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
+import { defineFlashMessages, redefineFlashMessages } from '../controllers/flashController';
+import { FlashLocalPath, FlashParams, FlashLocalVal } from '../@types/flashType';
 
 const router: express.Router = express.Router();
 
@@ -57,7 +60,15 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
         res.status(400).send('Invalid Access');
         return;
     }
-    res.render('auth/verify-form', { token, title: 'email setting', auth_path: '/set-email', label: 'メールアドレス', input_name: 'email', });
+    const params: FlashParams = {
+        token,
+        title: 'email setting',
+        form_action_path: '/set-email',
+        label: 'メールアドレス',
+        input_name: 'email',
+    };
+    defineFlashMessages(req, res, FlashLocalPath.AUTH, params);
+    res.render('auth/verify-form');
 });
 
 router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request, res: Response) => {
@@ -68,6 +79,17 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
 
     const { email } = req.body;
     // require validation
+    try {
+        emailSchema.parse(email);
+    } catch (e) {
+        const flashParams = {
+            errorMessage: [ 'Invalid email pattern!' ],
+        }
+
+        redefineFlashMessages(req, flashParams);
+        res.redirect(req.originalUrl);
+        return;
+    }
 
     const oldtoken: string = await getToken(req.payload);
 
@@ -92,7 +114,15 @@ router.get('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request,
 
     const token = req.query.token;
 
-    res.render('auth/verify-form', { token, title: 'otp confirm', auth_path: '/verify-otp', label: 'ワンタイムパスワード', input_name: 'otp', });
+    const params: FlashParams = {
+        token,
+        title: 'otp confirm',
+        form_action_path: '/verify-otp',
+        label: 'ワンタイムパスワード',
+        input_name: 'otp',
+    };
+    defineFlashMessages(req, res, FlashLocalPath.AUTH, params);
+    res.render('auth/verify-form');
 });
 
 router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
