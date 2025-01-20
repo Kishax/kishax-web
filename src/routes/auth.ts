@@ -8,8 +8,8 @@ import authenticateJWT, { generateToken, getToken } from '../middlewares/jwt';
 import { sendVertificationEmail } from '../controllers/emailController';
 import { requireNonLogin } from '../middlewares/checker';
 import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
-import { defineFlashMessages, redefineFlashMessages } from '../controllers/flashController';
-import { FlashLocalPath, FlashParams } from '../@types/flashType';
+import { defineFlashMessages, redefineFlashMessages, saveSession } from '../controllers/flashController';
+import { FlashParams } from '../@types/flashType';
 
 const router: express.Router = express.Router();
 
@@ -59,6 +59,7 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
         res.status(400).send('Invalid Access');
         return;
     }
+
     const params: FlashParams = {
         token,
         title: 'email setting',
@@ -66,7 +67,10 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
         label: 'メールアドレス',
         input_name: 'email',
     };
-    defineFlashMessages(req, res, FlashLocalPath.AUTH, params);
+
+    defineFlashMessages(req, res, params);
+
+    await saveSession(req);
     res.render('auth/verify-form');
 });
 
@@ -76,16 +80,24 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
         throw new Error('Invalid Access');
     }
 
-    const { email } = req.body;
+    const { email, token } = req.body;
     try {
         emailSchema.parse(email);
     } catch (e) {
-        redefineFlashMessages(req, {
-            errorMessage: [ 'Invalid email pattern!' ],
-        });
+        if (token) {
+            const redirectUrl: string = `${req.originalUrl}?token=${token}`;
 
-        res.redirect(req.originalUrl);
-        return;
+            redefineFlashMessages(req, {
+                errorMessage: [ 'Invalid email pattern!' ],
+            });
+
+            await saveSession(req);
+
+            return res.redirect(redirectUrl);
+        } else {
+            res.status(400).send('Invalid Access');
+            throw new Error('Invalid Access');
+        }
     }
 
     const oldtoken: string = await getToken(req.payload);
@@ -118,7 +130,11 @@ router.get('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request,
         label: 'ワンタイムパスワード',
         input_name: 'otp',
     };
-    defineFlashMessages(req, res, FlashLocalPath.AUTH, params);
+
+    defineFlashMessages(req, res, params);
+
+    await saveSession(req);
+
     res.render('auth/verify-form');
 });
 
