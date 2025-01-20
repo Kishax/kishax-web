@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset='utf-8'>
-        <title><%= auth.title %></title>
+        <title><%= title %></title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="<%= rootpath %>/stylesheets/style.css" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
@@ -12,15 +12,14 @@
         <%- include('../include/header'); %>
 
         <%- include('../include/message'); %>
-
         <div class="container">
-            <form id="myform" action="<%= rootpath %>/auth<%= auth.form_action_path %>" method="post">
+            <form id="myform" action="<%= rootpath %>/auth<%= form_action_path %>" method="post">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <% if (typeof token !== 'undefined') { %>
-                    <input type="hidden" name="token" value="<%= auth.token %>">
+                    <input type="hidden" name="token" value="<%= token %>">
                 <% } %>
-                <label><%= auth.label %></label>
-                <input required id="focus" type="text" name="<%= auth.input_name %>"/>
+                <label><%= label %></label>
+                <input required id="focus" type="text" name="<%= input_name %>"/>
                 <br><br>
                 <input class="btn btn-primary" type="submit" value="送信する"/>
             </form>
