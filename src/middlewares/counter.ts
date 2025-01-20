@@ -114,7 +114,6 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
             console.log('本日初めての訪問者です！');
         }
 
-        console.log('istodayfirst:', istodayfirst);
         if (ips.length === 0) {
             if (excephostcheck) {
                 if (isAdminHost) {
