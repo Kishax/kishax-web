@@ -2,7 +2,7 @@ export enum FlashLocalPath {
     AUTH = 'auth',
     MESSAGES = 'messages',
     ERRORS = 'errors',
-    MIDDLES = 'middles',
+    NON_PATH = 'non-path',
 }
 
 export enum FlashLocalVal {
