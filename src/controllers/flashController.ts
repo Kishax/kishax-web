@@ -54,7 +54,10 @@ export const defineMiddleFlashMessages = (req: Request, res: Response, paramKeys
     defineFlashMessages(req, res, formatParams);
 };
 
-export const redefine = (req: Request, flashMessages) => {
+export const debugOutput = (req: Request) => {
+    const flashMessages = req.flash();
+    console.log('Debug FlashMessages:', flashMessages);
+
     for (const key in flashMessages) {
         req.flash(key, flashMessages[key]);
     }
