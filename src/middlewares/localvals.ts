@@ -23,7 +23,7 @@ const localvals = async (req: Request, res: Response, next: NextFunction) => {
     res.locals.refurl = req.headers.referer || req.get('referer');
     res.locals.current_path = req.path;
     res.locals.discord_url = process.env.DISCORD_URL || '';
-    res.locals.webapp_git_repo = process.env.GIT_REPO || '';
+    res.locals.webapp_git_repo_url = process.env.GIT_REPO_URL || '';
 
     const defaultAvatarPath: string = path.join(__dirname, '../public', 'images', 'avatar', 'default');
     const randomAvatarFileName = getRandomFileName(defaultAvatarPath);
