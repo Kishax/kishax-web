@@ -1,14 +1,15 @@
-export enum FlashType {
-    NONDEFAULT,
-}
-
-export enum FlashLocalType {
+export enum FlashLocalPath {
     AUTH = 'auth',
     MESSAGES = 'messages',
     ERRORS = 'errors',
+    MIDDLES = 'middles',
 }
 
-type FlashRequire = FlashType | any;
+export enum FlashLocalVal {
+    DEFAULT_UNDEFINED, DEFAULT_EMPTY,
+}
+
+export type FlashRequire = FlashLocalVal | any;
 
 export interface FlashParams {
     [key: string]: FlashRequire;
