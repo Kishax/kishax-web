@@ -208,17 +208,6 @@ hr {
     text-decoration: underline;
 }
 
-h2 {
-    padding: 1rem 2rem;
-    border-top: 4px solid #d8dcdc;
-    border-right: 4px solid #666;
-    border-bottom: 4px solid #333;
-    border-left: 4px solid #868888;
-    border-radius: 0;
-    background-image: -webkit-linear-gradient(135deg, #ccc 0%, #868888 20%, #d8dcdc 34%, white 53%, #ccc 100%);
-    background-image: linear-gradient(-45deg, #ccc 0%, #868888 20%, #d8dcdc 34%, white 53%, #ccc 100%);
-}
-
 form > label {
     font-size: 1.25rem;
 }
