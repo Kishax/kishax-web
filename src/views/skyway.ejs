@@ -12,29 +12,29 @@
         <%- include('./include/message'); %>
 
         <div class="comment">
-            <div>
+            <div class="can-scroll">
+                <span id="log-area"></span>
+            </div>
+            <div id="video-device-block">
                 <label for="video-select">カメラデバイスを選択:</label>
                 <select id="video-select"></select>
             </div>
-            <div>
+            <div id="audio-device-block">
                 <label for="audio-select">マイクデバイスを選択:</label>
                 <select id="audio-select"></select>
             </div>
-            <p>ID: <span id="my-id"></span></p>
-            <div>
+            <p id="id-block">ID: <span id="my-id"></span></p>
+            <div id="room-block">
                 <input id="_csrf" type="hidden" value="<%= csrfToken %>">
-                room name: <input id="room-name" type="text" /><br>
-                user name: <input id="user-name" type="text" /><br>
-                <button id="join">join</button>
-                <button id="leave">leave</button>
+                あいことば: <input id="room-name" type="text" /><br>
+                おなまえ: <input id="user-name" type="text" /><br>
+                <button id="join">参加する</button>
+                <button id="leave">退出する</button>
             </div>
 
             <button id="toggle-video">カメラをONにする</button>
             <button id="toggle-audio">ボイスチャットをONにする</button>
             <div id="button-area"></div>
-            <div class="can-scroll">
-                <span id="log-area"></span>
-            </div>
         </div>
         <div class="skyway-remote-video">
             <div id="remote-media-area"></div>

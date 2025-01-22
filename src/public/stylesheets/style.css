@@ -265,12 +265,11 @@ form > label {
 
 .can-scroll {
     width: max-content;
-    height: 200px;
+    max-height: 200px;
     background-color: gray;
-    position: absolute;
-    top: 0;
-    left: 0;
-    overflow: auto;
+    /* position: absolute; */
+    overflow-y: auto;
+    border: 1px solid #ccc;
 }
 
 .skyway-remote-video {
@@ -279,4 +278,9 @@ form > label {
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
+}
+
+.comment {
+    padding-left: 7%;
+    padding-right: 7%;
 }

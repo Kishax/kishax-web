@@ -1,5 +1,6 @@
 import { SkyWayContext, SkyWayRoom, SkyWayStreamFactory } from '@skyway-sdk/room';
 import { htmlspecialchars } from './utils/escape.js';
+import { hideShowElements } from './utils/hideshow.js'
 
 (async () => {
     const csrfTokenInput = document.getElementById('_csrf');
@@ -12,12 +13,20 @@ import { htmlspecialchars } from './utils/escape.js';
     const myId = document.getElementById("my-id");
     const joinButton = document.getElementById("join");
     const leaveButton = document.getElementById("leave");
+
     const toggleVideoButton = document.getElementById('toggle-video');
     const toggleAudioButton = document.getElementById('toggle-audio');
     const logArea = document.getElementById('log-area');
 
     const videoSelect = document.getElementById('video-select');
     const audioSelect = document.getElementById('audio-select');
+
+    const videoDeviceBlock = document.getElementById('video-device-block');
+    const audioDeviceBlock = document.getElementById('audio-device-block');
+    const idBlock = document.getElementById('id-block');
+    const roomBlock = document.getElementById('room-block');
+
+    hideShowElements(videoDeviceBlock, audioDeviceBlock, idBlock, toggleAudioButton, toggleVideoButton);
 
     const log = (message) => {
         const logEntry = document.createElement("p");
@@ -81,20 +90,16 @@ import { htmlspecialchars } from './utils/escape.js';
         }
 
         const credential = await response.json();
-        console.log('credential:', credential);
 
         try {
             const token = credential.authToken;
 
             const context = await SkyWayContext.Create(token);
-            console.log('SkyWayContext created:', context);
 
-            console.log('Finding or creating room with name:', htmlspecialchars(roomName));
             const room = await SkyWayRoom.FindOrCreate(context, {
                 type: "p2p",
                 name: htmlspecialchars(roomName),
             });
-            console.log('Room found or created:', room);
 
             const joinOptions = {
                 name: htmlspecialchars(memberName)
@@ -183,8 +188,6 @@ import { htmlspecialchars } from './utils/escape.js';
                         isVideoOn = true;
                         toggleVideoButton.textContent = 'カメラをOFFにする';
                         log(`${me.name}がカメラをONにしました。`);
-
-                        //room.send({ action: 'video', isOn: true, name: me.name });
                     } catch (err) {
                         console.error('カメラの取得に失敗しました: ', err);
                     }
@@ -195,7 +198,6 @@ import { htmlspecialchars } from './utils/escape.js';
                         isVideoOn = false;
                         toggleVideoButton.textContent = 'カメラをONにする';
                         log(`${me.name}がカメラをOFFにしました。`);
-                        //room.send({ action: 'video', isOn: false, name: me.name });
                     }
                 }
             };
@@ -209,7 +211,6 @@ import { htmlspecialchars } from './utils/escape.js';
                         isAudioOn = true;
                         toggleAudioButton.textContent = 'ボイスチャットをOFFにする';
                         log(`${me.name}がボイスチャットをONにしました。`);
-                        //room.send({ action: 'audio', isOn: true, name: me.name });
                     } catch (err) {
                         console.error('マイクの取得に失敗しました: ', err);
                     }
@@ -220,10 +221,11 @@ import { htmlspecialchars } from './utils/escape.js';
                         isAudioOn = false;
                         toggleAudioButton.textContent = 'ボイスチャットをONにする';
                         log(`${me.name}がボイスチャットをOFFにしました。`);
-                        //room.send({ action: 'audio', isOn: false, name: me.name });
                     }
                 }
             };
+
+            hideShowElements(videoDeviceBlock, audioDeviceBlock, idBlock, toggleAudioButton, toggleVideoButton, roomBlock);
         } catch (error) {
             console.error('Error joining room:', error);
             log('ルームへの参加に失敗しました。');

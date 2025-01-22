@@ -1,5 +1,6 @@
 // @ts-check
 import { Chart, registerables } from 'chart.js';
+import { hideShowElementByIds } from './utils/hideshow';
 
 Chart.register(...registerables);
 
@@ -236,26 +237,11 @@ if (!isValidTimeType(getType)) {
 /** @type {TimeType} */
 const type = getType || 'month';
 
-/** @param {...string} labels */
-function hideShowElement(...labels) {
-    labels.forEach(label => {
-        const labelDiv = document.getElementById(label);
-        if (labelDiv) {
-            if (labelDiv.style.display === "none") {
-                labelDiv.style.display = '';
-                labelDiv.style.display = "block";
-            } else {
-                labelDiv.style.display = "none";
-            }
-        }
-    });
-}
-
 /** @param {TimeType} targetType */
 function updateGetButton(targetType) {
     Object.keys(timenames).forEach(timename => {
         if (timename === targetType) {
-            hideShowElement(timename);
+            hideShowElementByIds(timename);
         } else {
             let elmDiv = document.getElementById(timename);
             if (elmDiv) {
@@ -281,12 +267,12 @@ function updateButtonLabel(label) {
 
 updateGetButton(type);
 updateButtonLabel('管理者を含める');
-hideShowElement('adipcount', 'adloadcount');
+hideShowElementByIds('adipcount', 'adloadcount');
 
 document.getElementById('toggleAdcount')?.addEventListener('click', () => {
     toggleDataset('adloadcount', 'adipcount');
     updateButtonLabel(isAdminView ? '管理者を除外する' : '管理者を含める');
-    hideShowElement('adipcount', 'adloadcount', 'br', 'ipcount', 'loadcount');
+    hideShowElementByIds('adipcount', 'adloadcount', 'br', 'ipcount', 'loadcount');
 });
 
 fetchData(type).then(data => {
