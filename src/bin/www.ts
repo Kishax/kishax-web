@@ -1,59 +1,46 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
 import app from '../app';
 import * as http from 'http';
 import * as debugModule from 'debug';
 import '../config';
+import websocket from '../services/websocket';
+import basepath from '../utils/basepath';
 
 var debug = debugModule.debug('quick-start-express-typescript:server');
-
-/**
- * Get port from environment and store in Express.
- */
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
 var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
+const wss = websocket();
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
+server.on('upgrade', (req, socket, head) => {
+    if (req.url === basepath.wspath) {
+        wss.handleUpgrade(req, socket, head, (ws) => {
+            wss.emit('connection', ws, req);
+        });
+    } else {
+        socket.destroy();
+    }
+});
 
 function normalizePort(val: string): number | string | boolean {
     var port = parseInt(val, 10);
 
     if (isNaN(port)) {
-        // named pipe
         return val;
     }
 
     if (port >= 0) {
-        // port number
         return port;
     }
 
     return false;
 }
-
-/**
- * Event listener for HTTP server "error" event.
- */
 
 function onError(error: any): void {
     if (error.syscall !== 'listen') {
@@ -64,7 +51,6 @@ function onError(error: any): void {
         ? 'Pipe ' + port
         : 'Port ' + port;
 
-    // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
             console.error(bind + ' requires elevated privileges');
@@ -76,10 +62,6 @@ function onError(error: any): void {
             throw error;
     }
 }
-
-/**
- * Event listener for HTTP server "listening" event.
- */
 
 function onListening(): void {
     function bind(): string {

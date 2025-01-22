@@ -16,14 +16,11 @@ import mycors from './middlewares/cors';
 import errorHandler from './middlewares/error-handler';
 import counter from './middlewares/counter';
 import header from './middlewares/header';
-import websocket from './services/websocket';
-
-websocket();
 
 const app = express();
 
-console.log(`-- current mode is ${process.env.NODE_ENV} --`);
-console.log('-- current Base URL is ' + basepath.rooturl);
+console.log(`> current mode is ${process.env.NODE_ENV}`);
+console.log('> current Base URL is ' + basepath.rooturl);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
