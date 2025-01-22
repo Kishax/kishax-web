@@ -13,6 +13,7 @@ const config = {
     entry: {
         counter: path.resolve(SRC_ROOT, './counter.js'),
         skyway: path.resolve(SRC_ROOT, './skyway.js'),
+        chat: path.resolve(SRC_ROOT, './chat.js'),
     },
     output: {
         filename: '[name].bundle.js',
