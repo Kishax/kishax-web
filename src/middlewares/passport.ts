@@ -1,7 +1,7 @@
 import passport from 'passport';
 import bcrypt from 'bcrypt';
 import '../config';
-import knex from '../db/knex';
+import knex from '../config/knex';
 import User from '../models/user';
 import basepath from '../utils/basepath';
 import { sendOneTimePass } from '../controllers/emailController';

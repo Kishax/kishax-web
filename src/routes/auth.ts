@@ -3,7 +3,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { z } from 'zod';
 import '../config';
 import basepath from '../utils/basepath';
-import knex from '../db/knex';
+import knex from '../config/knex';
 import authenticateJWT, { generateToken, getToken } from '../middlewares/jwt';
 import { sendVertificationEmail } from '../controllers/emailController';
 import { requireNonLogin } from '../middlewares/checker';

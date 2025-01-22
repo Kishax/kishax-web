@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import dns from 'dns';
 import Knex from 'knex';
-import knex from '../db/knex';
+import knex from '../config/knex';
 
 export async function getLastEntriesEachDay() {
     const subquery: Knex.QueryBuilder = knex('counter3')

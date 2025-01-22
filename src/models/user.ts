@@ -1,4 +1,4 @@
-import knex from '../db/knex';
+import knex from '../config/knex';
 
 const TABLE_NAME: string = "users";
 

@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
-import knex from '../db/knex';
+import knex from '../config/knex';
 import { requireNonLogin } from '../middlewares/checker';
 
 const router: express.Router = express.Router();

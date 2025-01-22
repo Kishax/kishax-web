@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import knex from '../db/knex';
+import knex from '../config/knex';
 import basepath from '../utils/basepath';
 import signupRouter from './signup';
 import signinRouter from './signin';

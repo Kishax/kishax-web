@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import '../config';
-import knex from '../db/knex';
+import knex from '../config/knex';
 
 const secret = process.env.JWT_SECRET || 'jwtsecret';
 
