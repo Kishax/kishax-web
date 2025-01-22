@@ -8,6 +8,7 @@ import authRouter from './auth';
 import devRouter from './dev';
 import apiRouter from './api';
 import counterRouter from './counter';
+import callRouter from './skyway';
 
 const router: express.Router = express.Router();
 
@@ -74,5 +75,6 @@ router.use('/auth', authRouter);
 router.use('/dev', devRouter);
 router.use('/api', apiRouter);
 router.use('/counter', counterRouter);
+router.use('/skyway', callRouter);
 
 export { router as indexRouter };

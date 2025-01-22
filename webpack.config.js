@@ -12,11 +12,17 @@ const config = {
     context: SRC_ROOT,
     entry: {
         counter: path.resolve(SRC_ROOT, './api/counter.js'),
+        skyway: path.resolve(SRC_ROOT, './api/skyway.js'),
     },
     output: {
         filename: '[name].bundle.js',
         path: BUILD_ROOT,
+        // libraryTarget: 'module',
     },
+    // experiments: {
+    //     outputModule: true,
+    // },
+    // devtool: 'source-map',
     module: {
         rules: [
             {
@@ -40,6 +46,11 @@ const config = {
     optimization: {
         minimizer: [new TerserPlugin({
             extractComments: false,
+            terserOptions: {
+                mangle: false,
+                keep_classnames: true,
+                keep_fnames: true,
+            }
         })],
       },
     mode: 'production',

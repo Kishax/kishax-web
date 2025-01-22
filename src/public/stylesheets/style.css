@@ -262,3 +262,21 @@ form > label {
     display:flex;
     flex-flow: column;
 }
+
+.can-scroll {
+    width: max-content;
+    height: 200px;
+    background-color: gray;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+
+.skyway-remote-video {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}

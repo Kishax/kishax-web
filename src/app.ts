@@ -15,6 +15,7 @@ import csrfProtection from './middlewares/csurf';
 import mycors from './middlewares/cors';
 import errorHandler from './middlewares/error-handler';
 import counter from './middlewares/counter';
+import header from './middlewares/header';
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use(logger('dev'));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(header);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
