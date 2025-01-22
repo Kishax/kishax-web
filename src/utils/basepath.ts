@@ -41,7 +41,7 @@ function getRootURL(): string {
 
 function getRootPath(): string {
     return process.env.NODE_ENV === 'production'
-        ? process.env.PROXY_REVERSE_PASS || '/dev'
+        ? (process.env.PROXY_REVERSE_PATH || '/dev')
         : '';
 }
 
@@ -60,9 +60,16 @@ function getAuthSuccessURL(): string {
 
 const successurl: string = getAuthSuccessURL();
 
+function getWsPath(): string {
+    return rootpath + (process.env.WEBSOCKET_PATH || '/ws');
+}
+
+const wspath: string = getWsPath();
+
 export default {
     rooturl,
     rootpath,
     hpurl,
     successurl,
+    wspath,
 };
