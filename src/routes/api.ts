@@ -3,8 +3,15 @@ import '../config';
 import { getLastEntriesEachDay } from '../middlewares/counter';
 import { categorizeData } from '../middlewares/categorize';
 import { calculateAuthToken } from '../utils/skyway';
+import basepath from '../utils/basepath';
 
 const router: express.Router = express.Router();
+
+router.get('/config', (_: Request, res: Response) => {
+    res.json({
+        websocketUrl: basepath.wsurl,
+    });
+});
 
 router.post('/auth/skyway', (req: Request, res: Response) => {
     const roomName = req.body.roomName;
