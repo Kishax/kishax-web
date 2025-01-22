@@ -5,12 +5,24 @@ import signupRouter from './signup';
 import signinRouter from './signin';
 import logoutRouter from './logout';
 import authRouter from './auth';
-import devRouter from './dev';
 import apiRouter from './api';
-import counterRouter from './counter';
-import callRouter from './skyway';
+
+function setSimpleRouters(router: express.Router, routerNames: string[]) {
+    routerNames.forEach((routerName: string) => {
+        router.get(`/${routerName}`, async (_: Request, res: Response) => {
+            res.render(routerName);
+        });
+    });
+}
 
 const router: express.Router = express.Router();
+
+setSimpleRouters(router, [ 'counter', 'skyway', 'chat' ]);
+router.use('/signup', signupRouter);
+router.use('/signin', signinRouter);
+router.use('/logout', logoutRouter);
+router.use('/auth', authRouter);
+router.use('/api', apiRouter);
 
 router.get('/', async (req: Request, res: Response, _: NextFunction) => {
     if (req.session.views) {
@@ -67,14 +79,5 @@ router.post('/', async (req: Request, res: Response, _: NextFunction) => {
             })
     }
 });
-
-router.use('/signup', signupRouter);
-router.use('/signin', signinRouter);
-router.use('/logout', logoutRouter);
-router.use('/auth', authRouter);
-router.use('/dev', devRouter);
-router.use('/api', apiRouter);
-router.use('/counter', counterRouter);
-router.use('/skyway', callRouter);
 
 export { router as indexRouter };
