@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import readline from 'readline';
 
-const url = 'ws://localhost:8050';
+const url = `wss://keypforev.f5.si/dev/ws`; // ws://localhost:3001/ws
 const ws = new WebSocket(url);
 
 const rl = readline.createInterface({
