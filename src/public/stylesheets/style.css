@@ -284,3 +284,35 @@ form > label {
     padding-left: 7%;
     padding-right: 7%;
 }
+
+.chat-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#output {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #e0e0e0;
+}
+
+#input {
+    width: calc(100% - 100px);
+    padding: 10px;
+    margin-right: 10px;
+}
+
+#send {
+    padding: 10px 20px;
+}
+
+#n-client {
+    margin-bottom: 10px;
+}
