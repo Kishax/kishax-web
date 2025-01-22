@@ -19,7 +19,7 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 server.on('upgrade', (req, socket, head) => {
-    if (req.url === basepath.wspath) {
+    if (req.url === basepath.wsrootpath) {
         wss.handleUpgrade(req, socket, head, (ws) => {
             wss.emit('connection', ws, req);
         });

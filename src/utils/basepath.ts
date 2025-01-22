@@ -60,16 +60,31 @@ function getAuthSuccessURL(): string {
 
 const successurl: string = getAuthSuccessURL();
 
-function getWsPath(): string {
+function getWsRootPath(): string {
     return rootpath + (process.env.WEBSOCKET_PATH || '/ws');
 }
 
-const wspath: string = getWsPath();
+const wsrootpath: string = getWsRootPath();
+
+function getWsUrl(): string {
+    if (process.env.NODE_ENV === 'production') {
+        if (process.env.PROD_WEBSOCKET_URL) {
+            return process.env.PROD_WEBSOCKET_URL || '';
+        }
+    } else {
+        return 'ws://localhost:' + (process.env.PORT || '3000') + wsrootpath;
+    }
+
+    throw new Error('cannot create ws url for production because of missing .env[PROD_WEBSOCKET_URL]');
+}
+
+const wsurl = getWsUrl();
 
 export default {
     rooturl,
     rootpath,
     hpurl,
     successurl,
-    wspath,
+    wsrootpath,
+    wsurl,
 };
