@@ -16,6 +16,9 @@ import mycors from './middlewares/cors';
 import errorHandler from './middlewares/error-handler';
 import counter from './middlewares/counter';
 import header from './middlewares/header';
+import websocket from './services/websocket';
+
+websocket();
 
 const app = express();
 
