@@ -60,7 +60,7 @@ const timenames = { 'year': '年間のグラフ', 'month': '月間のグラフ',
  * @returns {Promise<any>}
  */
 async function fetchData(type) {
-    const response = await fetch(`./api/counter?type=${type}`);
+    const response = await fetch(`/api/counter?type=${type}`);
     const data = await response.json();
     return data;
 }
@@ -135,6 +135,7 @@ function createChart(type, data) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true
