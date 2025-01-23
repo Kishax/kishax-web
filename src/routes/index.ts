@@ -17,7 +17,7 @@ function setSimpleRouters(router: express.Router, routerNames: string[]) {
 
 const router: express.Router = express.Router();
 
-setSimpleRouters(router, [ 'counter', 'skyway', 'chat' ]);
+setSimpleRouters(router, [ 'chart', 'skyway', 'chat' ]);
 router.use('/signup', signupRouter);
 router.use('/signin', signinRouter);
 router.use('/logout', logoutRouter);

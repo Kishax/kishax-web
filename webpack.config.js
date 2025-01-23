@@ -11,7 +11,7 @@ const SRC_ROOT = path.join(__dirname, './src/client');
 const config = {
     context: SRC_ROOT,
     entry: {
-        counter: path.resolve(SRC_ROOT, './counter.js'),
+        chart: path.resolve(SRC_ROOT, './chart.js'),
         skyway: path.resolve(SRC_ROOT, './skyway.js'),
         chat: path.resolve(SRC_ROOT, './chat.js'),
     },
