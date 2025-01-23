@@ -48,6 +48,32 @@ body {
         --focus: #797909 !important;
         --visited: #eeeeee !important;
     }
+
+    .chat-container {
+        background-color: var(--background-alt) !important;
+        color: var(--text-main) !important;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    #output {
+        border: 1px solid var(--text-muted) !important;
+        background-color: var(--background-body) !important;
+        color: var(--text-main) !important;
+    }
+
+    #input {
+        background-color: var(--background-alt) !important;
+        color: var(--text-main) !important;
+    }
+
+    #send {
+        background-color: var(--accent) !important;
+        color: var(--text-strong) !important;
+    }
+
+    #n-client {
+        color: var(--text-muted) !important;
+    }
 }
 
 body {
@@ -315,4 +341,17 @@ form > label {
 
 #n-client {
     margin-bottom: 10px;
+    color: var(--text-muted);
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 700px;
+}
+
+@media (max-width: 480px) {
+    .chart-container {
+        height: 400px;
+    }
 }
