@@ -1,20 +1,39 @@
 import { htmlspecialchars } from './utils/escape';
 
 window.addEventListener('DOMContentLoaded', () => {
-    const name = prompt('名前を入れてください。');
-    if (!name) {
-        console.error('Invalid Access');
+    const csrfTokenInput = document.getElementById('_csrf');
+    const tokenInput = document.getElementById('token');
+    if (!csrfTokenInput || !tokenInput) {
+        console.error('Invaild Access');
         return;
     }
+
+    const csrfToken = csrfTokenInput.value;
+    const token = tokenInput.value;
+
+    let name;
+    let times = 1;
+    while (!name) {
+        name = prompt(`名前を入れてください。(${times}回目)`);
+        if (!name) {
+            alert('名前を入れてね^^');
+        }
+        times++;
+    }
+
     document.getElementById('name').value = name;
 
     fetch('/api/config')
         .then(response => response.json())
         .then(config => {
-            const ws = new WebSocket(config.websocketUrl);
+            const ws = new WebSocket(`${config.websocketUrl}?token=${token}`);
 
             ws.addEventListener('open', () => {
-                ws.send(JSON.stringify({ user: htmlspecialchars(name), method: 'connect' }));
+                ws.send(JSON.stringify({
+                    user: htmlspecialchars(name),
+                    method: 'connect',
+                    csrfToken
+                }));
             });
 
             const input = document.getElementById('input');
