@@ -6,6 +6,7 @@ import signinRouter from './signin';
 import logoutRouter from './logout';
 import authRouter from './auth';
 import apiRouter from './api';
+import chatRouter from './chat';
 
 function setSimpleRouters(router: express.Router, routerNames: string[]) {
     routerNames.forEach((routerName: string) => {
@@ -17,12 +18,13 @@ function setSimpleRouters(router: express.Router, routerNames: string[]) {
 
 const router: express.Router = express.Router();
 
-setSimpleRouters(router, [ 'chart', 'skyway', 'chat' ]);
+setSimpleRouters(router, [ 'chart', 'skyway' ]);
 router.use('/signup', signupRouter);
 router.use('/signin', signinRouter);
 router.use('/logout', logoutRouter);
 router.use('/auth', authRouter);
 router.use('/api', apiRouter);
+router.use('/chat', chatRouter);
 
 router.get('/', async (req: Request, res: Response, _: NextFunction) => {
     if (req.session.views) {
