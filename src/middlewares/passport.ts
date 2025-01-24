@@ -154,7 +154,7 @@ passport.use('x', new XStrategy({
 }));
 
 import { IVerifyOptions, Strategy as LocalStrategy } from 'passport-local';
-import { generateToken } from './jwt';
+import { generateUserToken } from './jwt';
 
 passport.use(new LocalStrategy({
     usernameField: 'username',
@@ -171,7 +171,7 @@ passport.use(new LocalStrategy({
             return done(null, false, { message: 'Authentication failed', errorMessage: [ 'Invalid username or password' ] });
         }
 
-        const token = await generateToken(user, true);
+        const token = await generateUserToken(user, true);
         if (!user.email) {
             const redirectUrl = `${basepath.rooturl}auth/set-email?token=${token}`;
             return done(null, false, { message: 'This is Default: Email not set', redirectUrl } as IVerifyOptions);
