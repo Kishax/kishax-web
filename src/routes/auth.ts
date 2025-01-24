@@ -4,7 +4,7 @@ import { z } from 'zod';
 import '../config';
 import basepath from '../utils/basepath';
 import knex from '../config/knex';
-import authenticateJWT, { generateToken, getToken } from '../middlewares/jwt';
+import authenticateJWT, { generateUserToken, getToken } from '../middlewares/jwt';
 import { sendVertificationEmail } from '../controllers/emailController';
 import { requireNonLogin } from '../middlewares/checker';
 import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
@@ -103,7 +103,7 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
     const oldtoken: string = await getToken(req.payload);
 
     const newPayload: JwtPayload = { id: req.payload.id, name: req.payload.name, email };
-    const newtoken = await generateToken(req.payload, false, newPayload);
+    const newtoken = await generateUserToken(req.payload, false, newPayload);
 
     const redirectUrl: string = `${basepath.rooturl}auth/set-email?token=${oldtoken}&token2=${newtoken}`;
 
