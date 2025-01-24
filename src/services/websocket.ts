@@ -2,26 +2,52 @@ import { WebSocket, WebSocketServer } from 'ws';
 import '../config';
 import basepath from '../utils/basepath';
 
+const isAuthenticated = (json, payload: Jsonwebtoken.WebSocketJwtPayload): boolean => {
+    const jsonCsrfToken = json.csrfToken;
+    const payloadCsrfToken = payload.csrfToken;
+    return jsonCsrfToken && payloadCsrfToken && jsonCsrfToken === payloadCsrfToken;
+};
+
 const websocket = () => {
     const wss = new WebSocketServer({ noServer: true });
     const clients = new Set<WebSocket>();
 
-    console.log(`> webSocket server is running on ${basepath.wsrootpath}`);
-
-    wss.on('connection', (ws: WebSocket) => {
+    wss.on('connection', (ws: WebSocket, request: http.IncomingMessageWithPayload) => {
         console.log('client has connected');
+
+        const { payload } = request;
+
+        if (!payload) {
+            ws.close();
+            throw new Error('Invalid Access')
+        }
+
         clients.add(ws);
 
         ws.on('message', (msg: string) => {
             const json = JSON.parse(msg);
 
+            if (!isAuthenticated(json, payload)) {
+                ws.close();
+                throw new Error("Invalid Access");
+            }
+
+            const { user, method } = json;
+
+            if (!user && !method) {
+                ws.close();
+                throw new Error("Invalid Access");
+            }
+
+            console.log('websocket-payload:', request.payload);
+
             clients.forEach(client => {
                 if (client === ws && !client['name']) {
-                    client['name'] = json.user;
+                    client['name'] = user;
                 }
             });
 
-            if (json.method != null) {
+            if (method != null) {
                 json.clients = Array.from(clients).map(client => client["name"]);
             }
 
@@ -53,6 +79,7 @@ const websocket = () => {
         });
     });
 
+    console.log(`> webSocket server is running on ${basepath.wsrootpath}`);
     return wss;
 };
 
