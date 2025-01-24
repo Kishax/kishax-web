@@ -1,7 +1,7 @@
 import '../config';
 import { isUrl } from './is';
 
-function getHPURL(): string {
+export function getHPURL(slash: boolean = true): string {
     var url: string = '';
     if (process.env.NODE_ENV === 'production') {
         if (process.env.IS_HTTPS === 'true') {
@@ -15,7 +15,10 @@ function getHPURL(): string {
     if (process.env.PORT) {
         url  += ":" + process.env.PORT;
     }
-    url +=  '/'
+
+    if (slash) {
+        url +=  '/'
+    }
 
     return url;
 }
