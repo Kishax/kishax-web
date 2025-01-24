@@ -18,6 +18,8 @@
             <input type="text" id="input" placeholder="メッセージを入力">
             <button id="send">送信</button>
             <input type="hidden" id="name">
+            <input type="hidden" id="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" id="token" value="<%= token %>">
         </div>
 
         <%- include('./include/footer'); %>
