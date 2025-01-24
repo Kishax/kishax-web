@@ -39,8 +39,6 @@ const websocket = () => {
                 throw new Error("Invalid Access");
             }
 
-            console.log('websocket-payload:', request.payload);
-
             clients.forEach(client => {
                 if (client === ws && !client['name']) {
                     client['name'] = user;
