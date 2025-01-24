@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from 'express';
 import '../config';
 import knex from '../config/knex';
 
-const secret = process.env.JWT_SECRET || 'jwtsecret';
+const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
-export async function generateToken(user, save: boolean, ...payloads: JwtPayload[]): Promise<string> {
+export async function generateUserToken(user, save: boolean = false, ...payloads: JwtPayload[]): Promise<string> {
     var payload: JwtPayload;
     switch (payloads.length) {
         case 0:
@@ -18,7 +18,7 @@ export async function generateToken(user, save: boolean, ...payloads: JwtPayload
             throw new Error("You should specify only one payload in 2nd arg");
     }
 
-    const token: string = jwt.sign(payload, secret, { expiresIn: '1h' });
+    const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
     if (save) {
         await knex('users').where({ id: user.id, name: user.name }).update({ token });
@@ -39,10 +39,6 @@ export async function getToken(payload: JwtPayload): Promise<string> {
     return user.token;
 }
 
-export function isEqualPayloads(payload: JwtPayload, payload2: JwtPayload): boolean {
-    return JSON.stringify(payload) === JSON.stringify(payload2);
-}
-
 const authenticateJWT = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1] ||
                   req.query.token as string ||
@@ -58,10 +54,10 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction) 
     }
 
     try {
-        const payload = jwt.verify(token, secret) as Jsonwebtoken.JwtPayload;
+        const payload = jwt.verify(token, JWT_SECRET) as Jsonwebtoken.UserAuthJwtPayload;
         req.payload = payload;
         if (token && token2) {
-            const payload2 = jwt.verify(token2, secret) as Jsonwebtoken.JwtPayload;
+            const payload2 = jwt.verify(token2, JWT_SECRET) as Jsonwebtoken.UserAuthJwtPayload;
             req.payload2 = payload2;
         }
         next();
