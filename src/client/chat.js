@@ -52,7 +52,11 @@ window.addEventListener('DOMContentLoaded', () => {
             function sendMessage() {
                 const text = input.value;
                 if (text.length > 0) {
-                    const json = { user: htmlspecialchars(name), message: htmlspecialchars(text) };
+                    const json = {
+                        user: htmlspecialchars(name),
+                        message: htmlspecialchars(text),
+                        csrfToken
+                    };
                     ws.send(JSON.stringify(json));
                     input.value = '';
                 }
