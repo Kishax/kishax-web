@@ -1,4 +1,3 @@
-import 'jsonwebtoken';
 import { JwtPayload } from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
 
