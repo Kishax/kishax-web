@@ -3,9 +3,12 @@
 import app from '../app';
 import * as http from 'http';
 import * as debugModule from 'debug';
+import jwt from 'jsonwebtoken';
 import '../config';
 import websocket from '../services/websocket';
-import basepath from '../utils/basepath';
+import basepath, { getHPURL } from '../utils/basepath';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
 var debug = debugModule.debug('quick-start-express-typescript:server');
 
@@ -18,12 +21,32 @@ const wss = websocket();
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-server.on('upgrade', (req, socket, head) => {
-    if (req.url === basepath.wsrootpath) {
-        wss.handleUpgrade(req, socket, head, (ws) => {
-            wss.emit('connection', ws, req);
-        });
-    } else {
+server.on('upgrade', (request, socket, head) => {
+    if (!request.url) {
+        throw new Error("Invalid Access");
+    }
+
+    const reqUrl = getHPURL(false) + request.url;
+    try {
+        const parsedUrl = new URL(reqUrl);
+
+        if (parsedUrl.pathname === basepath.wsrootpath) {
+            const query = parsedUrl.searchParams;
+            const token = query.get('token');
+            if (!token) {
+                throw new Error("Invalid Access");
+            }
+
+            const decodeToken = decodeURIComponent(token);
+            const payload = jwt.verify(decodeToken, JWT_SECRET) as Jsonwebtoken.WebSocketJwtPayload;
+
+            (request as any).payload = payload;
+            wss.handleUpgrade(request, socket, head, (ws) => {
+                wss.emit('connection', ws, request);
+            });
+        }
+    } catch (error) {
+        console.error('socket error:', error);
         socket.destroy();
     }
 });
