@@ -31,8 +31,18 @@ export async function sendOneTimePass(recipient: string, pass: string): Promise<
 
 export async function sendVertificationEmail(recipient: string, redirectUrl: string): Promise<boolean> {
     data['email_redirect_url'] = redirectUrl;
-    const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm-email.ejs'), data);
+	data['comment'] = '本人確認URLは以下の通りです。';
+
+    const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm.ejs'), data);
     return await sendmail(recipient, "FMCアカウントのメールアドレス認証", html);
+}
+
+export async function sendVertificationEmailForResetPassword(recipient: string, redirectUrl: string): Promise<boolean> {
+    data['email_redirect_url'] = redirectUrl;
+	data['comment'] = 'パスワードリセット用URLは以下の通りです。';
+
+    const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm.ejs'), data);
+    return await sendmail(recipient, "FMCアカウントのパスワードリセット", html);
 }
 
 async function sendmail(recipient: string, subject: string, html: string): Promise<boolean> {

@@ -1,15 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { z } from 'zod';
 import '../config';
 import basepath from '../utils/basepath';
 import knex from '../config/knex';
 import authenticateJWT, { generateUserToken, getToken } from '../middlewares/jwt';
-import { sendVertificationEmail } from '../controllers/emailController';
+import { sendVertificationEmail, sendVertificationEmailForResetPassword } from '../controllers/emailController';
 import { requireNonLogin } from '../middlewares/checker';
 import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
 import { defineFlashMessages, redefineFlashMessages, saveSession } from '../controllers/flashController';
 import { FlashParams } from '../@types/flashType';
+
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 const router: express.Router = express.Router();
 
@@ -19,15 +21,32 @@ const emailSchema = z.string().email();
 
 router.get('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
     if (req.isAuthenticated()) {
-        //
+		//
     } else {
-        res.render('auth/verify-form', { title: 'password setting', auth_path: '/set-email', label: 'メールアドレス', input_name: 'email', });
+        res.render('auth/verify-form', { title: 'password setting', auth_path: '/reset-password', label: 'メールアドレス', input_name: 'email', });
     }
 });
 
-router.post('/reset-password', async ( req: Request, res: Response, next: NextFunction) => {
+router.post('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
     const { email } = req.body;
-    // require validation
+    try {
+        email.parse(email);
+        const check = await knex('users').select('id').where('email', email);
+        if (!!check) {
+			const payload: EmailJwtPayload = { email };
+			const token: string = jwt.sign(email, payload, { expiresIn: '1h' });
+			const redirectUrl: string = '${basepath.rooturl}auth/set-password?token=${oldtoken}';
+			await sendVertificationEmailForResetPassword(email, redirectUrl);
+        }
+    } catch (e) {
+        redefineFlashMessages(req, {
+            errorMessage: [ 'Invalid email pattern!' ],
+        });
+
+        await saveSession(req);
+
+        res.render('auth/verify-form', { title: 'password setting', auth_path: '/reset-password', label: 'メールアドレス', input_name: 'email', });
+    }
 });
 
 router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
@@ -85,15 +104,13 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
         emailSchema.parse(email);
     } catch (e) {
         if (token) {
-            const redirectUrl: string = `${req.originalUrl}?token=${token}`;
-
             redefineFlashMessages(req, {
                 errorMessage: [ 'Invalid email pattern!' ],
             });
 
             await saveSession(req);
 
-            return res.redirect(redirectUrl);
+            return res.redirect(`${req.originalUrl}?token=${token}`);
         } else {
             res.status(400).send('Invalid Access');
             throw new Error('Invalid Access');

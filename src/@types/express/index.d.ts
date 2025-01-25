@@ -12,6 +12,10 @@ declare global {
         interface WebSocketJwtPayload extends JwtPayload {
             csrfToken: string;
         }
+
+		interface EmailJwtPayload extends JwtPayload {
+			email: string;
+		}
     }
 
     namespace http {
