@@ -33,8 +33,8 @@ router.post('/reset-password', async (req: Request, res: Response, next: NextFun
         email.parse(email);
         const check = await knex('users').select('id').where('email', email);
         if (!!check) {
-			const payload: EmailJwtPayload = { email };
-			const token: string = jwt.sign(email, payload, { expiresIn: '1h' });
+			const payload: Jsonwebtoken.EmailJwtPayload = { email };
+			const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 			const redirectUrl: string = '${basepath.rooturl}auth/set-password?token=${oldtoken}';
 			await sendVertificationEmailForResetPassword(email, redirectUrl);
         }
