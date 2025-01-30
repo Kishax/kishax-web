@@ -64,7 +64,7 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
         try {
             iphost = await getHost(ip);
         } catch (error) {
-            console.error('Failed to resolve hostname:', error);
+            //console.error('Failed to resolve hostname:', error);
             iphost = ip;
         }
 
@@ -94,7 +94,6 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
             .select('*');
 
         const ips = rows.map(row => row.ip);
-
 
         const last = await knex('counter').orderBy('id', 'desc').first();
 
