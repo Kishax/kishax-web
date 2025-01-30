@@ -13,8 +13,7 @@ Chart.register(...registerables);
  * @property {number} adipcount
  * @property {string} url
  * @property {number} ip
- * @property {string} time
- * @property {Date} dtime
+ * @property {Date} time
  */
 
 /**

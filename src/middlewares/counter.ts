@@ -4,16 +4,16 @@ import Knex from 'knex';
 import knex from '../config/knex';
 
 export async function getLastEntriesEachDay() {
-    const subquery: Knex.QueryBuilder = knex('counter3')
-        .select(knex.raw('DATE(dtime) as date'), knex.raw('MAX(dtime) as max_dtime'))
+    const subquery: Knex.QueryBuilder = knex('counter')
+        .select(knex.raw('DATE(time) as date'), knex.raw('MAX(time) as max_time'))
         .groupBy('date')
         .as('sub');
 
-    const rows = await knex('counter3')
+    const rows = await knex('counter')
         .join(subquery as ('sub'), function() {
-            this.on('counter3.dtime', '=', 'sub.max_dtime');
+            this.on('counter.time', '=', 'sub.max_time');
         })
-        .select('counter3.*');
+        .select('counter.*');
 
     return rows;
 }
@@ -43,7 +43,7 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     try {
-        const [{ count }] = await knex('counter3').count<{ count: number }[]>('* as count');
+        const [{ count }] = await knex('counter').count<{ count: number }[]>('* as count');
         var todaycount: number = count;
 
         var ip: string;
@@ -88,18 +88,17 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const rows: any = await knex('counter3')
-            .where('dtime', '>=', today)
+        const rows: any = await knex('counter')
+            .where('time', '>=', today)
             .whereNot('ip', '')
             .select('*');
 
         const ips = rows.map(row => row.ip);
 
 
-        const last = await knex('counter3').orderBy('id', 'desc').first();
+        const last = await knex('counter').orderBy('id', 'desc').first();
 
         const isAdminHost: boolean = excephost.includes(iphost);
-        const formattedDate = `${today.getFullYear() % 100}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
 
         const isTodayFirst = (timestamp) => {
             const date = new Date(timestamp);
@@ -109,7 +108,7 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
                 date.getDate() !== today.getDate();
         };
 
-        const istodayfirst: boolean = isTodayFirst(last.dtime);
+        const istodayfirst: boolean = isTodayFirst(last.time);
         if (istodayfirst) {
             console.log('本日初めての訪問者です！');
         }
@@ -117,47 +116,43 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
         if (ips.length === 0) {
             if (excephostcheck) {
                 if (isAdminHost) {
-                    await knex('counter3').insert({
+                    await knex('counter').insert({
                         loadcount: !istodayfirst ? last.loadcount : 0,
                         ipcount: !istodayfirst ? last.ipcount : 0,
                         adloadcount: !istodayfirst ? last.adloadcount + 1 : 1,
                         adipcount: !istodayfirst ? last.adipcount + 1 : 1,
                         url: req.path,
                         ip: iphost,
-                        time: formattedDate,
                     });
                 } else {
                     todaycount = count + 1;
-                    await knex('counter3').insert({
+                    await knex('counter').insert({
                         loadcount: !istodayfirst ? last.loadcount + 1 : 1,
                         ipcount: !istodayfirst ? last.ipcount + 1 : 1,
                         adloadcount: !istodayfirst ? last.adloadcount : 0,
                         adipcount: !istodayfirst ? last.adipcount : 0,
                         url: req.path,
                         ip: iphost,
-                        time: formattedDate,
                     });
                 }
             }
         } else if (isAdminHost) {
-            await knex('counter3').insert({
+            await knex('counter').insert({
                 loadcount: !istodayfirst ? last.loadcount : 0,
                 ipcount: !istodayfirst ? last.ipcount : 0,
                 adloadcount: !istodayfirst ? last.adloadcount + 1 : 1,
                 adipcount: !istodayfirst ? last.adipcount : 0,
                 url: req.path,
                 ip: iphost,
-                time: formattedDate,
             });
         } else {
-            await knex('counter3').insert({
+            await knex('counter').insert({
                 loadcount: !istodayfirst ? last.loadcount + 1 : 1,
                 ipcount: !istodayfirst ? last.ipcount : 0,
                 adloadcount: !istodayfirst ? last.adloadcount : 0,
                 adipcount: !istodayfirst ? last.adipcount : 0,
                 url: req.path,
                 ip: iphost,
-                time: formattedDate,
             });
         }
 
