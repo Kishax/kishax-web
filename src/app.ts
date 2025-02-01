@@ -33,6 +33,12 @@ app.use(express.json());
 
 app.use(header);
 
+app.use('/fonts', express.static(path.join(__dirname, 'fonts'), {
+    setHeaders: (res, path, stat) => {
+        res.set('Access-Control-Allow-Origin', '*');
+    }
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
