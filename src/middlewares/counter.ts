@@ -27,7 +27,7 @@ async function getHost(ip: string): Promise<string> {
         dns.reverse(ip, (err, hostnames: string[]) => {
             clearTimeout(timeout);
             if (err) {
-                reject(err);
+                reject(ip);
             } else {
                 console.log("throughs hostnames: ", hostnames);
                 resolve(hostnames[0]);
