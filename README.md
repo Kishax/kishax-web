@@ -1,10 +1,10 @@
 # FMCWebApp
 
-[![Banner](https://github.com/bella2391/branding/blob/master/banner/fmc.png "Banner")](https://keypforev.f5.si/)  
+[![Banner](https://github.com/bella2391/branding/blob/master/banner/fmc.png "Banner")](https://keyp.f5.si/)  
 
 ## Description
 
-This project is actually in use on the [FMC web](https://keypforev.f5.si/dev/).  
+This project is actually in use on the [FMC web](https://keyp.f5.si/dev/).  
 It is for FMC developers to collaborate on web development.  
 
 ## Column
