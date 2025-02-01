@@ -3,6 +3,8 @@ import connectSessionSequelize from 'connect-session-sequelize';
 import { Sequelize } from 'sequelize';
 import '../config';
 
+const isProduction: boolean = process.env.NODE_ENV === 'production';
+
 const sessionSecret = process.env.COOKIE_SECRET || 'defaultSecret';
 const SequelizeStore = connectSessionSequelize(session.Store);
 
@@ -21,6 +23,8 @@ export default session({
     saveUninitialized: true,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000,
-        //secure: process.env.NODE_ENV === 'production',
+		sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,
+		httpOnly: true,
     },
 });
