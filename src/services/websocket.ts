@@ -15,6 +15,14 @@ const websocket = () => {
     wss.on('connection', (ws: WebSocket, request: http.IncomingMessageWithPayload) => {
         console.log('client has connected');
 
+		const interval = setInterval(() => {
+			ws.ping();
+		}, 30000);
+
+		ws.on('pong', () => {
+			console.log('Received pong from client:', ws['name'] ? ws['name'] : 'undefined');
+		});
+
         const { payload } = request;
 
         if (!payload) {
@@ -56,7 +64,9 @@ const websocket = () => {
             });
         });
 
-        ws.on('close', () => {
+        ws.on('close', (code, reason) => {
+			clearInterval(interval);
+
             const name = ws['name'];
 
             clients.delete(ws);
