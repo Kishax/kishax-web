@@ -3,7 +3,7 @@
     <head>
         <title><%= application_name %></title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link rel="stylesheet" href="<%= rootpath %>/stylesheets/style.css" />
+        <link rel="stylesheet" href="/stylesheets/style.css" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
               integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     </head>
@@ -15,7 +15,7 @@
                 <%- include('./include/message'); %>
                 <div class="row">
                     <div class="col-md-6">
-                        <form action="<%= rootpath %>/" method="post">
+                        <form action="./" method="post">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <label>タスクの追加</label>
                             <input required id="focus" type="text" name="add" placeholder="何をする？"/>
@@ -32,7 +32,7 @@
                 </div>
             </div>
 
-			<script src="<%= rootpath %>/javascripts/focus.js"></script>
+			<script src="/javascripts/focus.js"></script>
         <% } else { %>
             <div class="center">
                 <%- include('./include/message'); %>
