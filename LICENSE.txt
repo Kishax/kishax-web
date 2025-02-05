@@ -44,23 +44,7 @@ For the usage of each logo, please refer to the above guidelines.
 
 This repository includes font(s) that are licensed or not:
 
-1. **KHドットフォント** (KH Dot Font):
-
-This software uses the "KHドットフォント" ("KH Dot Font") (http://jikasei.me/font/kh-dotfont/) for display.
-Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)
-© Keitarou Hiraki, Font Silo 1990-2015.
-
-2. **美咲フォント TTF 版**:
-
-This project includes also the font "美咲フォント TTF 版" (https://littlelimit.net/misaki.htm), which is licensed under the MIT License:
-
-Copyright © Num Kadoma (https://littlelimit.net/about.htm)
-
-These fonts are free software.
-Unlimited permission is granted to use, copy, and distribute them, with or without modification, either commercially or noncommercially.
-THESE FONTS ARE PROVIDED "AS IS" WITHOUT WARRANTY.
-
-3. **TRS Million Regular**:
+1. **TRS Million Regular**:
 
 This project includes the font that the author of this work has released it into the public domain. This applies worldwide.
 

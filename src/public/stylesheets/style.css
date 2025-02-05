@@ -1,17 +1,18 @@
 @charset "utf-8";
 
-@font-face {
-    font-family: 'misaki_gothic';
-    src: url('../fonts/misaki_ttf_2021-05-05/misaki_gothic.ttf') format('truetype');
-    font-weight: normal;
+@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
+
+.kosugi-maru-regular {
+    font-family: "Kosugi Maru", serif;
+    font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'misaki_gothic_2nd';
-    src: url('../fonts/misaki_ttf_2021-05-05/misaki_gothic_2nd.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+	font-family: 'kosugi_maru';
+	src: url('/fonts/kosugi_maru/KosugiMaru-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
 }
 
 @font-face {
@@ -25,7 +26,7 @@ body {
     line-height: 35px;
     font-size: 25px;
     font-weight: bold;
-    font: 25px 'misaki_gothic', "Lucida Grande", Helvetica, Arial, sans-serif;
+    font: 25px 'Kosugi Maru', "Lucida Grande", Helvetica, Arial, sans-serif;
 
     --background-body: #f9f9f9;
     --background-alt: #eeeeee;
@@ -77,14 +78,14 @@ body {
 }
 
 body {
-    font-family: misaki_gothic !important;
+    font-family: 'Kosugi Maru', serif !important;
     margin: 0 !important;
     background-color: var(--background-body) !important;
     color: var(--text-main) !important;
 }
 
-.misaki_gothic {
-    font-family: 'misaki_gothic_2nd' !important;
+.kosugi_maru {
+	font-family: 'kosugi_maru' !important;
 }
 
 .count-num {
