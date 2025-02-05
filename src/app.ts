@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import flash from 'connect-flash';
 import favicon from 'serve-favicon';
+import './config';
 import { indexRouter } from './routes/index';
 import session from './middlewares/session';
 import passport from './middlewares/passport';
@@ -18,6 +19,10 @@ import counter from './middlewares/counter';
 import header from './middlewares/header';
 
 const app = express();
+
+if (process.env.NODE_ENV === 'production') {
+	app.set('trust proxy', 1);
+}
 
 console.log(`> current mode is ${process.env.NODE_ENV}`);
 console.log('> current Base URL is ' + basepath.rooturl);
