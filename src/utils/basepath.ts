@@ -64,7 +64,7 @@ function getAuthSuccessURL(): string {
 const successurl: string = getAuthSuccessURL();
 
 function getWsRootPath(): string {
-    return rootpath + (process.env.WEBSOCKET_PATH || '/ws');
+    return process.env.WEBSOCKET_PATH || '/ws';
 }
 
 const wsrootpath: string = getWsRootPath();
