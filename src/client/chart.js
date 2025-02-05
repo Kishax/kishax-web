@@ -60,8 +60,16 @@ const timenames = { 'year': '年間のグラフ', 'month': '月間のグラフ',
  */
 async function fetchData(type) {
     const response = await fetch(`/api/counter?type=${type}`);
-    const data = await response.json();
-    return data;
+
+    const text = await response.text();
+    
+    try {
+        const data = JSON.parse(text);
+        return data;
+    } catch (error) {
+        console.error('JSON parsing error:', error, 'Raw response:', text);
+        return { data: null, error: 'JSON parse error' };
+    }
 }
 
 /** @type {{ [key: string]: DataName }} */
@@ -275,7 +283,13 @@ document.getElementById('toggleAdcount')?.addEventListener('click', () => {
     hideShowElementByIds('adipcount', 'adloadcount', 'br', 'ipcount', 'loadcount');
 });
 
-fetchData(type).then(data => {
+fetchData(type).then(response => {
+	const { data, error } = response;
+	if (error) {
+		alert('サーバーよりデータを取得できませんでした。\n詳しくは、コンソールログを確認してください。');
+		return;
+	}
+	
     createChart(type, data);
     const ids = [ 'ipcount', 'loadcount', 'adipcount', 'adloadcount' ];
 

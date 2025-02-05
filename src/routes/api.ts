@@ -36,20 +36,22 @@ router.post('/auth/skyway', (req: Request, res: Response) => {
     res.send(credential);
 });
 
-router.get('/counter', async (req: Request, res: Response, next: NextFunction) => {
-    await getLastEntriesEachDay().then(rows => {
-        const type: string = req.query.type as string;
+router.get('/counter', async (req: Request, res: Response) => {
+    try {
+        const rows = await getLastEntriesEachDay();
+        const { type } = req.query as { type: string };
+        
+        if (!type || !['year', 'month', 'last7days'].includes(type)) {
+            res.status(400).json({ data: null, error: 'Invalid type parameter' });
+			return;
+        }
+		
         const categorizedData = categorizeData(rows, type);
-        res.json(categorizedData);
-    }).catch(err => next(err));
-});
-
-router.post('/counter', async (req: Request, res: Response, next: NextFunction) => {
-    await getLastEntriesEachDay().then(rows => {
-        const type: string = req.body.type as string;
-        const categorizedData = categorizeData(rows, type);
-        res.json(categorizedData);
-    }).catch(err => next(err));
+        res.json({ data: categorizedData, error: null });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ data: null, error: 'Internal Server Error' });
+    }
 });
 
 export default router;
