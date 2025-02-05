@@ -27,14 +27,6 @@ router.use('/api', apiRouter);
 router.use('/chat', chatRouter);
 
 router.get('/', async (req: Request, res: Response, _: NextFunction) => {
-    if (req.session.views) {
-        req.session.views++;
-        console.log("someone views count: ", req.session.views);
-    } else {
-        req.session.views = 1;
-        console.log("New user visited!");
-    }
-
     if (req.isAuthenticated()) {
         const user = req.user as any;
         const userId: number = user.id;
