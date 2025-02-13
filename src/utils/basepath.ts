@@ -52,22 +52,10 @@ const rooturl: string = getRootURL();
 const rootpath: string = getRootPath();
 const hpurl: string = getHPURL();
 
-function getAuthSuccessURL(): string {
-    var url: string = process.env.SUCCESS_REDIRECT || '/';
-    if (!isUrl(url)) {
-        url = rootpath + url;
-    }
+const authSuccessURL: string = process.env.SUCCESS_REDIRECT || '/';
+const successurl: string = isUrl(authSuccessURL) ? authSuccessURL : rootpath + authSuccessURL;
 
-    return url;
-}
-
-const successurl: string = getAuthSuccessURL();
-
-function getWsRootPath(): string {
-    return process.env.WEBSOCKET_PATH || '/ws';
-}
-
-const wsrootpath: string = getWsRootPath();
+const wsrootpath: string = process.env.WEBSOCKET_PATH || '/ws';
 
 function getWsUrl(): string {
     if (process.env.NODE_ENV === 'production') {
