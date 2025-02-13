@@ -72,7 +72,7 @@ import { hideShowElements } from './utils/hideshow.js'
         const csrfToken = csrfTokenInput.value;
         if (roomName === "" || memberName === "" || csrfToken === "") return;
 
-        const response = await fetch('./api/auth/skyway', {
+        const response = await fetch('/api/auth/skyway', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -90,7 +90,6 @@ import { hideShowElements } from './utils/hideshow.js'
         }
 
         const credential = await response.json();
-
         try {
             const token = credential.authToken;
 
@@ -228,6 +227,8 @@ import { hideShowElements } from './utils/hideshow.js'
             hideShowElements(videoDeviceBlock, audioDeviceBlock, idBlock, toggleAudioButton, toggleVideoButton, roomBlock);
         } catch (error) {
             console.error('Error joining room:', error);
+            console.error('Error message:', error.message);
+            console.error('Error stacktrace:', error.stack);
             log('ルームへの参加に失敗しました。');
         }
     };
