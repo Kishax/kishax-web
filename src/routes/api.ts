@@ -25,6 +25,7 @@ router.post('/auth/skyway', (req: Request, res: Response) => {
 
     if (sessionToken != (process.env.SKYWAY_SESSION_TOKEN || 'defaulttoken')) {
         res.status(401).send('Authentication Failed');
+        return;
     }
 
     const iat = Math.floor(Date.now() / 1000);
