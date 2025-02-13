@@ -6,7 +6,7 @@ import logger from 'morgan';
 import flash from 'connect-flash';
 import favicon from 'serve-favicon';
 import './config';
-import { indexRouter } from './routes/index';
+import router from './controllers/routeController';
 import session from './middlewares/session';
 import passport from './middlewares/passport';
 import basepath from './utils/basepath';
@@ -62,7 +62,7 @@ app.use(counter);
 
 app.use(preErrorHandler);
 
-app.use('/', indexRouter);
+app.use('/', router);
 
 app.use(mycors);
 

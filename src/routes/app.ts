@@ -1,12 +1,15 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import '../config';
+import { setSimpleRouters } from '../controllers/routeController';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
-router.get('/', (req: Request, res: Response) => {
+setSimpleRouters(router, [ 'chart', 'skyway' ]);
+
+router.get('/chat', (req: Request, res: Response) => {
     const csrfToken = req.csrfToken ? req.csrfToken() : undefined;
     if (!csrfToken) {
         res.status(400).send('Invalid Access');

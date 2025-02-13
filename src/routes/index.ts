@@ -1,35 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
 import knex from '../config/knex';
 import basepath from '../utils/basepath';
-import signupRouter from './signup';
-import signinRouter from './signin';
-import logoutRouter from './logout';
-import authRouter from './auth';
-import apiRouter from './api';
-import chatRouter from './chat';
-
-function setSimpleRouters(router: express.Router, routerNames: string[]) {
-    routerNames.forEach((routerName: string) => {
-        router.get(`/${routerName}`, async (_: Request, res: Response) => {
-            res.render(routerName);
-        });
-    });
-}
 
 const router: express.Router = express.Router();
-
-setSimpleRouters(router, [ 'chart', 'skyway' ]);
-router.use('/signup', signupRouter);
-router.use('/signin', signinRouter);
-router.use('/logout', logoutRouter);
-router.use('/auth', authRouter);
-router.use('/api', apiRouter);
-router.use('/chat', chatRouter);
 
 router.get('/', async (req: Request, res: Response, _: NextFunction) => {
     if (req.isAuthenticated()) {
         const user = req.user as any;
         const userId: number = user.id;
+        if (req.session.n) {
+            // mc/authに飛ばす
+            return;
+        }
         knex('tasks')
             .select("*")
             .where({ user_id: userId })
@@ -74,4 +56,5 @@ router.post('/', async (req: Request, res: Response, _: NextFunction) => {
     }
 });
 
-export { router as indexRouter };
+export default router;
+
