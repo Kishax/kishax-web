@@ -10,26 +10,28 @@
     <body>
         <%- include('./include/header'); %>
 
-        <% if (isAuth) { %>
-            <div class="container">
-                <%- include('./include/message'); %>
-                <div class="center">
-                    <h1>あとで考える</h1>
-                    <!--<div class="row">
-                        <div class="col-md-6">
-                        </div>
-                        <div class="col-md-6">
-                        </div>
-                    </div>-->
+        <div class="container">
+            <%- include('./include/message'); %>
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="" method="post">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <label>タスクの追加</label>
+                        <input required id="focus" type="text" name="add" placeholder="何をする？"/>
+                        <input type="submit" value="追加"/>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <ul>
+                        <% for(let todo of todos){ %>
+                            <li><span><%= todo.content %></span></li>
+                        <% } %>
+                    </ul>
                 </div>
             </div>
-        <% } else { %>
-            <div class="center">
-                <%- include('./include/message'); %>
-                <h1>ようこそ、<%= application_name %>へ！</h1>
-                <a class="btn btn-primary" href="<%= rootpath %>/signup" role="button">サインアップはこちら</a>
-            </div>
-        <% } %>
+        </div>
+
+        <script src="/javascripts/focus.js"></script>
 
         <%- include('./include/footer'); %>
 
