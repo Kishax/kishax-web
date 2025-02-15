@@ -9,36 +9,54 @@
               integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"/>
     </head>
     <body>
-        <%- include('./include/header'); %>
+        <%- include('../include/header'); %>
 
-        <a class="font0-75 under"><% if (typeof username !== 'undefined' { %><%= username %><% } else { %><%= 'ななし' %><% } %>"さん、ようこそ</a>
+        <a class="font0-75">
+            <% if (typeof username !== 'undefined') { %>
+                <%= username %>
+            <% } else { %>
+                <%= 'ななし' %>
+            <% } %>
+            さん、ようこそ
 
+            <% if (!isAuth) { %>
+                <br>
+                <a class="font0-75 under" href="<%= rootpath %>/signup">サインアップはこちら</a>
+            <% } %>
+        </a>
+        <br><br>
         <div class="container">
-            <%- include('./include/message'); %>
+            <%- include('../include/message'); %>
+
             <div class="wrapper">
                 サーバーに参加し、認証コードを入力してWEB認証を完了してください。
             </div>
+
             <form action="" method="post">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <label>MCID</label>
-                <input readonly required type="text" name="mcid" value="<% if (typeof mcid !== 'undefined' { %><%= mcid %><% } else { %><%= '自動入力' %><% } %>"/>
+                <input readonly required type="text" name="mcid" value="<% if (typeof mcid !== 'undefined') { %><%= mcid %><% } else { %><%= '自動入力' %><% } %>"/>
                 <br>
                 <label>UUID</label>
-                <input readonly required type="text" name="uuid" value="<% if (typeof uuid !== 'undefined' { %><%= uuid %><% } else { %><%= '自動入力' %><% } %>"/>
+                <input readonly required type="text" name="uuid" value="<% if (typeof uuid !== 'undefined') { %><%= uuid %><% } else { %><%= '自動入力' %><% } %>"/>
                 <br>
                 <label>ワンタイムパスワード</label>
-                <input id="focus" required type="text" name="pass" placeholder="6桁の半角数字を入力" pattern="\d" maxlength="6"/>
+                <% if (isAuth && mcAuth) { %>
+                    <input id="focus" required type="text" name="pass" placeholder="6桁の半角数字を入力" pattern="\d" maxlength="6"/>
+                <% } else { %>
+                    <input id="focus" readonly required type="text" name="pass" placeholder="6桁の半角数字を入力" pattern="\d" maxlength="6"/>
+                <% } %>
                 <br>
-                <% if (isAuth) { %>
+                <% if (isAuth && mcAuth) { %>
                     <input class="btn btn-primary" type="submit" value="認証"/>
                 <% } else { %>
-                    <input id="alert" class="btn btn-primary" type="submit" value="&#x1F512;認証"/>
+                    <input id="alert" class="btn btn-primary" type="button" value="&#x1F512;認証"/>
                     <script src="/javascripts/alert.js"></script>
                 <% } %>
             </form>
         </div>
 
-        <%- include('./include/footer'); %>
+        <%- include('../include/footer'); %>
 
         <script src="/javascripts/focus.js"></script>
 
