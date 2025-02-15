@@ -10,6 +10,7 @@ import { requireNonLogin } from '../middlewares/checker';
 import { loginRedirect, setupAuthRoutes } from '../controllers/authController';
 import { defineFlashMessages, redefineFlashMessages, saveSession } from '../controllers/flashController';
 import { FlashParams } from '../@types/flashType';
+import { defineRedirectDest } from '../controllers/redirectController';
 
 const JWT_SECRET = process.env.JWT_SECRET || '';
 
@@ -63,7 +64,10 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
 
                 const user = await knex('users').where({ id: req.payload.id, name: req.payload.name }).first();
 
-                loginRedirect(req, res, next, user, { 'successMessage': [ 'Email setting done successfully' ] });
+                const data = { 'successMessage': [ 'Email setting done successfully' ] };
+                defineRedirectDest(req, data);
+
+                loginRedirect(req, res, next, user, data);
             } catch (err) {
                 res.status(500).send('Error updating email.');
             }
@@ -174,7 +178,10 @@ router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request
 
         const user = await knex('users').where({ id: req.payload.id, name: req.payload.name }).first();
 
-        loginRedirect(req, res, next, user, { 'successMessage': [ 'OTP setting done successfully' ] });
+        const data = { 'successMessage': [ 'OTP setting done successfully' ] };
+        defineRedirectDest(req, data);
+
+        loginRedirect(req, res, next, user, data);
     } catch (error) {
         res.status(500).send('Invalid Access');
     }

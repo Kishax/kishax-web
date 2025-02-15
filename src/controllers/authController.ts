@@ -1,9 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import '../config';
+import { FMCWebType } from '../@types/fmc';
 import basepath from '../utils/basepath';
 import { requireNonLogin } from '../middlewares/checker';
 import { defineFlashMessages, saveSession } from '../controllers/flashController';
+import { defineRedirectDest } from './redirectController';
 
 export function setupAuthRoutes(router: express.Router, authtypes: string[]) {
     authtypes.forEach(authtype => {
@@ -32,26 +34,19 @@ export const commonAuth = (authtype: string) => (req: Request, res: Response, ne
                 return res.redirect(info.redirectUrl);
             }
 
-            return res.render('signin', { title: 'Sign in' });
+            return res.render('signin');
         }
 
         const data = { successMessage: [ (!authlocal ? authtype : 'default') + ' login successfully!' ] };
-        if (req.session.n) {
-            data['redirect_url'] = '/minecraft/uuid_check.php?n=' + req.session.n;
-            delete req.session.n;
-        }
+        defineRedirectDest(req, data);
 
         loginRedirect(req, res, next, user, data);
     })(req, res, next);
 }
 
 export function loginRedirect(req: Request, res: Response, next: NextFunction, user: any, data: any, timeout: number = 3000) {
-    if (data.redirect_url) {
-        if (typeof data.redirect_url != 'string') {
-            throw new Error("Must be included redirect_url: string in data");
-        }
-    } else {
-        data['redirect_url'] = basepath.successurl;
+    if (!data.redirect_url || typeof data.redirect_url != 'string') {
+        throw new Error("Must be included redirect_url: string in data");
     }
 
     data['timeout'] = timeout;
