@@ -2,7 +2,7 @@ import knex from '../config/knex';
 
 const TABLE_NAME: string = "users";
 
-async function findById(userId: number) {
+export async function findById(userId: number) {
     const user = await where({ id: userId });
     if (user == null) {
         throw new Error('This user is maybe deleted');
@@ -21,7 +21,3 @@ async function where(condition: Record<string, any>) {
             return results[0];
         });
 }
-
-export default {
-    findById,
-};

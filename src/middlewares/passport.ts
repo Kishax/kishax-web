@@ -2,7 +2,7 @@ import passport from 'passport';
 import bcrypt from 'bcrypt';
 import '../config';
 import knex from '../config/knex';
-import User from '../models/user';
+import { findById } from '../models/user';
 import basepath from '../utils/basepath';
 import { sendOneTimePass } from '../controllers/emailController';
 
@@ -27,7 +27,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id: number, done) => {
     try {
-        const user: Express.User = await User.findById(id);
+        const user: Express.User = await findById(id);
         done(null, user);
     } catch (error) {
         done(error, null);
