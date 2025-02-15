@@ -25,11 +25,6 @@
                     </li>
                 <% } %>
             <% } %>
-            <% if (refurl) { %>
-                <li class="nav-item">
-                    <a class="nav-link" href="<%= refurl %>">前のページ</a>
-                </li>
-            <% } %>
             <!--<li class="nav-item">
                 <a class="nav-link" href="<%= hpurl %>">ホームページ</a>
             </li>-->
@@ -44,6 +39,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="<%= rootpath %>/app/todo">ToDo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<%= rootpath %>/mc/auth">MC認証</a>
             </li>
         </ul>
         <div class="trim_header profile d-none d-lg-block">

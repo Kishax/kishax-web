@@ -12,6 +12,7 @@ router.get('/auth', async (req: Request, res: Response) => {
         }
     }
 
+    console.log('/mc/auth//session n:', req.session.n);
     req.session.type = FMCWebType.MC_AUTH;
 
     if (!req.isAuthenticated()) {

@@ -51,11 +51,13 @@ export function loginRedirect(req: Request, res: Response, next: NextFunction, u
 
     data['timeout'] = timeout;
 
+    console.log('req.session.n in loginRedirect before req.login(...):', req.session.n);
     req.login(user, (err) => {
         if (err) {
             return next(err);
         }
 
+        console.log('req.session.n in loginRedirect after req.login(...):', req.session.n);
         return res.render('redirect', data);
     });
 }
