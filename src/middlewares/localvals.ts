@@ -49,7 +49,7 @@ const localvals = async (req: Request, res: Response, next: NextFunction) => {
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
 
     defineMiddleFlashMessages(req, res, [
-        'successMessage', 'errorMessage',
+        'successMessage', 'errorMessage', 'infoMessage',
     ]);
 
     await saveSession(req);

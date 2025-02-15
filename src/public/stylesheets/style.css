@@ -186,6 +186,10 @@ hr {
     color: green;
 }
 
+.info {
+    color: aqua;
+}
+
 .center {
     text-align: center;
 }

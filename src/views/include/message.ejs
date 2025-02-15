@@ -25,3 +25,17 @@
         </ul>
     </div>
 <% } %>
+
+<% if (typeof infoMessage === 'undefined') { var infoMessage = []; } %>
+<% if (infoMessage.length != 0) { %>
+    <div>
+        <strong class="info">Info(<%= infoMessage.length %>)</strong>
+    </div>
+    <div>
+        <ul>
+            <% for (let info of infoMessage) { %>
+                <li><%= info %></li>
+            <% } %>
+        </ul>
+    </div>
+<% } %>

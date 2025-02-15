@@ -16,7 +16,7 @@ router.get('/auth', async (req: Request, res: Response) => {
 
     if (!req.isAuthenticated()) {
         res.render('mc/auth', {
-            successMessage: [ 'WEB認証にはログインが必要です。' ],
+            infoMessage: [ 'WEB認証にはログインが必要です。' ],
         });
 
         return;
@@ -28,7 +28,8 @@ router.get('/auth', async (req: Request, res: Response) => {
 
     if (!req.session.n) {
         res.render('mc/auth', {
-            successMessage: [ 'サーバーに参加しよう！' ],
+            infoMessage: [ 'サーバーに参加しよう！' ],
+            mcAuth: false,
         });
 
         return;
@@ -57,6 +58,7 @@ router.get('/auth', async (req: Request, res: Response) => {
         res.render('mc/auth', {
             errorMessage: [ 'プレイヤーがオンラインでないため、WEB認証ができません。' ],
             username: User.name,
+            mcAuth: false,
         });
     }
 
@@ -66,6 +68,7 @@ router.get('/auth', async (req: Request, res: Response) => {
         res.render('mc/auth', {
             errorMessage: [ 'プレイヤーがオンラインでないため、WEB認証ができません。' ],
             username: User.name,
+            mcAuth: false,
         });
     }
 
@@ -74,6 +77,7 @@ router.get('/auth', async (req: Request, res: Response) => {
         username: User.name,
         mcid: mcuser.name,
         uuid: mcuser.uuid,
+        mcAuth: true,
     });
 });
 
