@@ -8,8 +8,8 @@ const isProduction: boolean = process.env.NODE_ENV === 'production';
 const sessionSecret = process.env.COOKIE_SECRET || 'defaultSecret';
 const SequelizeStore = connectSessionSequelize(session.Store);
 
-const sequelize = new Sequelize(process.env.MYSQL_DATABASE || '', process.env.MYSQL_USER || '', process.env.MYSQL_PASSWORD || undefined, {
-    host: process.env.MYSQL_HOST || 'localhost',
+const sequelize = new Sequelize(process.env.MYSQL_DATABASE_WEB || '', process.env.MYSQL_USER_WEB || '', process.env.MYSQL_PASSWORD_WEB || undefined, {
+    host: process.env.MYSQL_HOST_WEB || 'localhost',
     dialect: 'mysql',
     logging: false,
 });
