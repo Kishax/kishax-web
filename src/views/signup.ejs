@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset='utf-8'>
-        <title><%= title %></title>
+        <title>Sign up</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="/stylesheets/style.css" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
@@ -10,6 +10,8 @@
     </head>
     <body>
         <%- include('./include/header'); %>
+
+        <a class="font0-75 under" href="<%= rootpath %>/signin">サインインはこちら</a>
 
         <div class="container">
             <%- include('./include/message'); %>
@@ -34,7 +36,7 @@
                 <br>
                 <label>パスワード再入力</label>
                 <input required type="password" name="repassword"/>
-                <br><br>
+                <br>
                 <input class="btn btn-primary" type="submit" value="サインアップ"/>
             </form>
         </div>
