@@ -52,9 +52,6 @@ const rooturl: string = getRootURL();
 const rootpath: string = getRootPath();
 const hpurl: string = getHPURL();
 
-const authSuccessURL: string = process.env.SUCCESS_REDIRECT || '/';
-const successurl: string = isUrl(authSuccessURL) ? authSuccessURL : rootpath + authSuccessURL;
-
 const wsrootpath: string = process.env.WEBSOCKET_PATH || '/ws';
 
 function getWsUrl(): string {
@@ -75,7 +72,6 @@ export default {
     rooturl,
     rootpath,
     hpurl,
-    successurl,
     wsrootpath,
     wsurl,
 };
