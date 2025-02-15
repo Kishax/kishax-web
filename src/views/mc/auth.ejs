@@ -11,20 +11,31 @@
     <body>
         <%- include('../include/header'); %>
 
-        <a class="font0-75">
-            <% if (typeof username !== 'undefined') { %>
-                <%= username %>
-            <% } else { %>
-                <%= 'ななし' %>
-            <% } %>
-            さん、ようこそ
+        <% if (isAuth) { %>
+            <a class="font0-75">
+                <% if (typeof username !== 'undefined') { %>
+                    <%= username %>
+                <% } else { %>
+                    <%= 'ななし' %>
+                <% } %>
+                さん、ようこそ
+            </a>
+        <% } else { %>
+            <div class="simple-flex">
+                <a class="font0-75">
+                    <% if (typeof username !== 'undefined') { %>
+                        <%= username %>
+                    <% } else { %>
+                        <%= 'ななし' %>
+                    <% } %>
+                    さん、ようこそ&nbsp;&gt;&gt;&nbsp;
+                </a>
 
-            <% if (!isAuth) { %>
-                <br>
                 <a class="font0-75 under" href="<%= rootpath %>/signup">サインアップはこちら</a>
-            <% } %>
-        </a>
-        <br><br>
+            </div>
+        <% } %>
+
+        <br>
         <div class="container">
             <%- include('../include/message'); %>
 
