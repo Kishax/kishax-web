@@ -1,9 +1,10 @@
-const environment: string = 'development';
-
-import knexConfig from  '../knexfile';
+import { getDbConfig } from '../knexfile';
 import knex, { Knex } from 'knex';
 
-const config: Knex.Config = knexConfig[environment];
-const db = knex(config);
+const webConfig: Knex.Config = getDbConfig('web');
+const wknex = knex(webConfig);
 
-export default db;
+const mcConfig: Knex.Config = getDbConfig('mc');
+export const mknex = knex(mcConfig);
+
+export default wknex;
