@@ -62,11 +62,6 @@ app.use(counter);
 
 app.use(preErrorHandler);
 
-app.use(async (req: Request, res: Response, next: NextFunction) => {
-    console.log('app\'s session n:', req.session.n);
-    next();
-});
-
 app.use('/', router);
 
 app.use(mycors);
