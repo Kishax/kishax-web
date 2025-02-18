@@ -1,8 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import '../config';
-import { FMCWebType } from '../@types/fmc';
-import basepath from '../utils/basepath';
 import { requireNonLogin } from '../middlewares/checker';
 import { defineFlashMessages, saveSession } from '../controllers/flashController';
 import { defineRedirectDest } from './redirectController';
@@ -51,13 +49,19 @@ export function loginRedirect(req: Request, res: Response, next: NextFunction, u
 
     data['timeout'] = timeout;
 
-    console.log('req.session.n in loginRedirect before req.login(...):', req.session.n);
+    const sessionWithType = req.session && ('type' in req.session || 'n' in req.session)
+        ? { ...req.session }
+        : null;
+
     req.login(user, (err) => {
         if (err) {
             return next(err);
         }
 
-        console.log('req.session.n in loginRedirect after req.login(...):', req.session.n);
+        if (sessionWithType) {
+            Object.assign(req.session, sessionWithType);
+        }
+
         return res.render('redirect', data);
     });
 }
