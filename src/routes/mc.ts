@@ -12,7 +12,6 @@ router.get('/auth', async (req: Request, res: Response) => {
         }
     }
 
-    console.log('/mc/auth//session n:', req.session.n);
     req.session.type = FMCWebType.MC_AUTH;
 
     if (!req.isAuthenticated()) {
@@ -40,18 +39,23 @@ router.get('/auth', async (req: Request, res: Response) => {
 
     if (!mcuser) {
         res.status(400).send('Invalid Access');
-        throw new Error('Invalid Access');
+        return;
     }
 
     if (mcuser.confirm) {
-        res.status(400).send('Invalid Access');
-        throw new Error('Invalid Access');
+        res.render('mc/auth', {
+            errorMessage: [ '認証ユーザーです。' ],
+            username: User.name,
+            mcAuth: false,
+        });
+
+        return;
     }
 
     const onlist = await mknex('status').where({ name: 'velocity'}).first();
     if (!onlist) {
         res.status(400).send('Database Error');
-        throw new Error('Not found where name is velocity in status table');
+        return;
     }
 
     const playerlist = onlist.player_list;
@@ -61,6 +65,8 @@ router.get('/auth', async (req: Request, res: Response) => {
             username: User.name,
             mcAuth: false,
         });
+
+        return;
     }
 
     const onlinePlayers: [ string ] = playerlist.split(",");
@@ -71,6 +77,8 @@ router.get('/auth', async (req: Request, res: Response) => {
             username: User.name,
             mcAuth: false,
         });
+
+        return;
     }
 
     res.render('mc/auth', {
