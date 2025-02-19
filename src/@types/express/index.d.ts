@@ -16,6 +16,12 @@ declare global {
 		interface EmailJwtPayload extends JwtPayload {
 			email: string;
 		}
+
+        interface McAuthJwtPayload extends JwtPayload {
+            username: string;
+            mcid: string;
+            uuid: string;
+        }
     }
 
     namespace http {
