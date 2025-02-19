@@ -173,7 +173,7 @@ passport.use(new LocalStrategy({
 
         const token = await generateUserToken(user, true);
         if (!user.email) {
-            const redirectUrl = `${basepath.rooturl}auth/set-email?token=${token}`;
+            const redirectUrl = `${basepath.rootpath}/auth/set-email?token=${token}`;
             return done(null, false, { message: 'This is Default: Email not set', redirectUrl } as IVerifyOptions);
         }
 
@@ -181,7 +181,7 @@ passport.use(new LocalStrategy({
         await sendOneTimePass(user.email, otp);
         await knex('users').where({ name: username }).update({ otp });
 
-        const redirectUrl: string = `${basepath.rooturl}auth/verify-otp?token=${token}`;
+        const redirectUrl: string = `${basepath.rootpath}/auth/verify-otp?token=${token}`;
 
         return done(null, false, { successMessage: [ 'Enter onetime password' ], redirectUrl } as IVerifyOptions);
     } catch (err) {

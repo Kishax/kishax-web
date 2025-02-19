@@ -21,18 +21,21 @@ export const commonAuth = (authtype: string) => (req: Request, res: Response, ne
         const authlocal: boolean = authtype === 'local';
 
         if (!user) {
-            defineFlashMessages(req, res, {
-                errorMessage: info.errorMessage || undefined,
-                successMessage: info.successMessage || undefined,
-            });
+            const { errorMessage, successMessage } = info;
 
-            await saveSession(req);
+            if (errorMessage) {
+                req.flash('errorMessage', errorMessage);
+            }
+
+            if (successMessage) {
+                req.flash('successMessage', successMessage);
+            }
 
             if (authlocal && info && info.redirectUrl) {
                 return res.redirect(info.redirectUrl);
             }
 
-            return res.render('signin');
+            return res.redirect(`${basepath.rootpath}/signin`);
         }
 
         const data = { successMessage: [ (!authlocal ? authtype : 'default') + ' login successfully!' ] };

@@ -4,7 +4,6 @@ import fs from 'fs';
 import '../config';
 import basepath from '../utils/basepath';
 import { isUrl } from '../utils/is';
-import { defineMiddleFlashMessages, saveSession } from '../controllers/flashController';
 
 function getRandomFileName(directoryPath): string {
     const files = fs.readdirSync(directoryPath);
@@ -47,12 +46,6 @@ const localvals = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
-
-    defineMiddleFlashMessages(req, res, [
-        'successMessage', 'errorMessage', 'infoMessage',
-    ]);
-
-    await saveSession(req);
 
     next();
 };
