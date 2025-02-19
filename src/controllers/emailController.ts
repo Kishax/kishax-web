@@ -55,8 +55,6 @@ async function sendmail(recipient: string, subject: string, html: string): Promi
         };
 
         const info = await transporter.sendMail(mailOptions);
-
-        console.log(html);
         console.log('sent mail successfully: %s', info.messageId)
 
         return true;
