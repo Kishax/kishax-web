@@ -36,12 +36,14 @@ router.post('/reset-password', async (req: Request, res: Response, next: NextFun
     const { email } = req.body;
     try {
         email.parse(email);
+
         const check = await knex('users').select('id').where('email', email);
+
         if (!!check) {
-			const payload: Jsonwebtoken.EmailJwtPayload = { email };
-			const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
-			const redirectUrl: string = '${basepath.rooturl}auth/set-password?token=${oldtoken}';
-			await sendVertificationEmailForResetPassword(email, redirectUrl);
+            const payload: Jsonwebtoken.EmailJwtPayload = { email };
+            const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+            const redirectUrl: string = '${basepath.rooturl}auth/set-password?token=${oldtoken}';
+            await sendVertificationEmailForResetPassword(email, redirectUrl);
         }
     } catch (e) {
         req.flash('errorMessage', [ 'Invalid email pattern!' ]);
@@ -66,7 +68,7 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
                 const data = { 'successMessage': [ 'Email setting done successfully' ] };
                 defineRedirectDest(req, data);
 
-                loginRedirect(req, res, next, user, data);
+                loginRedirect(req, res, user, data);
             } catch (err) {
                 res.status(500).send('Error updating email.');
             }
@@ -76,7 +78,7 @@ router.get('/set-email', requireNonLogin, authenticateJWT, async (req: Request, 
         return;
     }
 
-    const token = req.query.token;
+    const { token } = req.query;
     if (!token) {
         res.status(400).send('Invalid Access');
         return;
@@ -135,7 +137,7 @@ router.get('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request,
         return;
     }
 
-    const token = req.query.token;
+    const { token } = req.query;
 
     res.render('auth/verify-form', {
         token,
@@ -147,7 +149,7 @@ router.get('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request,
     });
 });
 
-router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request, res: Response) => {
     if (!req.payload) {
         res.status(400).send('Invalid Access');
         return;
@@ -174,9 +176,10 @@ router.post('/verify-otp', requireNonLogin, authenticateJWT, async (req: Request
         const data = { 'successMessage': [ 'OTP setting done successfully' ] };
         defineRedirectDest(req, data);
 
-        loginRedirect(req, res, next, user, data);
+        loginRedirect(req, res, user, data);
     } catch (error) {
         res.status(500).send('Invalid Access');
+        return;
     }
 });
 

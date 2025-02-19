@@ -37,9 +37,9 @@ const localvals = async (req: Request, res: Response, next: NextFunction) => {
                 res.locals.avatar_path = user.avatar;
             } else {
                 if (user.discordId) {
-                    res.locals.avatar_path = 'https://cdn.discordapp.com/avatars/' +
-                        user.discordId + "/" + user.avatar + '.' +
-                        (user.avatar.startsWith('a_') ? 'gif' : 'png');
+                    res.locals.avatar_path = 'https://cdn.discordapp.com/avatars/'
+                        + user.discordId + "/" + user.avatar + '.'
+                        + (user.avatar.startsWith('a_') ? 'gif' : 'png');
                 }
             }
         }
