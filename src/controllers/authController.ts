@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import '../config';
 import { requireNonLogin } from '../middlewares/checker';
-import { defineFlashMessages, saveSession } from '../controllers/flashController';
 import { defineRedirectDest } from './redirectController';
 
 export function setupAuthRoutes(router: express.Router, authtypes: string[]) {
