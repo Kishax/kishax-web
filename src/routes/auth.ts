@@ -22,7 +22,13 @@ router.get('/reset-password', async (req: Request, res: Response, next: NextFunc
     if (req.isAuthenticated()) {
 		//
     } else {
-        res.render('auth/verify-form', { title: 'password setting', auth_path: '/reset-password', label: 'メールアドレス', input_name: 'email', });
+        res.render('auth/verify-form', {
+            title: 'password setting',
+            auth_path: '/reset-password',
+            label: 'メールアドレス',
+            input_name: 'email',
+            errorMessage: req.flash('errorMessage'),
+        });
     }
 });
 
