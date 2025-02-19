@@ -19,7 +19,12 @@
                     <input type="hidden" name="token" value="<%= token %>">
                 <% } %>
                 <label><%= label %></label>
-                <input required id="focus" type="text" name="<%= input_name %>"/>
+                <% if (input_name === 'otp') { %>
+                    <input required id="focus" type="text" name="<%= input_name %>" placeholder="6桁の半角数字を入力" pattern="\d*" maxlength="6" oninput="validateInput(this)"/>
+                    <script src="/javascripts/validate.js"></script>
+                <% } else { %>
+                    <input required id="focus" type="text" name="<%= input_name %>"/>
+                <% } %>
                 <br>
                 <input class="btn btn-primary" type="submit" value="送信する"/>
             </form>

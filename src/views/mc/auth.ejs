@@ -53,9 +53,12 @@
                 <br>
                 <label>ワンタイムパスワード</label>
                 <% if (isAuth && mcAuth) { %>
-                    <input id="focus" required type="text" name="pass" placeholder="6桁の半角数字を入力" pattern="\d" maxlength="6"/>
+                    <input id="focus" required type="text" name="pass" placeholder="6桁の半角数字を入力" pattern="\d*" maxlength="6" oninput="validateInput(this)"/>
+                    <input type="hidden", name="token" value="<%= token %>">
+                    <script src="/javascripts/focus.js"></script>
+                    <script src="/javascripts/validate.js"></script>
                 <% } else { %>
-                    <input id="focus" readonly required type="text" name="pass" placeholder="6桁の半角数字を入力" pattern="\d" maxlength="6"/>
+                    <input readonly required type="text" name="pass" placeholder="6桁の半角数字を入力"/>
                 <% } %>
                 <br>
                 <% if (isAuth && mcAuth) { %>
@@ -68,8 +71,6 @@
         </div>
 
         <%- include('../include/footer'); %>
-
-        <script src="/javascripts/focus.js"></script>
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                 integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
