@@ -52,7 +52,7 @@ router.get('/auth', async (req: Request, res: Response) => {
         return;
     }
 
-    const onlist = await mknex('status').where({ name: 'velocity'}).first();
+    const onlist = await mknex('status').where({ name: 'proxy' }).first();
     if (!onlist) {
         res.status(400).send('Database Error');
         return;
