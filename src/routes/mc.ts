@@ -4,6 +4,7 @@ import { z } from 'zod';
 import '../config';
 import { FMCWebType } from '../@types/fmc';
 import knex, { mknex } from '../config/knex';
+import { getMessage } from '../utils/flash';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
@@ -40,7 +41,7 @@ router.get('/auth', async (req: Request, res: Response) => {
 
     if (!req.session.n) {
         res.render('mc/auth', {
-            infoMessage: [ 'サーバーに参加しよう！' ],
+            infoMessage: getMessage(req, 'infoMessage') || [ 'サーバーに参加しよう！' ],
             mcAuth: false,
         });
 
@@ -56,7 +57,22 @@ router.get('/auth', async (req: Request, res: Response) => {
 
     if (mcuser.confirm) {
         res.render('mc/auth', {
-            errorMessage: [ '認証ユーザーです。' ],
+            infoMessage: getMessage(req, 'infoMessage') || [ '認証済みユーザーです。' ],
+            username: User.name,
+            mcAuth: false,
+            successMessage: req.flash('successMessage'),
+        });
+
+        return;
+    }
+
+    if (!mcuser.secret2) {
+        res.render('mc/auth', {
+            errorMessage: getMessage(req, 'errorMessage') || [
+                'ワンタイムパスワードが設定されていません。',
+                'サーバーで/retryコマンドよりワンタイムパスワードを生成してください。',
+                '生成後、ページのリロードが必要です。',
+            ],
             username: User.name,
             mcAuth: false,
         });
@@ -98,7 +114,7 @@ router.get('/auth', async (req: Request, res: Response) => {
         const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
         res.render('mc/auth', {
-            successMessage: req.flash('successMessage') || [ 'プレイヤー情報が自動入力されました。' ],
+            successMessage: getMessage(req, 'successMessage') || [ 'プレイヤー情報が自動入力されました。' ],
             username: User.name,
             mcid: mcuser.name,
             uuid: mcuser.uuid,
@@ -117,6 +133,8 @@ router.post('/auth', async (req: Request, res: Response) => {
         return res.redirect('/mc/auth');
     }
 
+    const user = req.user as any;
+
     const result = authSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -130,18 +148,60 @@ router.post('/auth', async (req: Request, res: Response) => {
         const payload = jwt.verify(queryData.token, JWT_SECRET) as Jsonwebtoken.McAuthJwtPayload;
 
         if (queryData.mcid !== payload.mcid || queryData.uuid !== payload.uuid) {
-            res.status(400).send('Invalid Access: not correspond with payload and queryData');
+            res.status(400).send('Invalid Access');
             return;
         }
 
         const dbInfo = await mknex('members').where({ name: payload.mcid, uuid: payload.uuid }).first();
-        if (dbInfo && typeof dbInfo.secret2 !== 'number') {
-            req.flash('errorMessage', [ 'マイクラサーバーで/retryコマンドよりワンタイムパスワードを更新してください。' ]);
+
+        if (!dbInfo) {
+            res.status(400).send('Invalid Access');
+            return;
+        }
+
+        if (dbInfo.confirm) {
+            req.flash('infoMessage', [ '認証済みユーザーです。' ]);
             return res.redirect('/mc/auth');
         }
 
+        if (dbInfo.secret2 != queryData.pass) {
+            mknex('members')
+                .update({ secret2: null })
+                .where({ name: payload.mcid, uuid: payload.uuid })
+                .then((result) => {
+                    if (result) {
+                        req.flash('errorMessage', [
+                            'ワンタイムパスワードが異なるため、リセットしました。',
+                            'マイクラサーバーで/retryコマンドよりワンタイムパスワードを再生成してください。',
+                            '生成後、ページのリロードが必要です。',
+                        ]);
+
+                        res.redirect('/mc/auth');
+                    }
+                })
+                .catch((err) => {
+                    res.status(400).send('Database error');
+                    throw new Error(err);
+                });
+
+            return;
+        }
+
+        mknex('members')
+            .update({ confirm: true, secret2: null, member_id: user.id })
+            .where({ name: payload.mcid, uuid: payload.uuid })
+            .then((result) => {
+                if (result) {
+                    req.flash('successMessage', [ 'WEB認証に成功しました。' ]);
+                    res.redirect('/mc/auth');
+                }
+            })
+            .catch((err) => {
+                res.status(400).send('Database error');
+                throw new Error(err);
+            });
     } catch (error) {
-        console.log('/mc/auth POST error:', error);
+        console.log(error);
         res.status(400).send('Invalid Access');
         return;
     }
