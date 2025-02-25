@@ -6,6 +6,7 @@ import { FMCWebType } from '../@types/fmc';
 import knex, { mknex } from '../config/knex';
 import { getMessage } from '../utils/flash';
 import { sendSocketMessage } from '../services/socket-client';
+import basepath from '../utils/basepath';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
@@ -131,7 +132,7 @@ router.get('/auth', async (req: Request, res: Response) => {
 router.post('/auth', async (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
         req.flash('errorMessage', [ 'ログインが必要です。' ]);
-        return res.redirect('/mc/auth');
+        return res.redirect(`${basepath.rootpath}/mc/auth`);
     }
 
     const user = req.user as any;
@@ -162,7 +163,7 @@ router.post('/auth', async (req: Request, res: Response) => {
 
         if (dbInfo.confirm) {
             req.flash('infoMessage', [ '認証済みユーザーです。' ]);
-            return res.redirect('/mc/auth');
+            return res.redirect(`${basepath.rootpath}/mc/auth`);
         }
 
         if (dbInfo.secret2 != queryData.pass) {
@@ -177,7 +178,7 @@ router.post('/auth', async (req: Request, res: Response) => {
                             '生成後、ページのリロードが必要です。',
                         ]);
 
-                        res.redirect('/mc/auth');
+                        res.redirect(`${basepath.rootpath}/mc/auth`);
                     }
                 })
                 .catch((err) => {
@@ -194,7 +195,7 @@ router.post('/auth', async (req: Request, res: Response) => {
             .then((result) => {
                 if (result) {
                     req.flash('successMessage', [ 'WEB認証に成功しました。' ]);
-                    res.redirect('/mc/auth');
+                    res.redirect(`${basepath.rootpath}/mc/auth`);
 
                     const message = {
                         web: {
