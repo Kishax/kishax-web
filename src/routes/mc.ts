@@ -5,6 +5,7 @@ import '../config';
 import { FMCWebType } from '../@types/fmc';
 import knex, { mknex } from '../config/knex';
 import { getMessage } from '../utils/flash';
+import { sendSocketMessage } from '../services/socket-client';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
@@ -194,6 +195,20 @@ router.post('/auth', async (req: Request, res: Response) => {
                 if (result) {
                     req.flash('successMessage', [ 'WEB認証に成功しました。' ]);
                     res.redirect('/mc/auth');
+
+                    const message = {
+                        web: {
+                            confirm: {
+                                who: {
+                                    name: payload.mcid,
+                                    uuid: payload.uuid,
+                                }
+                            }
+                        }
+                    }
+
+                    const jsonMessage = JSON.stringify(message);
+                    sendSocketMessage(jsonMessage + '\r\n');
                 }
             })
             .catch((err) => {
