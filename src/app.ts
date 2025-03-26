@@ -21,7 +21,7 @@ import header from './middlewares/header';
 const app = express();
 
 if (process.env.NODE_ENV === 'production') {
-	app.set('trust proxy', 1);
+  app.set('trust proxy', 1);
 }
 
 console.log(`> current mode is ${process.env.NODE_ENV}`);
@@ -39,9 +39,9 @@ app.use(express.json());
 app.use(header);
 
 app.use('/fonts', express.static(path.join(__dirname, 'fonts'), {
-    setHeaders: (res, path, stat) => {
-        res.set('Access-Control-Allow-Origin', '*');
-    }
+  setHeaders: (res, path, stat) => {
+    res.set('Access-Control-Allow-Origin', '*');
+  }
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));

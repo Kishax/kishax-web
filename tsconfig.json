@@ -7,9 +7,19 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleDetection": "force",
-    "typeRoots": ["node_modules/@types", "src/@types"],
-    "noImplicitAny": false,
+    "typeRoots": [
+      "node_modules/@types",
+      "src/@types"
+    ],
+    "noImplicitAny": false
   },
-  "include": ["src/**/*", "src/@types", "webpack.config.js"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "src/@types",
+    "webpack.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

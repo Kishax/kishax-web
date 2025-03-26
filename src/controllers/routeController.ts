@@ -9,11 +9,11 @@ import appRouter from '../routes/app';
 import mcRouter from '../routes/mc';
 
 export function setSimpleRouters(router: express.Router, routerNames: string[]) {
-    routerNames.forEach((routerName: string) => {
-        router.get(`/${routerName}`, async (_: Request, res: Response) => {
-            res.render(routerName);
-        });
+  routerNames.forEach((routerName: string) => {
+    router.get(`/${routerName}`, async (_: Request, res: Response) => {
+      res.render(routerName);
     });
+  });
 }
 
 const router: express.Router = express.Router();

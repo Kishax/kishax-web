@@ -1,7 +1,11 @@
 {
-    "restartable": "rs",
-    "watch": ["./src"],
-    "ignore": ["tests/**/*.ts"],
-    "ext": "ts,js",
-    "exec": "npm run build:client && npm run start:app:independence"
+  "restartable": "rs",
+  "watch": [
+    "./src"
+  ],
+  "ignore": [
+    "tests/**/*.ts"
+  ],
+  "ext": "ts,js",
+  "exec": "npm run build:client && npm run start:app:independence"
 }
