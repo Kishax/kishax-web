@@ -1,6 +1,6 @@
 {
-  "name": "learning",
-  "version": "0.0.1",
+  "name": "fmc-web",
+  "version": "0.0.2",
   "scripts": {
     "build:client": "webpack",
     "build:app": "tsc",
