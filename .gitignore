@@ -6,6 +6,7 @@ src/public/images/avatar/default/*
 client.js
 error
 package-lock.json
+blog/
 # Quotes from https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
 logs
