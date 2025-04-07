@@ -1,6 +1,7 @@
 {
   "name": "fmc-web",
   "version": "0.0.2",
+  "description": "",
   "scripts": {
     "build:client": "webpack",
     "build:app": "tsc",
@@ -9,6 +10,9 @@
     "start:app:prod:js": "npm run build:app && node ./dist/bin/www.js",
     "start:app:independence": "ts-node --files ./src/bin/www.ts"
   },
+  "author": "bella2391",
+  "license": "MIT",
+  "private": true,
   "dependencies": {
     "@skyway-sdk/room": "^1.11.0",
     "bcrypt": "^5.1.1",
