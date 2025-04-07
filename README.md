@@ -13,7 +13,7 @@ This repository is based on [todoapp](https://github.com/bella2391/todoapp), whi
 I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, please [contact me](https://github.com/bella2391#contact-).
 
 ## Credits
-This project uses other external assets someone creates - see the [CREDITS.txt](CREDITS.txt)
+This project uses other external assets someone creates - see the [CREDITS](CREDITS)
 
 ## License
-[MIT](LICENSE.txt)
+[MIT](LICENSE)
