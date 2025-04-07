@@ -1,6 +1,6 @@
 # fmc-web
 
-[![Banner](https://github.com/bella2391/branding/blob/master/banner/fmc.png "Banner")](https://keyp.f5.si/)  
+[![Banner](https://raw.githubusercontent.com/bella2391/branding/refs/heads/master/web/banner/fmc.png "Banner")](https://keyp.f5.si/)  
 
 ## Description
 This project is actually in use on the [fmc web](https://keyp.f5.si/dev/).  
