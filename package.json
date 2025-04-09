@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "",
   "license": "MIT",
-  "author": "bella2391",
+  "author": "verazza",
   "private": true,
   "scripts": {
     "build:client": "webpack",
