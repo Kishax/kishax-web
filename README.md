@@ -1,13 +1,13 @@
-# fmc-web
+# kishax-web
 
-[![Banner](https://raw.githubusercontent.com/verazza/branding/refs/heads/master/web/banner/fmc.png "Banner")](https://keyp.f5.si/)  
+[![Visit Website](https://img.shields.io/badge/Visit_Website-007BFF?style=for-the-badge)](https://kishax.f5.si/)
 
 ## Description
-This project is actually in use on the [fmc web](https://keyp.f5.si/dev/).  
-It is for FMC developers to collaborate on web development.  
+This project is actually in use on it.  
+It is for web developers to collaborate on web development.  
 
 ## Column
-This repository is based on [mlgt](https://github.com/verazza/mlgt), which I first developed in typescript.  
+This repository is based on [mlgta](https://github.com/verazza/mlgta), which I first developed in typescript.  
 
 ## My Wish
 I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, please [contact me](https://github.com/verazza#contact-).

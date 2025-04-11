@@ -1,14 +1,14 @@
 import { Request } from 'express';
-import { FMCWebType } from '../@types/fmc';
+import { WebType } from '../@types/web';
 import basepath from '../utils/basepath';
 
 export const defineRedirectDest = (req: Request, data: any) => {
   const webType = req.session.type;
   switch (webType) {
-    case FMCWebType.TODO:
+    case WebType.TODO:
       data['redirect_url'] = `${basepath.rootpath}/app/todo`;
       break;
-    case FMCWebType.MC_AUTH:
+    case WebType.MC_AUTH:
       data['redirect_url'] = `${basepath.rootpath}/mc/auth`;
       break;
     default:

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import '../config';
-import { FMCWebType } from '../@types/fmc';
+import { WebType } from '../@types/web';
 import knex, { mknex } from '../config/knex';
 import { getMessage } from '../utils/flash';
 import { sendSocketMessage } from '../services/socket-client';
@@ -27,7 +27,7 @@ router.get('/auth', async (req: Request, res: Response) => {
     }
   }
 
-  req.session.type = FMCWebType.MC_AUTH;
+  req.session.type = WebType.MC_AUTH;
 
   if (!req.isAuthenticated()) {
     res.render('mc/auth', {

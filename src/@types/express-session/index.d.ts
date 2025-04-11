@@ -1,10 +1,10 @@
 import session from 'express-session';
-import { FMCWebType } from '../fmc';
+import { WebType } from '../web';
 
 declare module 'express-session' {
   interface SessionData {
     views: number;
     n: number;
-    type: FMCWebType;
+    type: WebType;
   }
 }

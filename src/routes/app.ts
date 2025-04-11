@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import knex from '../config/knex';
 import basepath from '../utils/basepath';
 import '../config';
-import { FMCWebType } from '../@types/fmc';
+import { WebType } from '../@types/web';
 import { setSimpleRouters } from '../controllers/routeController';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
@@ -49,7 +49,7 @@ router.get('/todo', async (req: Request, res: Response) => {
         });
       });
   } else {
-    req.session.type = FMCWebType.TODO;
+    req.session.type = WebType.TODO;
 
     res.render('signin', {
       isAuth: false,
