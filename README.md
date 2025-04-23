@@ -10,7 +10,7 @@ It is for web developers to collaborate on web development.
 This repository is based on [mlgta](https://github.com/verazza/mlgta), which I first developed in typescript.  
 
 ## My Wish
-I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, please [contact me](https://github.com/verazza#contact-).
+I need like-minded developers/supporters/adviser, if you are interested in doing css, html main, or writing server code in node.js, plz contact at [X-@verazza_](https://x.com/verazza_).
 
 ## Credits
 This project uses other external assets someone creates - see the [CREDITS](CREDITS)
