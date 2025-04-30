@@ -1,6 +1,6 @@
 # kishax-web
 
-[![Visit Website](https://img.shields.io/badge/Visit_Website-007BFF?style=for-the-badge)](https://kishax.f5.si/)
+[![Visit Website](https://img.shields.io/badge/Visit_Website-007BFF?style=for-the-badge)](https://kishax.net/)
 
 ## Description
 This project is actually in use on it.  
