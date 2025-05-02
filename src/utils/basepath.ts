@@ -1,5 +1,4 @@
 import '../config';
-import { isUrl } from './is';
 
 export function getHPURL(slash: boolean = true): string {
   var url: string = '';
@@ -43,9 +42,13 @@ function getRootURL(): string {
 }
 
 function getRootPath(): string {
-  return process.env.NODE_ENV === 'production'
-    ? (process.env.PROXY_REVERSE_PATH || '/dev')
-    : '';
+  if (process.env.CLOUDFLARE_MODE === 'true') {
+    return ''
+  } else {
+    return process.env.NODE_ENV === 'production'
+      ? (process.env.PROXY_REVERSE_PATH || '/dev')
+      : '';
+  }
 }
 
 const rooturl: string = getRootURL();
