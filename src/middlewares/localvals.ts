@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as path from 'path';
 import fs from 'fs';
 import '../config';
+import config from '../../data/config.json';
 import basepath from '../utils/basepath';
 import { isUrl } from '../utils/is';
 
@@ -12,6 +13,7 @@ function getRandomFileName(directoryPath): string {
 }
 
 const localvals = async (req: Request, res: Response, next: NextFunction) => {
+  res.locals.config = config
   res.locals.application_name = process.env.APP_NAME || 'App';
   res.locals.rootpath = basepath.rootpath;
   res.locals.hpurl = basepath.hpurl;
