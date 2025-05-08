@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import flash from 'connect-flash';
 import favicon from 'serve-favicon';
+import sitemap from './sitemap'
 import './config';
 import router from './controllers/routeController';
 import session from './middlewares/session';
@@ -46,6 +47,8 @@ app.use('/fonts', express.static(path.join(__dirname, 'fonts'), {
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'kishax.ico')));
+
+app.use(sitemap)
 
 app.use(session);
 
