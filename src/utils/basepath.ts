@@ -22,7 +22,7 @@ export function getHPURL(slash: boolean = true): string {
   return url;
 }
 
-function getRootURL(): string {
+function getRootURL(suffix: boolean = true): string {
   var url: string = '';
   if (process.env.NODE_ENV === 'production') {
     if (process.env.IS_HTTPS === 'true') {
@@ -36,7 +36,7 @@ function getRootURL(): string {
   if (process.env.PORT) {
     url += ":" + process.env.PORT;
   }
-  url += getRootPath() + '/'
+  url += getRootPath() + (suffix ? '/' : '')
 
   return url;
 }
