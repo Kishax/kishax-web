@@ -3,16 +3,7 @@
 <head>
   <title><%= application_name %></title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="<%= config.og.description %>" />
-  <meta property="og:title" content="<%= config.og.title %>" />
-  <meta property="og:description" content="<%= config.og.description %>" />
-  <meta property="og:image" content="<%= config.og.image %>" />
-  <meta property="og:url" content="<%= config.og.url %>" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="<%= config.og.title %>" />
-  <meta name="twitter:description" content="<%= config.og.description %>" />
-  <meta name="twitter:image" content="<%= config.og.image %>" />
+  <%- include('./include/ogp'); %>
   <link rel="stylesheet" href="/stylesheets/style.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
