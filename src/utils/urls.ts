@@ -1,4 +1,4 @@
-export function isUrl(str: string): boolean {
+const isUrl = (str: string): boolean => {
   const pattern = new RegExp(
     '^(https?:\\/\\/)' +
     '((([a-zA-Z0-9\\-]+\\.)+[a-zA-Z]{2,})|' +
@@ -10,4 +10,8 @@ export function isUrl(str: string): boolean {
   );
 
   return pattern.test(str);
+}
+
+export {
+  isUrl,
 }
