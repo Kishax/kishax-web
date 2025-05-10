@@ -1,8 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="<%= rootpath %>/"><%= application_name %></a>
+  <a class="navbar-brand" href="<%= config.server.root %>/"><%= config.name %></a>
   <div class="simple-flex">
     <div class="trim_header profile d-lg-none">
-      <img src="<%= avatar_path %>" alt="User Icon">
+      <img src="/api/avatar" alt="User Icon">
     </div>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -12,44 +12,44 @@
     <ul class="navbar-nav">
       <% if (isAuth) { %>
         <li class="nav-item">
-          <a class="nav-link" href="<%= rootpath %>/logout">ログアウト</a>
+          <a class="nav-link" href="<%= config.server.root %>/logout">ログアウト</a>
         </li>
       <% } else { %>
         <% if (current_path == "/signin") { %>
           <li class="nav-item">
-            <a class="nav-link" href="<%= rootpath %>/signup">サインアップ</a>
+            <a class="nav-link" href="<%= config.server.root %>/signup">サインアップ</a>
           </li>
         <% } else { %>
           <li class="nav-item">
-            <a class="nav-link" href="<%= rootpath %>/signin">サインイン</a>
+            <a class="nav-link" href="<%= config.server.root %>/signin">サインイン</a>
           </li>
         <% } %>
       <% } %>
       <!--<li class="nav-item">
-        <a class="nav-link" href="<%= hpurl %>">ホームページ</a>
+        <a class="nav-link" href="<%= config.server.url %>">ホームページ</a>
       </li>-->
       <li class="nav-item">
-        <a class="nav-link" href="<%= rootpath %>/app/chart">チャート</a>
+        <a class="nav-link" href="<%= config.server.root %>/app/chart">チャート</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="<%= rootpath %>/app/skyway">通話</a>
+        <a class="nav-link" href="<%= config.server.root %>/app/skyway">通話</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="<%= rootpath %>/app/chat">チャット</a>
+        <a class="nav-link" href="<%= config.server.root %>/app/chat">チャット</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="<%= rootpath %>/app/todo">ToDo</a>
+        <a class="nav-link" href="<%= config.server.root %>/app/todo">ToDo</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="<%= rootpath %>/mc/auth">MC認証</a>
+        <a class="nav-link" href="<%= config.server.root %>/mc/auth">MC認証</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="<%= blog_url %>" rel="noopener noreferrer" target="_blank">私について</a>
+        <a class="nav-link" href="<%= config.social.me.portfolio.url %>" rel="noopener noreferrer" target="_blank">私について</a>
       </li>
     </ul>
 
     <div class="trim_header profile d-none d-lg-block">
-      <img src="<%= avatar_path %>" alt="User Icon">
+      <img src="/api/avatar" alt="User Icon">
     </div>
   </div>
 </nav>

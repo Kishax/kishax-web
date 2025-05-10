@@ -21,8 +21,8 @@ import header from './middlewares/header';
 
 const app = express();
 
-console.log(`> current mode is ${process.env.NODE_ENV}`);
-console.log('> current Base URL is ' + basepath.rooturl);
+console.log('> current mode is ' + process.env.NODE_ENV);
+console.log('> current url is ' + config.server.url);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

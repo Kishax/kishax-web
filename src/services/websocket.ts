@@ -1,8 +1,7 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import '../config';
-import basepath from '../utils/basepath';
+import config from '../config';
 
-const isAuthenticated = (json, payload: Jsonwebtoken.WebSocketJwtPayload): boolean => {
+const isAuthenticated = (json: any, payload: Jsonwebtoken.WebSocketJwtPayload): boolean => {
   const jsonCsrfToken = json.csrfToken;
   const payloadCsrfToken = payload.csrfToken;
   return jsonCsrfToken && payloadCsrfToken && jsonCsrfToken === payloadCsrfToken;

@@ -93,13 +93,13 @@ const counter = async (req: Request, res: Response, next: NextFunction) => {
       .whereNot('ip', '')
       .select('*');
 
-    const ips = rows.map(row => row.ip);
+    const ips = rows.map((row: any) => row.ip);
 
     const last = await knex('counter').orderBy('id', 'desc').first();
 
     const isAdminHost: boolean = excephost.includes(iphost);
 
-    const isTodayFirst = (timestamp) => {
+    const isTodayFirst = (timestamp: any) => {
       const date = new Date(timestamp);
 
       return date.getFullYear() !== today.getFullYear() ||

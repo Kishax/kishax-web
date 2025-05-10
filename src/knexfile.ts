@@ -1,10 +1,10 @@
 import { Knex } from 'knex';
-import './config';
+import config from './config';
 
 export function getDbConfig(env: string): Knex.Config {
-  const database = process.env[`MYSQL_DATABASE_${env.toUpperCase()}`];
-  const user = process.env[`MYSQL_USER_${env.toUpperCase()}`];
-  const password = process.env[`MYSQL_PASSWORD_${env.toUpperCase()}`];
+  const database = config.server.modules.mysql.database;
+  const user = config.server.modules.mysql.user;
+  const password = config.server.modules.mysql.password;
 
   if (!database || !user || !password) {
     throw new Error(`Missing database configuration for ${env}`);

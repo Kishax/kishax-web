@@ -1,9 +1,8 @@
 import express, { Request, Response } from 'express';
 import passport from 'passport';
-import '../config';
+import config from '../config';
 import { requireNonLogin } from '../middlewares/checker';
 import { defineRedirectDest } from './redirectController';
-import basepath from '../utils/basepath';
 
 export function setupAuthRoutes(router: express.Router, authtypes: string[]) {
   authtypes.forEach(authtype => {
@@ -13,7 +12,7 @@ export function setupAuthRoutes(router: express.Router, authtypes: string[]) {
 }
 
 export const commonAuth = (authtype: string) => (req: Request, res: Response) => {
-  passport.authenticate(authtype, async (err, user, info) => {
+  passport.authenticate(authtype, async (err: any, user: any, info: any) => {
     if (err) {
       console.error('An error occurred in commonAuth:', err);
       return res.status(400).send('Invalid Access');
@@ -36,7 +35,7 @@ export const commonAuth = (authtype: string) => (req: Request, res: Response) =>
         return res.redirect(info.redirectUrl);
       }
 
-      return res.redirect(`${basepath.rootpath}/signin`);
+      return res.redirect(`${config.server.root}/signin`);
     }
 
     const data = { successMessage: [(!authlocal ? authtype : 'default') + ' login successfully!'] };

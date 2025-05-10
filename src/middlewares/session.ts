@@ -1,15 +1,15 @@
 import session from 'express-session';
 import connectSessionSequelize from 'connect-session-sequelize';
 import { Sequelize } from 'sequelize';
-import '../config';
+import config from '../config';
 
 const isProduction: boolean = process.env.NODE_ENV === 'production';
 
-const sessionSecret = process.env.COOKIE_SECRET || 'defaultSecret';
+const sessionSecret = config.server.modules.express_session.secret;
 const SequelizeStore = connectSessionSequelize(session.Store);
 
-const sequelize = new Sequelize(process.env.MYSQL_DATABASE_WEB || '', process.env.MYSQL_USER_WEB || '', process.env.MYSQL_PASSWORD_WEB || undefined, {
-  host: process.env.MYSQL_HOST_WEB || 'localhost',
+const sequelize = new Sequelize(config.server.modules.mysql.database, config.server.modules.mysql.user, config.server.modules.mysql.password, {
+  host: config.server.modules.mysql.host,
   dialect: 'mysql',
   logging: false,
 });

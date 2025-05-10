@@ -1,5 +1,5 @@
 import expressSitemapXml from 'express-sitemap-xml';
-import basepath from './utils/basepath';
+import config from './config';
 
 const maps: expressSitemapXml.SitemapLeaf[] = [
   {
@@ -43,6 +43,6 @@ const getUrls = (): expressSitemapXml.SitemapLeaf[] => {
   return maps;
 };
 
-const sitemap = expressSitemapXml(getUrls, basepath.hpurl);
+const sitemap = expressSitemapXml(getUrls, config.server.url);
 
 export default sitemap;

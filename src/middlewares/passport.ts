@@ -1,17 +1,17 @@
+import path from 'path';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
-import '../config';
+import config from '../config';
 import knex from '../config/knex';
 import { findById } from '../models/user';
-import basepath from '../utils/basepath';
 import { sendOneTimePass } from '../controllers/emailController';
 
-function generateOTP(): string {
+const generateOTP = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function getCallBackURL(type: string): string {
-  return basepath.rooturl + `auth/${type}/callback`;
+const getCallBackURL = (type: string): string => {
+  return config.server.url + path.join(config.server.root, `/auth/${type}/callback`);
 }
 
 passport.serializeUser((user, done) => {
@@ -36,8 +36,8 @@ passport.deserializeUser(async (id: number, done) => {
 
 import { Strategy as DiscordStrategy, Profile as DiscordProfile } from 'passport-discord';
 
-const discordClientId = process.env.DISCORD_CLIENT_ID || '';
-const discordClientSecret = process.env.DISCORD_CLIENT_SECRET || '';
+const discordClientId = config.server.modules.passport.discord.key;
+const discordClientSecret = config.server.modules.passport.discord.secret;
 const discordCallbackURL = getCallBackURL('discord');
 
 if (!discordClientId || !discordClientSecret || !discordCallbackURL) {
@@ -75,8 +75,8 @@ passport.use(new DiscordStrategy({
 
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
-const googleClientId = process.env.GOOGLE_CLIENT_ID || '';
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
+const googleClientId = config.server.modules.passport.google.key;
+const googleClientSecret = config.server.modules.passport.google.secret;
 const googleCallbackURL = getCallBackURL('google');
 
 if (!googleClientId || !googleClientSecret || !googleCallbackURL) {
@@ -114,8 +114,8 @@ passport.use(new GoogleStrategy({
 
 import { Strategy as XStrategy } from 'passport-twitter';
 
-const xConsumerKey = process.env.X_CONSUMER_KEY || '';
-const xConsumerSecret = process.env.X_CONSUMER_SECRET || '';
+const xConsumerKey = config.server.modules.passport.x.key;
+const xConsumerSecret = config.server.modules.passport.x.secret;
 const xCallbackURL = getCallBackURL("x");
 
 if (!xConsumerKey || !xConsumerSecret || !xCallbackURL) {
@@ -173,7 +173,7 @@ passport.use(new LocalStrategy({
 
     const token = await generateUserToken(user, true);
     if (!user.email) {
-      const redirectUrl = `${basepath.rootpath}/auth/set-email?token=${token}`;
+      const redirectUrl = `${config.server.root}/auth/set-email?token=${token}`;
       return done(null, false, { message: 'This is Default: Email not set', redirectUrl } as IVerifyOptions);
     }
 
@@ -181,7 +181,7 @@ passport.use(new LocalStrategy({
     await sendOneTimePass(user.email, otp);
     await knex('users').where({ name: username }).update({ otp });
 
-    const redirectUrl: string = `${basepath.rootpath}/auth/verify-otp?token=${token}`;
+    const redirectUrl: string = `${config.server.root}/auth/verify-otp?token=${token}`;
 
     return done(null, false, { successMessage: ['Enter onetime password'], redirectUrl } as IVerifyOptions);
   } catch (err) {

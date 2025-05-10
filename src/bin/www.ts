@@ -2,17 +2,14 @@
 
 import app from '../app';
 import * as http from 'http';
-import * as debugModule from 'debug';
 import jwt from 'jsonwebtoken';
-import '../config';
+import config from '../config';
 import websocket from '../services/websocket';
-import basepath, { getHPURL } from '../utils/basepath';
+import debug from 'debug';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
+var debug_ = debug('quick-start-express-typescript:server');
 
-var debug = debugModule.debug('quick-start-express-typescript:server');
-
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(config.server.port || '3000');
 app.set('port', port);
 
 var server = http.createServer(app);
@@ -26,11 +23,11 @@ server.on('upgrade', (request, socket, head) => {
     throw new Error("Invalid Access");
   }
 
-  const reqUrl = getHPURL(false) + request.url;
+  const reqUrl = config.server.url + request.url;
   try {
     const parsedUrl = new URL(reqUrl);
 
-    if (parsedUrl.pathname === basepath.wsrootpath) {
+    if (parsedUrl.pathname === config.server.modules.express.websocket.root) {
       const query = parsedUrl.searchParams;
       const token = query.get('token');
       if (!token) {
@@ -38,7 +35,7 @@ server.on('upgrade', (request, socket, head) => {
       }
 
       const decodeToken = decodeURIComponent(token);
-      const payload = jwt.verify(decodeToken, JWT_SECRET) as Jsonwebtoken.WebSocketJwtPayload;
+      const payload = jwt.verify(decodeToken, config.server.modules.jwt.secret) as Jsonwebtoken.WebSocketJwtPayload;
 
       (request as any).payload = payload;
       wss.handleUpgrade(request, socket, head, (ws) => {
@@ -104,5 +101,5 @@ function onListening(): void {
     return '';
   }
 
-  debug('Listening on ' + bind());
+  debug_('Listening on ' + bind());
 }

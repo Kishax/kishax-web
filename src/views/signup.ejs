@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <title>Sign up</title>
+  <title><%= config.name %> - Sign up</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <%- include('./include/ogp'); %>
   <link rel="stylesheet" href="/stylesheets/style.css" />
@@ -12,22 +12,22 @@
 <body>
   <%- include('./include/header'); %>
 
-  <a class="font0-75 under" href="<%= rootpath %>/signin">サインインはこちら</a>
+  <a class="font0-75 under" href="<%= config.server.root %>/signin">サインインはこちら</a>
 
   <div class="container">
     <%- include('./include/message'); %>
     <div class="wrapper">
       <div>
-        <a href="<%= rootpath %>/auth/discord"><img class="auth-logo" src="/images/logo/discord/icon_clyde_blurple_RGB.svg"></a>
+        <a href="<%= config.server.root %>/auth/discord"><img class="auth-logo" src="/images/logo/discord/icon_clyde_blurple_RGB.svg"></a>
       </div>
       <div>
-        <a href="<%= rootpath %>/auth/google"><img class="auth-logo" src="/images/logo/google/web_neutral_sq_na.svg"></a>
+        <a href="<%= config.server.root %>/auth/google"><img class="auth-logo" src="/images/logo/google/web_neutral_sq_na.svg"></a>
       </div>
       <div>
-        <a href="<%= rootpath %>/auth/x"><img class="auth-logo" src="/images/logo/x/logo.svg"></a>
+        <a href="<%= config.server.root %>/auth/x"><img class="auth-logo" src="/images/logo/x/logo.svg"></a>
       </div>
     </div>
-    <form action="<%= rootpath %>/signup" method="post">
+    <form action="<%= config.server.root %>/signup" method="post">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <label>ユーザー名</label>
       <input required id="focus" type="text" name="username"/>

@@ -3,7 +3,7 @@ import csrf from 'csurf';
 const csrfProtection = csrf({
   cookie: {
     httpOnly: true,
-    secure: process.env.IS_HTTPS === 'true' || false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
   }
 });

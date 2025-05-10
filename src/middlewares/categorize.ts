@@ -1,4 +1,4 @@
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 
 export function categorizeData(rows: any[], type: string) {
   const categorizedData: any = {};

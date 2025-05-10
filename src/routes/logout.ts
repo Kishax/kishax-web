@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import basepath from '../utils/basepath';
+import config from '../config';
 
 const router: express.Router = express.Router();
 
@@ -9,7 +9,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
       return next(err);
     }
 
-    res.redirect(`${basepath.rootpath}/`);
+    res.redirect(`${config.server.root}/`);
   });
 });
 

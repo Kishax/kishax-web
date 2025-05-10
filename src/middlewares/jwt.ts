@@ -1,11 +1,9 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import '../config';
+import config from '../config';
 import knex from '../config/knex';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
-
-export async function generateUserToken(user, save: boolean = false, ...payloads: JwtPayload[]): Promise<string> {
+export async function generateUserToken(user: any, save: boolean = false, ...payloads: JwtPayload[]): Promise<string> {
   var payload: JwtPayload;
   switch (payloads.length) {
     case 0:
@@ -18,7 +16,7 @@ export async function generateUserToken(user, save: boolean = false, ...payloads
       throw new Error("You should specify only one payload in 2nd arg");
   }
 
-  const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+  const token: string = jwt.sign(payload, config.server.modules.jwt.secret, { expiresIn: '1h' });
 
   if (save) {
     await knex('users').where({ id: user.id, name: user.name }).update({ token });
@@ -54,10 +52,10 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction) 
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as Jsonwebtoken.UserAuthJwtPayload;
+    const payload = jwt.verify(token, config.server.modules.jwt.secret) as Jsonwebtoken.UserAuthJwtPayload;
     req.payload = payload;
     if (token && token2) {
-      const payload2 = jwt.verify(token2, JWT_SECRET) as Jsonwebtoken.UserAuthJwtPayload;
+      const payload2 = jwt.verify(token2, config.server.modules.jwt.secret) as Jsonwebtoken.UserAuthJwtPayload;
       req.payload2 = payload2;
     }
     next();

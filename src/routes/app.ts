@@ -1,12 +1,9 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import knex from '../config/knex';
-import basepath from '../utils/basepath';
-import '../config';
-import { WebType } from '../@types/web';
+import { WebType } from '../types';
+import config from '../config';
 import { setSimpleRouters } from '../controllers/routeController';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
 const router: express.Router = express.Router();
 
@@ -21,7 +18,7 @@ router.get('/chat', (req: Request, res: Response) => {
 
   const payload: Jsonwebtoken.WebSocketJwtPayload = { csrfToken };
 
-  const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+  const token: string = jwt.sign(payload, config.server.modules.jwt.secret, { expiresIn: '1h' });
 
   const encodedToken = encodeURIComponent(token);
   res.render(`chat`, { token: encodedToken });
@@ -66,7 +63,7 @@ router.post('/todo', async (req: Request, res: Response) => {
     knex("tasks")
       .insert({ user_id: userId, content: todo })
       .then(() => {
-        res.redirect(`${basepath.rootpath}/app/todo`);
+        res.redirect(`${config.server.root}/app/todo`);
       })
       .catch((err) => {
         console.error(err);

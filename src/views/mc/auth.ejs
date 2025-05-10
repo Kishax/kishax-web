@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>WEB認証</title>
+  <title><%= config.name %> - MC-Auth</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <%- include('./include/ogp'); %>
+  <%- include('../include/ogp'); %>
   <link rel="stylesheet" href="/stylesheets/style.css"/>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"/>
@@ -31,7 +31,7 @@
         <% } %>
         さん、ようこそ&nbsp;&gt;&gt;&nbsp;
       </a>
-      <a class="font0-75 under" href="<%= rootpath %>/signup">サインアップはこちら</a>
+      <a class="font0-75 under" href="<%= config.server.root %>/signup">サインアップはこちら</a>
     </div>
   <% } %>
 

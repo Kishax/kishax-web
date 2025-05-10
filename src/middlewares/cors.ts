@@ -1,9 +1,9 @@
 import cors from 'cors';
-import { getHPURL } from '../utils/basepath';
+import config from '../config';
 
 const mycors = cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [getHPURL(false), 'http://localhost:3000', 'http://localhost:3001']; // null -> file://
+    const allowedOrigins = [config.server.url, 'http://localhost:3000', 'http://localhost:3001'];
 
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);

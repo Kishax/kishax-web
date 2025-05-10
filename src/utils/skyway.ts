@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import '../config';
+import config from '../config';
 
-const appId: string = process.env.SKY_WAY_ID || '';
-const secretKey: string = process.env.SKY_WAY_SECRET || '';
+const appId: string = config.server.modules.skyway.id || '';
+const secretKey: string = config.server.modules.skyway.secret || '';
 
 export const calculateAuthToken = (roomName: string, memberName: string, iat: number, exp: number) => {
   try {

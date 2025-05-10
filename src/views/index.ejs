@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%= application_name %></title>
+  <title><%= config.name %> - Home</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <%- include('./include/ogp'); %>
   <link rel="stylesheet" href="/stylesheets/style.css" />
@@ -14,20 +14,14 @@
     <div class="container">
       <%- include('./include/message'); %>
       <div class="center">
-        <h1>ようこそ、<%= application_name %>へ！</h1>
-        <!-- <div class="row"> -->
-        <!--   <div class="col-md-6"> -->
-        <!--   </div> -->
-        <!--   <div class="col-md-6"> -->
-        <!--   </div> -->
-        <!-- </div> -->
+        <h1>ようこそ、<%= config.name %>へ！</h1>
       </div>
     </div>
   <% } else { %>
     <div class="center">
       <%- include('./include/message'); %>
-      <h1>ようこそ、<%= application_name %>へ！</h1>
-      <a class="btn btn-primary" href="<%= rootpath %>/signup" role="button">サインアップはこちら</a>
+      <h1>ようこそ、<%= config.name %>へ！</h1>
+      <a class="btn btn-primary" href="<%= config.server.root %>/signup" role="button">サインアップはこちら</a>
     </div>
   <% } %>
 

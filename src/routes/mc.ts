@@ -1,14 +1,11 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import '../config';
-import { WebType } from '../@types/web';
+import { WebType } from '../types';
+import config from '../config';
 import knex, { mknex } from '../config/knex';
 import { getMessage } from '../utils/flash';
 import { sendSocketMessage } from '../services/socket-client';
-import basepath from '../utils/basepath';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecret';
 
 const authSchema = z.object({
   token: z.string(),
@@ -113,7 +110,7 @@ router.get('/auth', async (req: Request, res: Response) => {
 
   const payload: Jsonwebtoken.McAuthJwtPayload = { username: User.name, mcid: mcuser.name, uuid: mcuser.uuid };
   try {
-    const token: string = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+    const token: string = jwt.sign(payload, config.server.modules.jwt.secret, { expiresIn: '1h' });
 
     res.render('mc/auth', {
       successMessage: getMessage(req, 'successMessage') || ['プレイヤー情報が自動入力されました。'],
@@ -132,7 +129,7 @@ router.get('/auth', async (req: Request, res: Response) => {
 router.post('/auth', async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) {
     req.flash('errorMessage', ['ログインが必要です。']);
-    return res.redirect(`${basepath.rootpath}/mc/auth`);
+    return res.redirect(`${config.server.root}/mc/auth`);
   }
 
   const user = req.user as any;
@@ -147,7 +144,7 @@ router.post('/auth', async (req: Request, res: Response) => {
   const queryData = result.data;
 
   try {
-    const payload = jwt.verify(queryData.token, JWT_SECRET) as Jsonwebtoken.McAuthJwtPayload;
+    const payload = jwt.verify(queryData.token, config.server.modules.jwt.secret) as Jsonwebtoken.McAuthJwtPayload;
 
     if (queryData.mcid !== payload.mcid || queryData.uuid !== payload.uuid) {
       res.status(400).send('Invalid Access');
@@ -163,7 +160,7 @@ router.post('/auth', async (req: Request, res: Response) => {
 
     if (dbInfo.confirm) {
       req.flash('infoMessage', ['認証済みユーザーです。']);
-      return res.redirect(`${basepath.rootpath}/mc/auth`);
+      return res.redirect(`${config.server.root}/mc/auth`);
     }
 
     if (dbInfo.secret2 != queryData.pass) {
@@ -178,7 +175,7 @@ router.post('/auth', async (req: Request, res: Response) => {
               '生成後、ページのリロードが必要です。',
             ]);
 
-            res.redirect(`${basepath.rootpath}/mc/auth`);
+            res.redirect(`${config.server.root}/mc/auth`);
           }
         })
         .catch((err) => {
@@ -195,7 +192,7 @@ router.post('/auth', async (req: Request, res: Response) => {
       .then((result) => {
         if (result) {
           req.flash('successMessage', ['WEB認証に成功しました。']);
-          res.redirect(`${basepath.rootpath}/mc/auth`);
+          res.redirect(`${config.server.root}/mc/auth`);
 
           const message = {
             web: {
