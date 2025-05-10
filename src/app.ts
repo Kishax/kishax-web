@@ -21,10 +21,6 @@ import header from './middlewares/header';
 
 const app = express();
 
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
-
 console.log(`> current mode is ${process.env.NODE_ENV}`);
 console.log('> current Base URL is ' + basepath.rooturl);
 
