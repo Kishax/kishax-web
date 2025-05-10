@@ -1,8 +1,6 @@
 data/config.json
 *~
 *.bundle.js
-test.*
-test
 src/public/images/avatar/default/*
 client.js
 error
