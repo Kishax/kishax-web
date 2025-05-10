@@ -86,7 +86,7 @@ const websocket = () => {
     });
   });
 
-  console.log(`> webSocket server is running on ${basepath.wsrootpath}`);
+  console.log(`> websocket server is running on ${config.server.modules.express.websocket.url}`);
   return wss;
 };
 
