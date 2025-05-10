@@ -9,14 +9,14 @@
     "moduleDetection": "force",
     "typeRoots": [
       "node_modules/@types",
-      "src/@types"
+      "src/types"
     ],
     "noImplicitAny": false,
     "resolveJsonModule": true
   },
   "include": [
     "src/**/*",
-    "src/@types",
+    "src/types",
     "webpack.config.js"
   ],
   "exclude": [
