@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import knex from '../config/knex';
 
 const router: express.Router = express.Router();
 
