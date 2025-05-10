@@ -1,5 +1,4 @@
-import session from 'express-session';
-import { WebType } from '../web';
+import { WebType } from '.';
 
 declare module 'express-session' {
   interface SessionData {
