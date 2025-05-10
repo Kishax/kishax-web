@@ -63,7 +63,7 @@ const websocket = () => {
       });
     });
 
-    ws.on('close', (code, reason) => {
+    ws.on('close', (_, __) => {
       clearInterval(interval);
 
       const name = ws['name'];
