@@ -35,7 +35,7 @@ app.use(express.json());
 app.use(header);
 
 app.use('/fonts', express.static(path.join(__dirname, 'fonts'), {
-  setHeaders: (res, path, stat) => {
+  setHeaders: (res, _, __) => {
     res.set('Access-Control-Allow-Origin', '*');
   }
 }));
