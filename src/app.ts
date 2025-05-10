@@ -6,11 +6,10 @@ import logger from 'morgan';
 import flash from 'connect-flash';
 import favicon from 'serve-favicon';
 import sitemap from './sitemap'
-import './config';
+import config from './config';
 import router from './controllers/routeController';
 import session from './middlewares/session';
 import passport from './middlewares/passport';
-import basepath from './utils/basepath';
 import localvals from './middlewares/localvals';
 import preErrorHandler from './middlewares/pre-error-handler';
 import csrfProtection from './middlewares/csurf';
