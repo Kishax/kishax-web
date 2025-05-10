@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development PORT=3001 nodemon",
-    "prod": "cross-env NODE_ENV=production PROXY_REVERSE_PASS=/dev nodemon",
+    "prod": "cross-env NODE_ENV=production nodemon",
     "prod-js": "npm run build-server && node ./dist/bin/www.js",
     "fire": "ts-node --files ./src/bin/www.ts",
     "build-server": "tsc",
