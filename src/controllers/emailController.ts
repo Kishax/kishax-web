@@ -1,54 +1,46 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import path from 'path';
-import '../config';
+import config from '../config';
 import { renderTemplate } from '../utils/template';
-import basepath from '../utils/basepath';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: Number(process.env.SMTP_PORT) === 465,
+const transporter: Transporter = nodemailer.createTransport({
+  host: config.server.modules.nodemailer.host,
+  port: config.server.modules.nodemailer.port,
+  secure: config.server.modules.nodemailer.port === 465,
   requireTLS: true,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: config.server.modules.nodemailer.user,
+    pass: config.server.modules.nodemailer.password,
   },
-});
-
-const data = {
-  hpurl: basepath.hpurl,
-  rooturl: basepath.rooturl,
-  org_logourl: process.env.ORG_LOGO_URL || '',
-  org_year: process.env.ORG_YEAR || '',
-  org_name: process.env.ORG_NAME || '',
-};
+} as SMTPTransport.Options);
 
 export async function sendOneTimePass(recipient: string, pass: string): Promise<boolean> {
-  data['onetime'] = pass;
-  const html = await renderTemplate(path.resolve(__dirname, '../views/auth/onetime.ejs'), data);
+  config['onetime'] = pass;
+  const html = await renderTemplate(path.resolve(__dirname, '../views/auth/onetime.ejs'), { config: config });
   return await sendmail(recipient, "ワンタイムパスワード", html);
 }
 
 export async function sendVertificationEmail(recipient: string, redirectUrl: string): Promise<boolean> {
-  data['email_redirect_url'] = redirectUrl;
-  data['comment'] = '本人確認URLは以下の通りです。';
+  config['email_redirect_url'] = redirectUrl;
+  config['comment'] = '本人確認URLは以下の通りです。';
 
-  const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm.ejs'), data);
+  const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm.ejs'), { config: config });
   return await sendmail(recipient, "Kishaxアカウントのメールアドレス認証", html);
 }
 
 export async function sendVertificationEmailForResetPassword(recipient: string, redirectUrl: string): Promise<boolean> {
-  data['email_redirect_url'] = redirectUrl;
-  data['comment'] = 'パスワードリセット用URLは以下の通りです。';
+  config['email_redirect_url'] = redirectUrl;
+  config['comment'] = 'パスワードリセット用URLは以下の通りです。';
 
-  const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm.ejs'), data);
+  const html = await renderTemplate(path.resolve(__dirname, '../views/auth/confirm.ejs'), { config: config });
   return await sendmail(recipient, "Kishaxアカウントのパスワードリセット", html);
 }
 
 async function sendmail(recipient: string, subject: string, html: string): Promise<boolean> {
   try {
     const mailOptions = {
-      from: `"Kishax Support" <${process.env.SMTP_USER}>`,
+      from: `"Kishax Support" <${config.server.modules.nodemailer.user}>`,
       to: recipient,
       subject: subject,
       html,

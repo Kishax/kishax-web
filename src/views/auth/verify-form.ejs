@@ -14,7 +14,7 @@
 
   <div class="container">
     <%- include('../include/message'); %>
-    <form id="myform" action="<%= rootpath %>/auth<%= form_action_path %>" method="post">
+    <form id="myform" action="<%= config.server.root %>/auth<%= form_action_path %>" method="post">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <% if (typeof token !== 'undefined') { %>
         <input type="hidden" name="token" value="<%= token %>">
