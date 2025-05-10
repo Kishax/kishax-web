@@ -12,6 +12,48 @@ const isUrl = (str: string): boolean => {
   return pattern.test(str);
 }
 
+const isHttps = (str: string): boolean => {
+  if (!isUrl(str)) return false;
+  return str.startsWith('https://');
+}
+
+const extractHost = (url: string): string | null => {
+  if (!isUrl(url)) return null;
+
+  try {
+    const { hostname } = new URL(url);
+    return hostname;
+  } catch {
+    return null;
+  }
+}
+
+const extractHostWithPort = (url: string): string | null => {
+  if (!isUrl(url)) return null;
+
+  try {
+    const { host } = new URL(url);
+    return host;
+  } catch {
+    return null;
+  }
+}
+
+const extractWebSocketHostWithPort = (url: string): string | null => {
+  if (!/^wss?:\/\//.test(url)) return null;
+
+  try {
+    const { host } = new URL(url);
+    return host;
+  } catch {
+    return null;
+  }
+}
+
 export {
   isUrl,
+  isHttps,
+  extractHost,
+  extractHostWithPort,
+  extractWebSocketHostWithPort
 }
