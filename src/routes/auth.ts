@@ -114,7 +114,7 @@ router.post('/set-email', requireNonLogin, authenticateJWT, async (req: Request,
   const newPayload: JwtPayload = { id: req.payload.id, name: req.payload.name, email };
   const newtoken = await generateUserToken(req.payload, false, newPayload);
 
-  const redirectUrl: string = `${config.server.root}auth/set-email?token=${oldtoken}&token2=${newtoken}`;
+  const redirectUrl: string = `${config.server.root}/auth/set-email?token=${oldtoken}&token2=${newtoken}`;
 
   const send = await sendVertificationEmail(email, redirectUrl);
   if (send) {
