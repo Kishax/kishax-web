@@ -20,10 +20,9 @@ import header from './middlewares/header';
 
 const app = express();
 
-// Cloudflareからのリクエストであることを信頼する
-// これにより、X-Forwarded-Proto ヘッダーが評価され、req.secure が正しく設定されます。
-// '1' は、最も近いプロキシ（この場合はCloudflare）を信頼することを示します。
-// より厳密にはCloudflareのIPレンジを指定することも可能です。
+// if you use proxy e.g cloudflare tunnel or nginx, write below for relying on requests
+// this is needed for working req.session
+// More strictly, you can also specify Cloudflare's IP range.
 app.set('trust proxy', 1);
 
 console.log('> current mode is ' + process.env.NODE_ENV);
