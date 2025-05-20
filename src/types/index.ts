@@ -51,7 +51,6 @@ interface Config {
   server: {
     port: string;
     url: string;
-    protocol: string;
     root: string;
     host: string;
     logo: {

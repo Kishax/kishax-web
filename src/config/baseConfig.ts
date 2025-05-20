@@ -30,7 +30,6 @@ const baseConfig: Config = {
   server: {
     port: '3000',
     url: 'http://localhost:3000',
-    protocol: 'http',
     root: "/",
     host: 'localhost:3000',
     logo: {
