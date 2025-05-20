@@ -1,10 +1,8 @@
-import { getDbConfig } from '../knexfile';
-import knex, { Knex } from 'knex';
+import { getConfig } from '../knexfile';
+import knex from 'knex';
 
-const webConfig: Knex.Config = getDbConfig('web');
-const wknex = knex(webConfig);
+const wknex = knex(getConfig());
 
-const mcConfig: Knex.Config = getDbConfig('mc');
-export const mknex = knex(mcConfig);
+export const mknex = knex(getConfig('mc'));
 
 export default wknex;
