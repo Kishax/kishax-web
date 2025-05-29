@@ -66,6 +66,7 @@ const baseConfig: Config = {
         host: "smtp.gmail.com",
         port: 587,
         user: "<user>@gmail.com",
+        from: "<user>@gmail.com",
         password: "YOUR_PASSWORD"
       },
       skyway: {

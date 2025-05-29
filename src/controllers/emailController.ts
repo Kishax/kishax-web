@@ -40,7 +40,7 @@ export async function sendVertificationEmailForResetPassword(recipient: string, 
 async function sendmail(recipient: string, subject: string, html: string): Promise<boolean> {
   try {
     const mailOptions = {
-      from: `"Kishax Support" <${config.server.modules.nodemailer.user}>`,
+      from: `"Kishax Support" <${config.server.modules.nodemailer.from}>`,
       to: recipient,
       subject: subject,
       html,
