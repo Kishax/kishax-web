@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "",
   "license": "MIT",
-  "author": "verazza",
+  "author": "Takaya Maekawa",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development PORT=3001 nodemon",
