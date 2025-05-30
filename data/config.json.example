@@ -68,6 +68,7 @@
         "host": "smtp.example.com",
         "port": 587,
         "user": "your_email@example.com",
+        "from": "your_email@example.com",
         "password": "your_email_password"
       },
       "skyway": {
