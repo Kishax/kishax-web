@@ -16,31 +16,5 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - ${APP_PORT:-3000}:3000
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-kishax_db}
-      - NEXTAUTH_URL=http://localhost:${APP_PORT:-3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-development-secret-key-minimum-32-chars}
-    depends_on:
-      db:
-        condition: service_healthy
-    develop:
-      watch:
-        - action: sync
-          path: ./src
-          target: /app/src
-        - action: rebuild
-          path: package.json
-
 volumes:
   postgres-data:

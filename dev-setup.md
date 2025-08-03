@@ -13,12 +13,12 @@
 ```bash
 git clone https://github.com/your-username/kishax-nextjs.git
 cd kishax-nextjs
-cp .env.example .env.local
+cp .env.example .env
 ```
 
 ### 2. 環境変数設定
 
-`.env.local`を編集して必要な値を設定：
+`.env`を編集して必要な値を設定：
 
 ```bash
 # 最低限必要な設定
@@ -30,14 +30,13 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
-### 3. Docker環境起動
+### 3. PostgreSQLデータベース起動
 
 ```bash
-# PostgreSQLデータベース起動
+# PostgreSQLデータベースのみ起動
 npm run docker:up
-
-# または、アプリも含めて起動
-npm run docker:dev
+# または
+npm run docker:db
 ```
 
 ### 4. データベースセットアップ
@@ -50,9 +49,10 @@ npm run db:push
 npm run db:studio
 ```
 
-### 5. 開発サーバー起動
+### 5. 開発サーバー起動（別ターミナル）
 
 ```bash
+# Next.js開発サーバー起動
 npm run dev
 ```
 
@@ -63,9 +63,9 @@ npm run dev
 ### Docker関連
 ```bash
 npm run docker:up     # PostgreSQL起動（バックグラウンド）
+npm run docker:db     # PostgreSQL起動（dbサービスのみ）
 npm run docker:down   # Docker環境停止
-npm run docker:logs   # ログ確認
-npm run docker:dev    # アプリ+DB起動（開発用）
+npm run docker:logs   # PostgreSQLログ確認
 ```
 
 ### データベース関連
@@ -86,13 +86,12 @@ npm run lint         # ESLint実行
 ## 🗃️ Docker Compose構成
 
 ### サービス
-- **db**: PostgreSQL 16
-- **app**: Next.js開発サーバー（オプション）
+- **db**: PostgreSQL 16（データベースのみ）
 
 ### ポート
-- **3000**: Next.jsアプリケーション
+- **3000**: Next.jsアプリケーション（ローカル起動）
 - **5432**: PostgreSQL
-- **5555**: Prisma Studio
+- **5555**: Prisma Studio（ローカル起動）
 
 ### ボリューム
 - `postgres-data`: データベースデータ永続化
@@ -101,10 +100,10 @@ npm run lint         # ESLint実行
 
 ### 1. 日常的な開発
 ```bash
-# 1. Docker起動
+# 1. PostgreSQL起動
 npm run docker:up
 
-# 2. 開発サーバー起動
+# 2. 開発サーバー起動（別ターミナル）
 npm run dev
 
 # 3. コード変更...
