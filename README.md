@@ -13,6 +13,11 @@ git clone https://github.com/your-username/kishax-nextjs.git
 cd kishax-nextjs
 cp .env.example .env
 # .envファイルを編集
+
+# Playwright & Claude MCP セットアップ
+npx playwright install chrome
+claude mcp add playwright npx @playwright/mcp@latest
+claude mcp add --transport sse deepwiki https://mcp.deepwiki.com/sse
 ```
 
 ### 開発方法を選択
