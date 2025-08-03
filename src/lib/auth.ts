@@ -1,30 +1,30 @@
 import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import DiscordProvider from "next-auth/providers/discord"
-import TwitterProvider from "next-auth/providers/twitter"
-import CredentialsProvider from "next-auth/providers/credentials"
+import Google from "next-auth/providers/google"
+import Discord from "next-auth/providers/discord"
+import Twitter from "next-auth/providers/twitter"
+import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient()
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
+    Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    DiscordProvider({
+    Discord({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
     }),
-    TwitterProvider({
+    Twitter({
       clientId: process.env.TWITTER_CLIENT_ID!,
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
     }),
-    CredentialsProvider({
+    Credentials({
       name: "credentials",
       credentials: {
         username: { label: "Username", type: "text" },
@@ -83,4 +83,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/signin',
     signUp: '/signup',
   },
-})
+}))
