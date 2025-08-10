@@ -35,13 +35,66 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findUnique({
+        // Special case for OTP login
+        if (credentials.password === "otp-verified") {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.username as string
+            }
+          })
+
+          if (!user || !user.emailVerified) {
+            return null
+          }
+
+          return {
+            id: user.id.toString(),
+            name: user.name,
+            email: user.email,
+          }
+        }
+
+        // Special case for auto-login after username setup
+        if (credentials.password === "auto-login-after-setup") {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.username as string
+            }
+          })
+
+          if (!user || !user.emailVerified || !user.name) {
+            return null
+          }
+
+          return {
+            id: user.id.toString(),
+            name: user.name,
+            email: user.email,
+          }
+        }
+
+        // Try email login first (new system)
+        let user = await prisma.user.findUnique({
           where: {
-            name: credentials.username as string
+            email: credentials.username as string
           }
         })
 
+        // If no user found by email, try username (old system compatibility)
         if (!user) {
+          user = await prisma.user.findUnique({
+            where: {
+              name: credentials.username as string
+            }
+          })
+        }
+
+        if (!user) {
+          return null
+        }
+
+        // Check if email is verified for new users
+        if (user.email && !user.emailVerified) {
           return null
         }
 

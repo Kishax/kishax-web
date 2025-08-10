@@ -144,7 +144,7 @@ function McAuthPageComponent({ pageData }: { pageData: McAuthPageData }) {
               ) : (
                 <div className="flex items-center space-x-2">
                   <p className="text-sm text-gray-600">
-                    {pageData.username || "ななし"}さん、ようこそ >>
+                    {pageData.username || "ななし"}さん、ようこそ &gt;&gt;
                   </p>
                   <a href="/signup" className="text-blue-600 hover:text-blue-800 text-sm underline">
                     サインアップはこちら

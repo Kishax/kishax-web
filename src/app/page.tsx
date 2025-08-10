@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth"
 import Link from "next/link"
+import { Suspense } from "react"
+import WelcomeMessage from "@/components/WelcomeMessage"
 
 export default async function HomePage() {
   const session = await auth()
@@ -41,6 +43,10 @@ export default async function HomePage() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          <Suspense fallback={<div>Loading...</div>}>
+            <WelcomeMessage />
+          </Suspense>
+          
           <div className="text-center">
             <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
               Welcome to KishaX
