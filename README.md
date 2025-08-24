@@ -1,12 +1,12 @@
 # KishaX
 
-## Note
-This is also used by [Kishax/infrastructure](https://github.com/Kishax/infrastructure).
-
 次世代認証システム搭載のモダンWebアプリケーション
 
 [![Visit Website](https://img.shields.io/badge/Visit_Website-007BFF?style=for-the-badge)](https://kishax.net/)
 [![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-success?style=for-the-badge)](https://github.com/your-username/kishax-nextjs)
+
+## Note
+This is also used by [Kishax/infrastructure](https://github.com/Kishax/infrastructure).
 
 ## 🚀 QuickStart
 
