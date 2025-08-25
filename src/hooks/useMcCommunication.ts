@@ -22,7 +22,7 @@ interface McServerInfo {
   serverName: string
   status: string
   playerCount: number
-  additionalData: Record<string, any>
+  additionalData: Record<string, unknown>
 }
 
 export function useMcCommunication() {
@@ -39,13 +39,15 @@ export function useMcCommunication() {
   useEffect(() => {
     // MC認証レスポンス処理
     registerHandler('mc_web_auth_response', async (message) => {
-      const authResponse: McAuthResponse = message.data
+      const messageData = message as { data: McAuthResponse }
+      const authResponse: McAuthResponse = messageData.data
       setAuthResponses(prev => [...prev, authResponse])
     })
 
     // プレイヤーステータス処理
     registerHandler('mc_web_player_status', async (message) => {
-      const playerStatus: McPlayerStatus = message.data
+      const messageData = message as { data: McPlayerStatus }
+      const playerStatus: McPlayerStatus = messageData.data
       setPlayerStatuses(prev => {
         const filtered = prev.filter(p => p.playerUuid !== playerStatus.playerUuid)
         return [...filtered, playerStatus]
@@ -54,7 +56,8 @@ export function useMcCommunication() {
 
     // サーバー情報処理
     registerHandler('mc_web_server_info', async (message) => {
-      const serverInfo: McServerInfo = message.data
+      const messageData = message as { data: McServerInfo }
+      const serverInfo: McServerInfo = messageData.data
       setServerInfos(prev => {
         const filtered = prev.filter(s => s.serverName !== serverInfo.serverName)
         return [...filtered, serverInfo]

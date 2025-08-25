@@ -1,8 +1,9 @@
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
+import { defaultProvider } from '@aws-sdk/credential-provider-node'
+
 interface ApiConfig {
-  baseUrl: string
   region: string
-  accessKeyId?: string
-  secretAccessKey?: string
+  webToMcQueueUrl: string
 }
 
 interface ApiResponse {
@@ -12,30 +13,39 @@ interface ApiResponse {
   error?: string
 }
 
-// Default configuration
+// Default configuration - using environment variables for server-side
 const defaultConfig: ApiConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_API_GATEWAY_URL || "",
-  region: process.env.AWS_REGION || "ap-northeast-1"
+  region: process.env.AWS_REGION || "ap-northeast-1",
+  webToMcQueueUrl: process.env.WEB_TO_MC_QUEUE_URL || ""
 }
 
 export class KishaxApiClient {
   private config: ApiConfig
+  private sqsClient: SQSClient
 
   constructor(config: ApiConfig = defaultConfig) {
     this.config = { ...defaultConfig, ...config }
+    
+    // Initialize SQS client with IAM credentials
+    this.sqsClient = new SQSClient({
+      region: this.config.region,
+      credentials: defaultProvider()
+    })
   }
 
   /**
    * Web → MC メッセージ送信（汎用）
    */
-  async sendToMc(messageType: string, data: Record<string, any>): Promise<ApiResponse> {
+  async sendToMc(messageType: string, data: Record<string, unknown>): Promise<ApiResponse> {
     const payload = {
       type: messageType,
+      from: "web",
+      to: "mc",
       ...data,
       timestamp: Date.now()
     }
 
-    return this.sendRequest('/web-to-mc', payload)
+    return this.sendSqsMessage(payload)
   }
 
   /**
@@ -51,7 +61,7 @@ export class KishaxApiClient {
   /**
    * MC コマンド送信
    */
-  async sendCommand(commandType: string, playerName: string, commandData: Record<string, any>): Promise<ApiResponse> {
+  async sendCommand(commandType: string, playerName: string, commandData: Record<string, unknown>): Promise<ApiResponse> {
     return this.sendToMc('web_mc_command', {
       commandType,
       playerName,
@@ -62,7 +72,7 @@ export class KishaxApiClient {
   /**
    * プレイヤーリクエスト送信
    */
-  async sendPlayerRequest(requestType: string, playerName: string, requestData: Record<string, any>): Promise<ApiResponse> {
+  async sendPlayerRequest(requestType: string, playerName: string, requestData: Record<string, unknown>): Promise<ApiResponse> {
     return this.sendToMc('web_mc_player_request', {
       requestType,
       playerName,
@@ -113,38 +123,45 @@ export class KishaxApiClient {
   }
 
   /**
-   * HTTP リクエスト送信（内部メソッド）
+   * SQS メッセージ送信（内部メソッド）
    */
-  private async sendRequest(endpoint: string, payload: Record<string, any>): Promise<ApiResponse> {
-    const url = `${this.config.baseUrl}${endpoint}`
-    
+  private async sendSqsMessage(payload: Record<string, unknown>): Promise<ApiResponse> {
     try {
-      console.debug('Sending request to:', url, payload)
+      console.debug('Sending SQS message:', payload)
       
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // AWS IAM認証が必要な場合は、ここでSignature Version 4を実装
-          // 現時点では簡単のためAPIキー認証やJWT認証を使用
-        },
-        body: JSON.stringify(payload)
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      if (!this.config.webToMcQueueUrl) {
+        throw new Error('Web-to-MC queue URL not configured')
       }
 
-      const result = await response.json()
-      console.debug('API response:', result)
+      const command = new SendMessageCommand({
+        QueueUrl: this.config.webToMcQueueUrl,
+        MessageBody: JSON.stringify(payload),
+        MessageAttributes: {
+          messageType: {
+            DataType: 'String',
+            StringValue: String(payload.type) || 'unknown'
+          },
+          source: {
+            DataType: 'String',
+            StringValue: 'kishax-web'
+          }
+        }
+      })
+
+      const result = await this.sqsClient.send(command)
+      console.debug('SQS response:', result)
       
-      return result as ApiResponse
+      return {
+        success: true,
+        messageId: result.MessageId,
+        message: 'Message sent successfully via SQS'
+      }
 
     } catch (error) {
-      console.error('API request failed:', error)
+      console.error('SQS message sending failed:', error)
       return {
         success: false,
-        message: 'Failed to send request',
+        message: 'Failed to send SQS message',
         error: error instanceof Error ? error.message : String(error)
       }
     }

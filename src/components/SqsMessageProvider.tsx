@@ -5,7 +5,7 @@ import { getSqsMessageProcessor, SqsMessageProcessor } from '@/lib/sqs-client'
 
 interface SqsMessageContextType {
   processor: SqsMessageProcessor | null
-  registerHandler: (messageType: string, handler: (message: any) => Promise<void>) => void
+  registerHandler: (messageType: string, handler: (message: unknown) => Promise<void>) => void
 }
 
 const SqsMessageContext = createContext<SqsMessageContextType>({
@@ -81,7 +81,7 @@ export function SqsMessageProvider({
     }
   }, [autoStart, config])
 
-  const registerHandler = (messageType: string, handler: (message: any) => Promise<void>) => {
+  const registerHandler = (messageType: string, handler: (message: unknown) => Promise<void>) => {
     if (processorRef.current) {
       processorRef.current.registerHandler(messageType, handler)
     }

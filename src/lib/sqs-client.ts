@@ -11,7 +11,7 @@ interface SqsMessage {
   type: string
   source: string
   timestamp: string
-  data: any
+  data: unknown
 }
 
 // Default configuration
@@ -199,7 +199,8 @@ export class SqsMessageProcessor {
    * MC認証レスポンス処理
    */
   private async handleAuthResponse(message: SqsMessage) {
-    const { playerName, playerUuid, success, message: responseMessage } = message.data
+    const data = message.data as { playerName: string; playerUuid: string; success: boolean; message: string }
+    const { playerName, playerUuid, success, message: responseMessage } = data
     console.log(`MC Auth Response: ${playerName} (${playerUuid}) - ${success ? 'Success' : 'Failed'}: ${responseMessage}`)
     
     // ここで既存のUI更新やコールバック処理を実行
@@ -210,7 +211,8 @@ export class SqsMessageProcessor {
    * プレイヤーステータス処理
    */
   private async handlePlayerStatus(message: SqsMessage) {
-    const { playerName, playerUuid, status, serverName } = message.data
+    const data = message.data as { playerName: string; playerUuid: string; status: string; serverName: string }
+    const { playerName, status, serverName } = data
     console.log(`Player Status: ${playerName} is ${status} on ${serverName}`)
     
     // プレイヤーステータス更新処理
@@ -220,7 +222,8 @@ export class SqsMessageProcessor {
    * サーバー情報処理
    */
   private async handleServerInfo(message: SqsMessage) {
-    const { serverName, status, playerCount, additionalData } = message.data
+    const data = message.data as { serverName: string; status: string; playerCount: number; additionalData?: unknown }
+    const { serverName, status, playerCount } = data
     console.log(`Server Info: ${serverName} is ${status} with ${playerCount} players`)
     
     // サーバー情報更新処理
