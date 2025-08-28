@@ -154,20 +154,33 @@ export async function POST(req: NextRequest) {
 
     // Send notification to Minecraft server
     try {
-      const message = {
-        web: {
-          confirm: {
-            who: {
-              name: mcid,
-              uuid: uuid
+      // Try new SQS method first, fallback to socket
+      const { getApiClient } = await import("@/lib/api-client")
+      
+      try {
+        const apiClient = getApiClient()
+        await apiClient.sendAuthConfirm(mcid, uuid)
+        console.log("Auth confirmation sent via SQS")
+      } catch (sqsError) {
+        console.warn("Failed to send SQS message, falling back to socket:", sqsError)
+        
+        // Fallback to existing socket method
+        const message = {
+          web: {
+            confirm: {
+              who: {
+                name: mcid,
+                uuid: uuid
+              }
             }
           }
         }
+        await sendSocketMessage(JSON.stringify(message) + '\r\n')
+        console.log("Auth confirmation sent via socket")
       }
-      await sendSocketMessage(JSON.stringify(message) + '\r\n')
     } catch (error) {
-      console.warn("Failed to send socket message:", error)
-      // Don't fail the request if socket message fails
+      console.warn("Failed to send auth confirmation:", error)
+      // Don't fail the request if notification fails
     }
 
     const response = McAuthResponseSchema.parse({

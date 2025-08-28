@@ -8,6 +8,10 @@
 ## Note
 This is also used by [Kishax/infrastructure](https://github.com/Kishax/infrastructure).
 
+### ライセンス
+- `LICENSE`: MIT License
+- `src/app/favicon.ico`: NO LICENSE
+
 ## 🚀 QuickStart
 
 ### 環境設定
