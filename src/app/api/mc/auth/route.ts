@@ -106,20 +106,20 @@ export async function POST(req: NextRequest) {
       return createErrorResponse("Invalid access", "Token data mismatch", 400)
     }
 
-    // Get member from database
-    const member = await prisma.member.findFirst({
+    // Get MinecraftPlayer from database
+    const player = await prisma.minecraftPlayer.findFirst({
       where: {
-        name: mcid,
+        mcid: mcid,
         uuid: uuid
       }
     })
 
-    if (!member) {
-      return createErrorResponse("Invalid access", "Member not found", 400)
+    if (!player) {
+      return createErrorResponse("Invalid access", "Player not found", 400)
     }
 
     // Check if already confirmed
-    if (member.confirm) {
+    if (player.confirmed) {
       const response = McAuthResponseSchema.parse({
         success: false,
         message: "認証済みユーザーです。"
@@ -128,28 +128,50 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify one-time password
-    if (member.secret2 !== pass) {
+    if (!player.otp || player.otp !== pass) {
       // Reset OTP on failed attempt
-      await prisma.member.update({
-        where: { id: member.id },
-        data: { secret2: null }
+      await prisma.minecraftPlayer.update({
+        where: { id: player.id },
+        data: { otp: null, otpExpires: null }
       })
 
       const response = McAuthResponseSchema.parse({
         success: false,
-        message: "ワンタイムパスワードが異なるため、リセットしました。マイクラサーバーで/retryコマンドよりワンタイムパスワードを再生成してください。"
+        message: "ワンタイムパスワードが正しくありません。再度OTPを送信してください。"
       })
       return NextResponse.json(response)
     }
 
-    // Complete authentication
-    await prisma.member.update({
-      where: { id: member.id },
-      data: {
-        confirm: true,
-        secret2: null,
-        memberId: session.user.id
-      }
+    // Check OTP expiration
+    if (!player.otpExpires || new Date() > new Date(player.otpExpires)) {
+      await prisma.minecraftPlayer.update({
+        where: { id: player.id },
+        data: { otp: null, otpExpires: null }
+      })
+
+      const response = McAuthResponseSchema.parse({
+        success: false,
+        message: "ワンタイムパスワードの有効期限が切れました。再度OTPを送信してください。"
+      })
+      return NextResponse.json(response)
+    }
+
+    // Complete authentication and link with Kishax account if logged in
+    const updateData: any = {
+      confirmed: true,
+      otp: null,
+      otpExpires: null,
+      updatedAt: new Date()
+    }
+
+    // Link with Kishax account if user is logged in
+    if (session?.user?.id) {
+      updateData.kishaxUserId = session.user.id
+    }
+
+    await prisma.minecraftPlayer.update({
+      where: { id: player.id },
+      data: updateData
     })
 
     // Send notification to Minecraft server
@@ -185,11 +207,13 @@ export async function POST(req: NextRequest) {
 
     const response = McAuthResponseSchema.parse({
       success: true,
-      message: "WEB認証に成功しました。",
+      message: session?.user?.id 
+        ? "WEB認証に成功しました。Kishaxアカウントと連携されました。" 
+        : "WEB認証に成功しました。",
       user: {
-        id: session.user.id,
-        mcid: member.name,
-        uuid: member.uuid
+        id: session?.user?.id || "guest",
+        mcid: player.mcid,
+        uuid: player.uuid
       }
     })
 

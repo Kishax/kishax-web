@@ -129,9 +129,9 @@ export default async function McAuthPage({ searchParams }: PageProps) {
 
 async function handleTokenAuth(authToken: string, session: any, pageData: McAuthPageData) {
   try {
-    // Get Minecraft member data by auth_token
-    const mcuser = await prisma.member.findFirst({
-      where: { auth_token: authToken }
+    // Get Minecraft player data by auth_token
+    const mcuser = await prisma.minecraftPlayer.findFirst({
+      where: { authToken: authToken }
     })
 
     if (!mcuser) {
@@ -140,26 +140,19 @@ async function handleTokenAuth(authToken: string, session: any, pageData: McAuth
     }
 
     // Check if token is expired
-    if (!mcuser.auth_token_expires || new Date() > new Date(mcuser.auth_token_expires)) {
+    if (!mcuser.tokenExpires || new Date() > new Date(mcuser.tokenExpires)) {
       pageData.errorMessage = ["トークンが期限切れです。サーバーで再度認証を開始してください。"]
       return <McAuthPageComponent pageData={pageData} />
     }
 
     // Check if already confirmed
-    if (mcuser.confirm) {
+    if (mcuser.confirmed) {
       pageData.infoMessage = ["認証済みユーザーです。"]
       return <McAuthPageComponent pageData={pageData} />
     }
 
-    // Check if OTP is set
-    if (!mcuser.secret2) {
-      pageData.errorMessage = [
-        "ワンタイムパスワードが設定されていません。",
-        "サーバーで/retryコマンドよりワンタイムパスワードを生成してください。",
-        "生成後、ページのリロードが必要です。"
-      ]
-      return <McAuthPageComponent pageData={pageData} />
-    }
+    // Note: OTP check is now handled by MC side before sending auth token
+    // Web side assumes token is valid and player is ready for authentication
 
     // Check server status and online players
     const serverStatus = await prisma.status.findUnique({
@@ -172,7 +165,7 @@ async function handleTokenAuth(authToken: string, session: any, pageData: McAuth
     }
 
     const onlinePlayers = serverStatus.playerList.split(",")
-    if (!onlinePlayers.includes(mcuser.name)) {
+    if (!onlinePlayers.includes(mcuser.mcid)) {
       pageData.errorMessage = ["プレイヤーがオンラインでないため、WEB認証ができません。"]
       return <McAuthPageComponent pageData={pageData} />
     }
@@ -185,7 +178,7 @@ async function handleTokenAuth(authToken: string, session: any, pageData: McAuth
 
       const payload = {
         username: user?.username || "[ユーザーID未設定]",
-        mcid: mcuser.name,
+        mcid: mcuser.mcid,
         uuid: mcuser.uuid
       }
       
@@ -193,7 +186,7 @@ async function handleTokenAuth(authToken: string, session: any, pageData: McAuth
 
       pageData = {
         ...pageData,
-        mcid: mcuser.name,
+        mcid: mcuser.mcid,
         uuid: mcuser.uuid,
         mcAuth: true,
         token,
@@ -214,9 +207,9 @@ async function handleTokenAuth(authToken: string, session: any, pageData: McAuth
 
 async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageData) {
   try {
-    // Get Minecraft member data by auth_token
-    const mcuser = await prisma.member.findFirst({
-      where: { auth_token: authToken }
+    // Get Minecraft player data by auth_token
+    const mcuser = await prisma.minecraftPlayer.findFirst({
+      where: { authToken: authToken }
     })
 
     if (!mcuser) {
@@ -225,19 +218,19 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
     }
 
     // Check if token is expired
-    if (!mcuser.auth_token_expires || new Date() > new Date(mcuser.auth_token_expires)) {
+    if (!mcuser.tokenExpires || new Date() > new Date(mcuser.tokenExpires)) {
       pageData.errorMessage = ["トークンが期限切れです。サーバーで再度認証を開始してください。"]
       return <McAuthPageComponent pageData={pageData} />
     }
 
     // Check if already confirmed
-    if (mcuser.confirm) {
+    if (mcuser.confirmed) {
       pageData.infoMessage = ["認証済みユーザーです。"]
       
       // If user is connected to a Kishax account, show connection info
-      if (mcuser.memberId) {
+      if (mcuser.kishaxUserId) {
         const connectedUser = await prisma.user.findUnique({
-          where: { id: mcuser.memberId },
+          where: { id: mcuser.kishaxUserId },
           select: { username: true, name: true }
         })
         
@@ -254,18 +247,11 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
         ]
       }
       
-      return <McAuthPageComponent pageData={pageData} showAccountLinking={!mcuser.memberId} />
+      return <McAuthPageComponent pageData={pageData} showAccountLinking={!mcuser.kishaxUserId} />
     }
 
-    // Check if OTP is set
-    if (!mcuser.secret2) {
-      pageData.errorMessage = [
-        "ワンタイムパスワードが設定されていません。",
-        "サーバーで/retryコマンドよりワンタイムパスワードを生成してください。",
-        "生成後、ページのリロードが必要です。"
-      ]
-      return <McAuthPageComponent pageData={pageData} />
-    }
+    // Note: OTP check is now handled by MC side before sending auth token
+    // Web side assumes token is valid and player is ready for authentication
 
     // Check server status and online players
     const serverStatus = await prisma.status.findUnique({
@@ -278,7 +264,7 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
     }
 
     const onlinePlayers = serverStatus.playerList.split(",")
-    if (!onlinePlayers.includes(mcuser.name)) {
+    if (!onlinePlayers.includes(mcuser.mcid)) {
       pageData.errorMessage = ["プレイヤーがオンラインでないため、WEB認証ができません。"]
       return <McAuthPageComponent pageData={pageData} />
     }
@@ -287,7 +273,7 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
     try {
       const payload = {
         username: "[ゲスト]", // No user session
-        mcid: mcuser.name,
+        mcid: mcuser.mcid,
         uuid: mcuser.uuid
       }
       
@@ -295,7 +281,7 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
 
       pageData = {
         ...pageData,
-        mcid: mcuser.name,
+        mcid: mcuser.mcid,
         uuid: mcuser.uuid,
         mcAuth: true,
         token,

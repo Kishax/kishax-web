@@ -12,6 +12,8 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [otpSent, setOtpSent] = useState(false)
+  const [sendingOtp, setSendingOtp] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,6 +66,40 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
     setPassword(value)
   }
 
+  const handleSendOtp = async () => {
+    if (!pageData.token) {
+      setError("認証トークンが見つかりません。")
+      return
+    }
+
+    setSendingOtp(true)
+    setError("")
+
+    try {
+      const response = await fetch("/api/mc/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          authToken: pageData.token,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        setOtpSent(true)
+      } else {
+        setError(result.message || "OTP送信に失敗しました。")
+      }
+    } catch {
+      setError("OTP送信中にエラーが発生しました。")
+    } finally {
+      setSendingOtp(false)
+    }
+  }
+
   const isReadOnly = !pageData.isAuth || !pageData.mcAuth
 
   return (
@@ -102,6 +138,39 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         />
       </div>
 
+      {/* OTP送信ステップ */}
+      {pageData.isAuth && pageData.mcAuth && !otpSent && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold text-blue-900 mb-2">
+            ステップ1: ワンタイムパスワードを取得
+          </h4>
+          <p className="text-sm text-blue-700 mb-3">
+            まず、マイクラサーバーにワンタイムパスワードを送信します。<br />
+            サーバーのチャットで6桁の数字が表示されるのを確認してください。
+          </p>
+          <button
+            type="button"
+            onClick={handleSendOtp}
+            disabled={sendingOtp}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {sendingOtp ? "送信中..." : "🚀 ワンタイムパスワードをマイクラサーバに送信する"}
+          </button>
+        </div>
+      )}
+
+      {/* OTP入力ステップ */}
+      {otpSent && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <h4 className="font-semibold text-green-900 mb-2">
+            ✅ ステップ2: ワンタイムパスワードを入力
+          </h4>
+          <p className="text-sm text-green-700">
+            マイクラサーバーのチャットに表示された6桁の数字を入力してください。
+          </p>
+        </div>
+      )}
+
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           ワンタイムパスワード
@@ -112,11 +181,11 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
           name="password"
           value={password}
           onChange={handlePasswordChange}
-          placeholder="6桁の半角数字を入力"
+          placeholder={otpSent ? "マイクラに表示された6桁の数字" : "まずOTPを送信してください"}
           maxLength={6}
-          readOnly={isReadOnly}
+          readOnly={!otpSent}
           className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-            isReadOnly ? 'bg-gray-100' : 'bg-white'
+            !otpSent ? 'bg-gray-100' : 'bg-white'
           }`}
         />
       </div>
@@ -125,10 +194,10 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         {pageData.isAuth && pageData.mcAuth ? (
           <button
             type="submit"
-            disabled={loading || !password || !/^\d{6}$/.test(password)}
+            disabled={loading || !otpSent || !password || !/^\d{6}$/.test(password)}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "認証中..." : "認証"}
+            {loading ? "認証中..." : "🎯 認証完了"}
           </button>
         ) : (
           <button

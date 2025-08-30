@@ -12,10 +12,10 @@ export default async function DashboardPage() {
   const isLoggedIn = !!session
 
   // Get user's MC authentication status only if logged in
-  const mcConnections = isLoggedIn ? await prisma.member.findMany({
+  const mcConnections = isLoggedIn ? await prisma.minecraftPlayer.findMany({
     where: { 
-      memberId: session.user.id,
-      confirm: true
+      kishaxUserId: session.user.id,
+      confirmed: true
     }
   }) : []
 
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
                             <span className="text-lg mr-3">🎯</span>
                             <div>
                               <p className="text-sm font-medium text-green-600">
-                                {connection.name}
+                                {connection.mcid}
                               </p>
                               <p className="text-xs text-gray-500">
                                 UUID: {connection.uuid}
