@@ -73,9 +73,9 @@ function SetupUsernameContent() {
               return
             }
           } else {
-            const errorData = await response.json().catch(() => ({}))
+            await response.json().catch(() => ({}))
           }
-        } catch (error) {
+        } catch {
           // Verification failed, continue with normal flow
         }
       }

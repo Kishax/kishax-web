@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { Session } from "next-auth"
 import { PrismaClient } from "@prisma/client"
 import McAuthForm from "@/components/McAuthForm"
 import { McAuthPageData } from "@/lib/schemas"
@@ -127,7 +128,7 @@ export default async function McAuthPage({ searchParams }: PageProps) {
   return <McAuthPageComponent pageData={pageData} />
 }
 
-async function handleTokenAuth(authToken: string, session: any, pageData: McAuthPageData) {
+async function handleTokenAuth(authToken: string, session: Session, pageData: McAuthPageData) {
   try {
     // Get Minecraft player data by auth_token
     const mcuser = await prisma.minecraftPlayer.findFirst({

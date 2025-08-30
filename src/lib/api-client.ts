@@ -59,6 +59,17 @@ export class KishaxApiClient {
   }
 
   /**
+   * MCへOTP送信
+   */
+  async sendOtp(playerName: string, playerUuid: string, otp: string): Promise<ApiResponse> {
+    return this.sendToMc('web_mc_otp', {
+      playerName,
+      playerUuid,
+      otp
+    })
+  }
+
+  /**
    * MC コマンド送信
    */
   async sendCommand(commandType: string, playerName: string, commandData: Record<string, unknown>): Promise<ApiResponse> {

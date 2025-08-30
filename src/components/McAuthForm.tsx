@@ -100,7 +100,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
     }
   }
 
-  const isReadOnly = !pageData.isAuth || !pageData.mcAuth
+  
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

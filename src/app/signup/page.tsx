@@ -14,7 +14,6 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState<'signup' | 'verify'>('signup')
   const [verificationMethod, setVerificationMethod] = useState<'otp' | 'link'>('otp')
-  const [showMethodSelection, setShowMethodSelection] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,7 +75,6 @@ export default function SignUpPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setShowMethodSelection(false)
         if (method === 'link') {
           setStep('verify')
         }
@@ -188,7 +186,6 @@ export default function SignUpPage() {
             <button
               onClick={() => {
                 setStep('signup')
-                setShowMethodSelection(false)
               }}
               className="text-indigo-600 hover:text-indigo-500"
             >

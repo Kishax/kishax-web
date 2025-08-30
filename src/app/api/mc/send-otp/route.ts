@@ -9,13 +9,7 @@ const SendOtpRequestSchema = z.object({
   authToken: z.string()
 })
 
-// MC側への送信メッセージ形式
-interface OtpMessage {
-  mcid: string
-  uuid: string
-  otp: string
-  action: "send_otp"
-}
+
 
 /**
  * @swagger
@@ -133,7 +127,7 @@ export async function POST(req: NextRequest) {
       try {
         const apiClient = getApiClient()
         // API client method for sending OTP (to be implemented)
-        await apiClient.sendOtpToMinecraft(player.mcid, player.uuid, otp)
+        await apiClient.sendOtp(player.mcid, player.uuid, otp)
         console.log("OTP sent to MC via SQS")
       } catch (sqsError) {
         console.warn("Failed to send OTP via SQS, falling back to socket:", sqsError)

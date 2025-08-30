@@ -157,7 +157,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Complete authentication and link with Kishax account if logged in
-    const updateData: any = {
+    const updateData: {
+      confirmed: boolean
+      otp: string | null
+      otpExpires: Date | null
+      updatedAt: Date
+      kishaxUserId?: string
+    } = {
       confirmed: true,
       otp: null,
       otpExpires: null,
