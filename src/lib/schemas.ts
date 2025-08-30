@@ -74,7 +74,8 @@ export const McAuthPageDataSchema = z.object({
 })
 
 export const McAuthQuerySchema = z.object({
-  n: z.string().optional().transform(val => val ? parseInt(val) : undefined)
+  n: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  t: z.string().optional()
 })
 
 // Type exports
