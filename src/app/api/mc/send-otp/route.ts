@@ -199,9 +199,47 @@ export async function POST(req: NextRequest) {
       // Don't fail the request if notification fails, OTP is already stored
     }
 
+    // MCからのレスポンスを待機（最大30秒）
+    let responseReceived = false
+    let mcResponse = { success: false, message: "レスポンス待機中..." }
+    
+    // ポーリングでレスポンスを確認（最大30回、1秒間隔）
+    for (let i = 0; i < 30; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      try {
+        const otpResponses = global.otpResponses as Map<string, { success: boolean; message: string; timestamp: number; received: boolean }> | undefined
+        const responseKey = `${player.mcid}_${player.uuid}`
+        
+        if (otpResponses && otpResponses.has(responseKey)) {
+          const data = otpResponses.get(responseKey)
+          if (data) {
+            mcResponse = {
+              success: data.success,
+              message: data.message
+            }
+          }
+          responseReceived = true
+          // レスポンス取得後は削除
+          otpResponses.delete(responseKey)
+          break
+        }
+      } catch (pollError) {
+        console.error("Error polling for OTP response:", pollError)
+      }
+    }
+    
+    if (!responseReceived) {
+      mcResponse = {
+        success: false,
+        message: "マインクラフトサーバーからの応答がタイムアウトしました。プレイヤーがオンラインか確認してください。"
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      message: "OTP generated and sent to Minecraft server"
+      message: "OTP generated and sent to Minecraft server",
+      mcResponse: mcResponse
     })
 
   } catch (error) {
