@@ -155,21 +155,7 @@ async function handleTokenAuth(authToken: string, session: Session, pageData: Mc
     // Note: OTP check is now handled by MC side before sending auth token
     // Web side assumes token is valid and player is ready for authentication
 
-    // Check server status and online players
-    const serverStatus = await prisma.status.findUnique({
-      where: { name: "proxy" }
-    })
-
-    if (!serverStatus?.playerList) {
-      pageData.errorMessage = ["プレイヤーがオンラインでないため、WEB認証ができません。"]
-      return <McAuthPageComponent pageData={pageData} />
-    }
-
-    const onlinePlayers = serverStatus.playerList.split(",")
-    if (!onlinePlayers.includes(mcuser.mcid)) {
-      pageData.errorMessage = ["プレイヤーがオンラインでないため、WEB認証ができません。"]
-      return <McAuthPageComponent pageData={pageData} />
-    }
+    // Note: Online player check moved to OTP sending phase
 
     // Generate JWT token for authentication
     try {
@@ -254,21 +240,7 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
     // Note: OTP check is now handled by MC side before sending auth token
     // Web side assumes token is valid and player is ready for authentication
 
-    // Check server status and online players
-    const serverStatus = await prisma.status.findUnique({
-      where: { name: "proxy" }
-    })
-
-    if (!serverStatus?.playerList) {
-      pageData.errorMessage = ["プレイヤーがオンラインでないため、WEB認証ができません。"]
-      return <McAuthPageComponent pageData={pageData} />
-    }
-
-    const onlinePlayers = serverStatus.playerList.split(",")
-    if (!onlinePlayers.includes(mcuser.mcid)) {
-      pageData.errorMessage = ["プレイヤーがオンラインでないため、WEB認証ができません。"]
-      return <McAuthPageComponent pageData={pageData} />
-    }
+    // Note: Online player check moved to OTP sending phase
 
     // Generate JWT token for authentication (without user session)
     try {
