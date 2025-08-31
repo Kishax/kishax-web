@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\"",
+    "sqs:worker": "node scripts/sqs-worker.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -49,6 +51,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/swagger-jsdoc": "^6.0.4",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "playwright": "^1.54.2",
