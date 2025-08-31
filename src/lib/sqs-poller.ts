@@ -85,7 +85,7 @@ export class SQSPoller {
     }
   }
 
-  private async processMessage(message: any) {
+  private async processMessage(message: { Body?: string; ReceiptHandle?: string }) {
     try {
       if (!message.Body) {
         console.warn("Received message without body")
