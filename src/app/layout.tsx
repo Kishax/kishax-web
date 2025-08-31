@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import { initializeSQSPolling } from "@/lib/sqs-startup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,11 @@ export const metadata: Metadata = {
   title: "Kishax",
   description: "Minecraft Server Provider",
 };
+
+// SQSポーリングを初期化（開発環境のみ）
+if (typeof window === 'undefined') {
+  initializeSQSPolling();
+}
 
 export default function RootLayout({
   children,

@@ -29,7 +29,10 @@ export class KishaxApiClient {
     // Initialize SQS client with IAM credentials
     this.sqsClient = new SQSClient({
       region: this.config.region,
-      credentials: defaultProvider()
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
+      }
     })
   }
 
