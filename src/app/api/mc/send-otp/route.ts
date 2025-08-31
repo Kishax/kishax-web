@@ -4,6 +4,13 @@ import { z } from "zod"
 
 const prisma = new PrismaClient()
 
+// OTP送信回数制限の設定
+const OTP_RATE_LIMIT = {
+  MAX_ATTEMPTS: 5, // 最大送信回数
+  TIME_WINDOW: 15 * 60 * 1000, // 15分間のウィンドウ
+  COOLDOWN: 30 * 1000 // 30秒のクールダウン
+}
+
 // OTP送信リクエストの形式
 const SendOtpRequestSchema = z.object({
   authToken: z.string()
@@ -100,6 +107,46 @@ export async function POST(req: NextRequest) {
           message: "Player already authenticated" 
         },
         { status: 400 }
+      )
+    }
+
+    // OTP送信回数制限チェック
+    const currentTime = new Date()
+    const timeWindowStart = new Date(currentTime.getTime() - OTP_RATE_LIMIT.TIME_WINDOW)
+    
+    // 最近のOTP送信履歴を確認（プレイヤーのupdatedAtでOTP送信を判断）
+    const recentOtpCount = await prisma.minecraftPlayer.count({
+      where: {
+        id: player.id,
+        updatedAt: {
+          gte: timeWindowStart
+        },
+        otp: {
+          not: null // OTPが設定されている = 送信履歴
+        }
+      }
+    })
+    
+    if (recentOtpCount >= OTP_RATE_LIMIT.MAX_ATTEMPTS) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `OTP送信回数が上限（${OTP_RATE_LIMIT.MAX_ATTEMPTS}回/15分）に達しました。しばらく待ってからお試しください。`
+        },
+        { status: 429 }
+      )
+    }
+    
+    // 連続送信のクールダウンチェック
+    const lastOtpTime = player.updatedAt
+    if (lastOtpTime && (currentTime.getTime() - lastOtpTime.getTime()) < OTP_RATE_LIMIT.COOLDOWN) {
+      const remainingCooldown = Math.ceil((OTP_RATE_LIMIT.COOLDOWN - (currentTime.getTime() - lastOtpTime.getTime())) / 1000)
+      return NextResponse.json(
+        {
+          success: false,
+          message: `OTP送信のクールダウン中です。${remainingCooldown}秒後に再試行してください。`
+        },
+        { status: 429 }
       )
     }
 
