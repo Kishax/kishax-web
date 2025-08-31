@@ -14,6 +14,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
   const [error, setError] = useState("")
   const [otpSent, setOtpSent] = useState(false)
   const [sendingOtp, setSendingOtp] = useState(false)
+  const [mcResponse, setMcResponse] = useState<{ success: boolean; message: string } | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +91,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
 
       if (response.ok && result.success) {
         setOtpSent(true)
+        setMcResponse(result.mcResponse)
       } else {
         setError(result.message || "OTP送信に失敗しました。")
       }
@@ -159,6 +161,41 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         </div>
       )}
 
+      {/* MCレスポンス表示 */}
+      {mcResponse && (
+        <div className={`mb-4 p-4 rounded-lg border ${
+          mcResponse.success 
+            ? 'bg-green-50 border-green-200' 
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <h4 className={`font-semibold mb-2 ${
+            mcResponse.success ? 'text-green-900' : 'text-red-900'
+          }`}>
+            {mcResponse.success ? '✅' : '❌'} マインクラフトサーバーからの応答
+          </h4>
+          <p className={`text-sm ${
+            mcResponse.success ? 'text-green-700' : 'text-red-700'
+          }`}>
+            {mcResponse.message}
+          </p>
+          {!mcResponse.success && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setOtpSent(false)
+                  setMcResponse(null)
+                  setError("")
+                }}
+                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                🔄 もう一度送信する
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* OTP入力ステップ */}
       {otpSent && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -166,7 +203,10 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
             ✅ ステップ2: ワンタイムパスワードを入力
           </h4>
           <p className="text-sm text-green-700">
-            マイクラサーバーのチャットに表示された6桁の数字を入力してください。
+            {mcResponse?.success 
+              ? "マイクラサーバーのチャットに表示された6桁の数字を入力してください。"
+              : "OTP送信に問題があったようです。上記のメッセージを確認してください。"
+            }
           </p>
         </div>
       )}
@@ -181,11 +221,18 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
           name="password"
           value={password}
           onChange={handlePasswordChange}
-          placeholder={otpSent ? "マイクラに表示された6桁の数字" : "まずOTPを送信してください"}
+          placeholder={
+            otpSent 
+              ? (mcResponse?.success 
+                  ? "マイクラに表示された6桁の数字" 
+                  : "OTP送信に失敗しました"
+                )
+              : "まずOTPを送信してください"
+          }
           maxLength={6}
-          readOnly={!otpSent}
+          readOnly={!otpSent || !mcResponse?.success}
           className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-            !otpSent ? 'bg-gray-100' : 'bg-white'
+            (!otpSent || !mcResponse?.success) ? 'bg-gray-100' : 'bg-white'
           }`}
         />
       </div>
@@ -194,7 +241,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         {pageData.isAuth && pageData.mcAuth ? (
           <button
             type="submit"
-            disabled={loading || !otpSent || !password || !/^\d{6}$/.test(password)}
+            disabled={loading || !otpSent || !mcResponse?.success || !password || !/^\d{6}$/.test(password)}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "認証中..." : "🎯 認証完了"}
