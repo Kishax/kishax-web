@@ -12,6 +12,15 @@ interface SQSAuthTokenMessage {
   action: "create" | "update" | "refresh"
 }
 
+interface SQSOtpResponseMessage {
+  type: "mc_otp_response"
+  mcid: string
+  uuid: string
+  success: boolean
+  message: string
+  timestamp: number
+}
+
 export class SQSPoller {
   private sqsClient: SQSClient
   private queueUrl: string
@@ -92,17 +101,24 @@ export class SQSPoller {
         return
       }
 
-      const messageData: SQSAuthTokenMessage = JSON.parse(message.Body)
+      const messageData: SQSAuthTokenMessage | SQSOtpResponseMessage = JSON.parse(message.Body)
       
       if (messageData.type === "auth_token") {
-        await this.handleAuthTokenMessage(messageData)
+        await this.handleAuthTokenMessage(messageData as SQSAuthTokenMessage)
+        
+        // メッセージを削除
+        if (message.ReceiptHandle) {
+          await this.deleteMessage(message.ReceiptHandle)
+        }
+      } else if (messageData.type === "mc_otp_response") {
+        await this.handleOtpResponseMessage(messageData as SQSOtpResponseMessage)
         
         // メッセージを削除
         if (message.ReceiptHandle) {
           await this.deleteMessage(message.ReceiptHandle)
         }
       } else {
-        console.warn("Unknown message type:", messageData.type)
+        console.warn("Unknown message type:", (messageData as { type: string }).type)
       }
     } catch (error) {
       console.error("Error processing SQS message:", error)
@@ -138,6 +154,44 @@ export class SQSPoller {
       console.error("Error handling auth token message:", error)
       throw error // 再スロー（メッセージを削除しない）
     }
+  }
+
+  private async handleOtpResponseMessage(data: SQSOtpResponseMessage) {
+    try {
+      console.log(`Processing OTP response for player: ${data.mcid} (${data.uuid}) - success: ${data.success}`)
+      
+      // OTPレスポンスをリアルタイムで通知するためのイベント発火
+      // Server-Sent EventsまたはWebSocketで通知
+      this.notifyOtpResponse(data)
+      
+      // データベースには保存しない（一時的な情報のため）
+      console.log(`OTP response processed: ${data.mcid} - ${data.message}`)
+      
+    } catch (error) {
+      console.error("Error handling OTP response message:", error)
+      throw error
+    }
+  }
+
+  private notifyOtpResponse(data: SQSOtpResponseMessage) {
+    // グローバルイベントエミッターまたはServer-Sent Eventsで通知
+    // 今回は簡単な実装として、メモリキャッシュに保存してAPIで取得する方式にする
+    global.otpResponses = global.otpResponses || new Map()
+    global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
+      success: data.success,
+      message: data.message,
+      timestamp: data.timestamp,
+      received: true
+    })
+    
+    // 30秒後にキャッシュから削除（メモリリーク防止）
+    setTimeout(() => {
+      if (global.otpResponses) {
+        global.otpResponses.delete(`${data.mcid}_${data.uuid}`)
+      }
+    }, 30000)
+    
+    console.log(`OTP response cached for ${data.mcid}_${data.uuid}`)
   }
 
   private async deleteMessage(receiptHandle: string) {
