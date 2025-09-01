@@ -177,6 +177,7 @@ async function handleTokenAuth(authToken: string, session: Session, pageData: Mc
         uuid: mcuser.uuid,
         mcAuth: true,
         token,
+        authToken: authToken, // 実際の認証トークンも保存
         successMessage: ["トークンによる認証を開始しました。プレイヤー情報が自動入力されました。"]
       }
     } catch {
@@ -258,6 +259,7 @@ async function handleTokenAuthNoSession(authToken: string, pageData: McAuthPageD
         uuid: mcuser.uuid,
         mcAuth: true,
         token,
+        authToken: authToken, // 実際の認証トークンも保存
         successMessage: ["トークンによる認証を開始しました。プレイヤー情報が自動入力されました。"],
         infoMessage: ["ログインなしでMC認証を行っています。"]
       }

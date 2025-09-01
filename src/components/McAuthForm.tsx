@@ -68,7 +68,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
   }
 
   const handleSendOtp = async () => {
-    if (!pageData.token) {
+    if (!pageData.authToken) {
       setError("認証トークンが見つかりません。")
       return
     }
@@ -83,7 +83,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          authToken: pageData.token,
+          authToken: pageData.authToken,
         }),
       })
 
