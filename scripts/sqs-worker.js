@@ -101,6 +101,14 @@ class SQSWorker {
           await this.deleteMessage(message.ReceiptHandle);
           console.log("✅ Message deleted successfully");
         }
+      } else if (messageData.type === "mc_otp_response") {
+        await this.handleOtpResponseMessage(messageData);
+
+        // メッセージを削除
+        if (message.ReceiptHandle) {
+          await this.deleteMessage(message.ReceiptHandle);
+          console.log("✅ OTP Response message deleted successfully");
+        }
       } else {
         console.warn(`!  Unknown message type: ${messageData.type}`);
       }
@@ -139,6 +147,35 @@ class SQSWorker {
       );
     } catch (error) {
       console.error("❌ Error handling auth token message:", error);
+      throw error; // 再スロー（メッセージを削除しない）
+    }
+  }
+
+  async handleOtpResponseMessage(data) {
+    try {
+      console.log(
+        `🔐 Processing OTP response for player: ${data.mcid} (${data.uuid}) - Success: ${data.success}`,
+      );
+      console.log(`📝 Response message: ${data.message}`);
+
+      // OTPレスポンスをグローバルキャッシュに保存（Next.js APIで使用）
+      // Node.jsのglobalオブジェクトを使用
+      if (!global.otpResponses) {
+        global.otpResponses = new Map();
+      }
+      
+      global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
+        success: data.success,
+        message: data.message,
+        timestamp: data.timestamp,
+        received: true,
+      });
+
+      console.log(
+        `✅ Successfully processed OTP response for player: ${data.mcid} - Status: ${data.success ? 'Success' : 'Failed'}`,
+      );
+    } catch (error) {
+      console.error("❌ Error handling OTP response message:", error);
       throw error; // 再スロー（メッセージを削除しない）
     }
   }

@@ -190,6 +190,9 @@ export class SqsMessageProcessor {
       case "mc_web_server_info":
         await this.handleServerInfo(message)
         break
+      case "mc_otp_response":
+        await this.handleOtpResponse(message)
+        break
       default:
         console.warn(`Unhandled message type: ${message.type}`)
     }
@@ -230,6 +233,24 @@ export class SqsMessageProcessor {
   }
 
   /**
+   * OTPレスポンス処理
+   */
+  private async handleOtpResponse(message: SqsMessage) {
+    const data = message.data as { mcid: string; uuid: string; success: boolean; message: string; timestamp: number }
+    const { mcid, uuid, success, message: responseMessage } = data
+    console.log(`OTP Response: ${mcid} (${uuid}) - ${success ? 'Success' : 'Failed'}: ${responseMessage}`)
+    
+    // OTPレスポンスをグローバルキャッシュに保存
+    global.otpResponses = global.otpResponses || new Map()
+    global.otpResponses.set(`${mcid}_${uuid}`, {
+      success,
+      message: responseMessage,
+      timestamp: data.timestamp,
+      received: true
+    })
+  }
+
+  /**
    * リソース解放
    */
   destroy() {
@@ -265,6 +286,20 @@ export function initializeSqsPolling(config?: Partial<SqsConfig>) {
   processor.registerHandler('mc_web_server_info', async (message) => {
     console.log('Server Info received:', message.data)
     // サーバー情報処理
+  })
+
+  processor.registerHandler('mc_otp_response', async (message) => {
+    console.log('OTP Response received:', message.data)
+    const data = message.data as { mcid: string; uuid: string; success: boolean; message: string; timestamp: number }
+    
+    // OTPレスポンスをグローバルキャッシュに保存
+    global.otpResponses = global.otpResponses || new Map()
+    global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
+      success: data.success,
+      message: data.message,
+      timestamp: data.timestamp,
+      received: true
+    })
   })
 
   // ポーリング開始
