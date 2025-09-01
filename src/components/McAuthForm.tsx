@@ -12,13 +12,17 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  const [otpSent, setOtpSent] = useState(false)
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [mcResponse, setMcResponse] = useState<{ success: boolean; message: string } | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!pageData.isAuth || !pageData.mcAuth) {
-      setError("認証が必要です。")
+    if (!pageData.mcAuth) {
+      setError("認証情報が不正です。")
       return
     }
 
@@ -29,6 +33,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
 
     setLoading(true)
     setError("")
+    setSuccess("")
 
     try {
       const response = await fetch("/api/mc/auth", {
@@ -47,8 +52,11 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        // Redirect to success page or refresh
-        router.push("/mc/auth?success=true")
+        setSuccess(result.message || "Minecraft認証が正常に完了しました！")
+        // Show success message for 3 seconds then redirect
+        setTimeout(() => {
+          router.push("/mc/auth?success=true")
+        }, 3000)
       } else {
         setError(result.message || "認証に失敗しました。")
       }
@@ -64,13 +72,61 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
     setPassword(value)
   }
 
-  const isReadOnly = !pageData.isAuth || !pageData.mcAuth
+  const handleSendOtp = async () => {
+    if (!pageData.authToken) {
+      setError("認証トークンが見つかりません。")
+      return
+    }
+
+    setSendingOtp(true)
+    setError("")
+    setSuccess("")
+
+    try {
+      const response = await fetch("/api/mc/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          authToken: pageData.authToken,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        setOtpSent(true)
+        setMcResponse(result.mcResponse)
+      } else {
+        setError(result.message || "OTP送信に失敗しました。")
+      }
+    } catch {
+      setError("OTP送信中にエラーが発生しました。")
+    } finally {
+      setSendingOtp(false)
+    }
+  }
+
+  
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
+        </div>
+      )}
+      
+      {success && (
+        <div className="p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          <div className="flex items-center">
+            <span className="mr-2">✅</span>
+            <span>{success}</span>
+          </div>
+          <div className="text-sm mt-2 text-green-600">
+            3秒後に成功ページへリダイレクトします...
+          </div>
         </div>
       )}
 
@@ -102,6 +158,77 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         />
       </div>
 
+      {/* OTP送信ステップ */}
+      {pageData.mcAuth && !otpSent && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold text-blue-900 mb-2">
+            ステップ1: ワンタイムパスワードを取得
+          </h4>
+          <p className="text-sm text-blue-700 mb-3">
+            まず、マイクラサーバーにワンタイムパスワードを送信します。<br />
+            サーバーのチャットで6桁の数字が表示されるのを確認してください。
+          </p>
+          <button
+            type="button"
+            onClick={handleSendOtp}
+            disabled={sendingOtp}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {sendingOtp ? "送信中..." : "🚀 ワンタイムパスワードをマイクラサーバに送信する"}
+          </button>
+        </div>
+      )}
+
+      {/* MCレスポンス表示 */}
+      {mcResponse && (
+        <div className={`mb-4 p-4 rounded-lg border ${
+          mcResponse.success 
+            ? 'bg-green-50 border-green-200' 
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <h4 className={`font-semibold mb-2 ${
+            mcResponse.success ? 'text-green-900' : 'text-red-900'
+          }`}>
+            {mcResponse.success ? '✅' : '❌'} マインクラフトサーバーからの応答
+          </h4>
+          <p className={`text-sm ${
+            mcResponse.success ? 'text-green-700' : 'text-red-700'
+          }`}>
+            {mcResponse.message}
+          </p>
+          {!mcResponse.success && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setOtpSent(false)
+                  setMcResponse(null)
+                  setError("")
+                }}
+                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                🔄 もう一度送信する
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* OTP入力ステップ */}
+      {otpSent && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <h4 className="font-semibold text-green-900 mb-2">
+            ✅ ステップ2: ワンタイムパスワードを入力
+          </h4>
+          <p className="text-sm text-green-700">
+            {mcResponse?.success 
+              ? "マイクラサーバーのチャットに表示された6桁の数字を入力してください。"
+              : "OTP送信に問題があったようです。上記のメッセージを確認してください。"
+            }
+          </p>
+        </div>
+      )}
+
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           ワンタイムパスワード
@@ -112,23 +239,30 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
           name="password"
           value={password}
           onChange={handlePasswordChange}
-          placeholder="6桁の半角数字を入力"
+          placeholder={
+            otpSent 
+              ? (mcResponse?.success 
+                  ? "マイクラに表示された6桁の数字" 
+                  : "OTP送信に失敗しました"
+                )
+              : "まずOTPを送信してください"
+          }
           maxLength={6}
-          readOnly={isReadOnly}
+          readOnly={!otpSent || !mcResponse?.success}
           className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-            isReadOnly ? 'bg-gray-100' : 'bg-white'
+            (!otpSent || !mcResponse?.success) ? 'bg-gray-100' : 'bg-white'
           }`}
         />
       </div>
 
       <div>
-        {pageData.isAuth && pageData.mcAuth ? (
+        {pageData.mcAuth ? (
           <button
             type="submit"
-            disabled={loading || !password || !/^\d{6}$/.test(password)}
+            disabled={loading || !otpSent || !mcResponse?.success || !password || !/^\d{6}$/.test(password)}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "認証中..." : "認証"}
+            {loading ? "認証中..." : "🎯 認証完了"}
           </button>
         ) : (
           <button

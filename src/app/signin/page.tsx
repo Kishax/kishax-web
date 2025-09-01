@@ -29,7 +29,7 @@ export default function SignInPage() {
       if (result?.error) {
         setError("Invalid username or password")
       } else {
-        router.push("/")
+        router.push("/dashboard")
       }
     } catch {
       setError("An error occurred during sign in")
@@ -39,7 +39,7 @@ export default function SignInPage() {
   }
 
   const handleOAuthSignIn = (provider: string) => {
-    signIn(provider, { callbackUrl: "/" })
+    signIn(provider, { callbackUrl: "/dashboard" })
   }
 
 

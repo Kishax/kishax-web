@@ -14,11 +14,14 @@ export default async function HomePage() {
           <div className="flex justify-between items-center py-6">
             <h1 className="text-3xl font-bold text-gray-900">KishaX</h1>
             <nav className="flex space-x-4">
+              <Link href="/mc/auth" className="text-green-600 hover:text-green-800">
+                MC Auth
+              </Link>
               {session ? (
                 <>
                   <span className="text-gray-700">Welcome, {session.user?.username || "[ユーザーID未設定]"}</span>
-                  <Link href="/mc/auth" className="text-green-600 hover:text-green-800">
-                    MC Auth
+                  <Link href="/dashboard" className="text-purple-600 hover:text-purple-800">
+                    Dashboard
                   </Link>
                   <Link href="/api/auth/signout?callbackUrl=/" className="text-red-600 hover:text-red-800">
                     Logout
@@ -57,7 +60,7 @@ export default async function HomePage() {
             {!session && (
               <div className="mt-8 space-x-4">
                 <Link
-                  href="/signin"
+                  href="/dashboard"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                 >
                   Get Started
@@ -87,6 +90,7 @@ export default async function HomePage() {
                 </Link>
               </div>
             )}
+            
           </div>
         </div>
       </main>

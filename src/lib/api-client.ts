@@ -1,5 +1,4 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs'
-import { defaultProvider } from '@aws-sdk/credential-provider-node'
 
 interface ApiConfig {
   region: string
@@ -29,7 +28,10 @@ export class KishaxApiClient {
     // Initialize SQS client with IAM credentials
     this.sqsClient = new SQSClient({
       region: this.config.region,
-      credentials: defaultProvider()
+      credentials: {
+        accessKeyId: process.env.MC_WEB_SQS_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.MC_WEB_SQS_SECRET_ACCESS_KEY || ""
+      }
     })
   }
 
@@ -55,6 +57,17 @@ export class KishaxApiClient {
     return this.sendToMc('web_mc_auth_confirm', {
       playerName,
       playerUuid
+    })
+  }
+
+  /**
+   * MCへOTP送信
+   */
+  async sendOtp(playerName: string, playerUuid: string, otp: string): Promise<ApiResponse> {
+    return this.sendToMc('web_mc_otp', {
+      playerName,
+      playerUuid,
+      otp
     })
   }
 

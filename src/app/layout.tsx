@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   description: "Minecraft Server Provider",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{

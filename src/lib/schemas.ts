@@ -68,13 +68,15 @@ export const McAuthPageDataSchema = z.object({
   uuid: z.string().optional(),
   mcAuth: z.boolean(),
   token: z.string().optional(),
+  authToken: z.string().optional(),
   successMessage: z.array(z.string()).optional(),
   errorMessage: z.array(z.string()).optional(),
   infoMessage: z.array(z.string()).optional()
 })
 
 export const McAuthQuerySchema = z.object({
-  n: z.string().optional().transform(val => val ? parseInt(val) : undefined)
+  n: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  t: z.string().optional()
 })
 
 // Type exports

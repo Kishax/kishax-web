@@ -64,6 +64,25 @@ export function SqsMessageProvider({
           }))
         })
 
+        processorRef.current.registerHandler('mc_otp_response', async (message) => {
+          console.log('OTP response received:', message.data)
+          const data = message.data as { mcid: string; uuid: string; success: boolean; message: string; timestamp: number }
+          
+          // OTPレスポンスをグローバルキャッシュに保存
+          global.otpResponses = global.otpResponses || new Map()
+          global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
+            success: data.success,
+            message: data.message,
+            timestamp: data.timestamp,
+            received: true
+          })
+          
+          // カスタムイベントを発火してUIに通知
+          window.dispatchEvent(new CustomEvent('mcOtpResponse', { 
+            detail: data 
+          }))
+        })
+
         // ポーリング開始
         processorRef.current.startPolling()
         console.log('SQS message polling started')
