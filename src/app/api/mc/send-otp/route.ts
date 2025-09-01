@@ -166,34 +166,12 @@ export async function POST(req: NextRequest) {
 
     console.log(`Generated OTP ${otp} for player ${player.mcid}`)
 
-    // MC側にOTPを送信
+    // MC側にOTPを送信（SQS経由）
     try {
-      // Try API client for SQS/API Gateway
       const { getApiClient } = await import("@/lib/api-client")
-      
-      try {
-        const apiClient = getApiClient()
-        // API client method for sending OTP (to be implemented)
-        await apiClient.sendOtp(player.mcid, player.uuid, otp)
-        console.log("OTP sent to MC via SQS")
-      } catch (sqsError) {
-        console.warn("Failed to send OTP via SQS, falling back to socket:", sqsError)
-        
-        // Fallback to socket method
-        const { sendSocketMessage } = await import("@/lib/socket-client")
-        const message = {
-          minecraft: {
-            otp: {
-              mcid: player.mcid,
-              uuid: player.uuid,
-              otp: otp,
-              action: "send_otp"
-            }
-          }
-        }
-        await sendSocketMessage(JSON.stringify(message) + '\r\n')
-        console.log("OTP sent to MC via socket")
-      }
+      const apiClient = getApiClient()
+      await apiClient.sendOtp(player.mcid, player.uuid, otp)
+      console.log("OTP sent to MC via SQS")
     } catch (error) {
       console.error("Failed to send OTP to MC:", error)
       // Don't fail the request if notification fails, OTP is already stored
