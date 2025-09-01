@@ -12,6 +12,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const [otpSent, setOtpSent] = useState(false)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [mcResponse, setMcResponse] = useState<{ success: boolean; message: string } | null>(null)
@@ -20,8 +21,8 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!pageData.isAuth || !pageData.mcAuth) {
-      setError("認証が必要です。")
+    if (!pageData.mcAuth) {
+      setError("認証情報が不正です。")
       return
     }
 
@@ -32,6 +33,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
 
     setLoading(true)
     setError("")
+    setSuccess("")
 
     try {
       const response = await fetch("/api/mc/auth", {
@@ -50,8 +52,11 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        // Redirect to success page or refresh
-        router.push("/mc/auth?success=true")
+        setSuccess(result.message || "Minecraft認証が正常に完了しました！")
+        // Show success message for 3 seconds then redirect
+        setTimeout(() => {
+          router.push("/mc/auth?success=true")
+        }, 3000)
       } else {
         setError(result.message || "認証に失敗しました。")
       }
@@ -75,6 +80,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
 
     setSendingOtp(true)
     setError("")
+    setSuccess("")
 
     try {
       const response = await fetch("/api/mc/send-otp", {
@@ -109,6 +115,18 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
       {error && (
         <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
+        </div>
+      )}
+      
+      {success && (
+        <div className="p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          <div className="flex items-center">
+            <span className="mr-2">✅</span>
+            <span>{success}</span>
+          </div>
+          <div className="text-sm mt-2 text-green-600">
+            3秒後に成功ページへリダイレクトします...
+          </div>
         </div>
       )}
 

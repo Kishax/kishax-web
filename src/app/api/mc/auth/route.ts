@@ -72,16 +72,9 @@ const prisma = new PrismaClient()
  */
 export async function POST(req: NextRequest) {
   try {
-    // Require authentication
-    const authResult = await requireAuth()
-    if (authResult.error) {
-      return authResult.error
-    }
-    
-    const session = authResult.session as unknown as { user: { id: string; name?: string; email?: string } }
-    if (!session?.user?.id) {
-      return createErrorResponse("Authentication required", "User not found", 401)
-    }
+    // Get optional authentication (no requirement to be logged in)
+    const { auth } = await import("@/lib/auth")
+    const session = await auth() as { user: { id: string; name?: string; email?: string } } | null
 
     // Validate request
     const validation = await validateRequest(McAuthRequestSchema)(req)

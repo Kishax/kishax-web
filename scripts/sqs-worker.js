@@ -141,6 +141,14 @@ class SQSWorker {
           await this.deleteMessage(message.ReceiptHandle);
           console.log("✅ OTP Response message deleted successfully");
         }
+      } else if (messageData.type === "mc_web_auth_response") {
+        await this.handleWebAuthResponseMessage(messageData);
+
+        // メッセージを削除
+        if (message.ReceiptHandle) {
+          await this.deleteMessage(message.ReceiptHandle);
+          console.log("✅ Web Auth Response message deleted successfully");
+        }
       } else {
         console.warn(`!  Unknown message type: ${messageData.type}`);
       }
@@ -233,6 +241,31 @@ class SQSWorker {
 
   sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * MC側からのWeb認証応答メッセージを処理
+   */
+  async handleWebAuthResponseMessage(data) {
+    try {
+      console.log(
+        `🔒 Processing web auth response for player: ${data.playerName} (${data.playerUuid})`,
+      );
+      console.log(`📝 Auth result: ${data.success ? 'Success' : 'Failed'} - ${data.message}`);
+
+      // 必要に応じてWeb側での追加処理を行う
+      // 例：統計情報の更新、ログの保存、通知の送信など
+      
+      // 現在のところ、この応答はログ出力のみで十分
+      // MC側で既にDBの更新や権限付与が完了している
+
+      console.log("✅ Web auth response processed successfully");
+    } catch (error) {
+      console.error(
+        `❌ Error processing web auth response: ${data.playerName} (${data.playerUuid})`,
+        error,
+      );
+    }
   }
 }
 
