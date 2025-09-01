@@ -6,8 +6,40 @@ const {
   DeleteMessageCommand,
 } = require("@aws-sdk/client-sqs");
 const { PrismaClient } = require("@prisma/client");
+const { createClient } = require("redis");
 
 const prisma = new PrismaClient();
+
+// Redisクライアントの初期化
+let redisClient = null;
+
+async function getRedisClient() {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      socket: {
+        connectTimeout: 5000,
+        lazyConnect: true
+      }
+    });
+
+    redisClient.on('error', (error) => {
+      console.error('❌ Redis connection error:', error);
+    });
+
+    redisClient.on('connect', () => {
+      console.log('✅ Redis connected successfully');
+    });
+
+    redisClient.on('disconnect', () => {
+      console.log('⚠️ Redis disconnected');
+    });
+
+    await redisClient.connect();
+  }
+
+  return redisClient;
+}
 
 class SQSWorker {
   constructor() {
@@ -158,18 +190,24 @@ class SQSWorker {
       );
       console.log(`📝 Response message: ${data.message}`);
 
-      // OTPレスポンスをグローバルキャッシュに保存（Next.js APIで使用）
-      // Node.jsのglobalオブジェクトを使用
-      if (!global.otpResponses) {
-        global.otpResponses = new Map();
-      }
-      
-      global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
+      // OTPレスポンスをRedisに保存
+      const redis = await getRedisClient();
+      const key = `otp_response:${data.mcid}_${data.uuid}`;
+      const value = JSON.stringify({
         success: data.success,
         message: data.message,
         timestamp: data.timestamp,
         received: true,
       });
+      
+      // 5分間のTTLを設定
+      await redis.setEx(key, 300, value);
+      console.log(`📝 OTP response saved to Redis: ${key}`);
+      
+      // Pub/Subでリアルタイム通知
+      const channelName = `otp_response:${data.mcid}_${data.uuid}`;
+      await redis.publish(channelName, value);
+      console.log(`📡 Published OTP response notification: ${channelName}`);
 
       console.log(
         `✅ Successfully processed OTP response for player: ${data.mcid} - Status: ${data.success ? 'Success' : 'Failed'}`,
