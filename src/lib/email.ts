@@ -1,17 +1,17 @@
-import nodemailer, { Transporter } from 'nodemailer'
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
+import nodemailer, { Transporter } from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-let transporter: Transporter | null = null
+let transporter: Transporter | null = null;
 
 function createTransporter(): Transporter {
   if (transporter) {
-    return transporter
+    return transporter;
   }
 
-  const port = parseInt(process.env.EMAIL_PORT || '587')
-  
+  const port = parseInt(process.env.EMAIL_PORT || "587");
+
   const config: SMTPTransport.Options = {
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
     port: port,
     secure: port === 465,
     requireTLS: true,
@@ -19,17 +19,20 @@ function createTransporter(): Transporter {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-  }
-  
-  transporter = nodemailer.createTransport(config)
+  };
 
-  return transporter
+  transporter = nodemailer.createTransport(config);
+
+  return transporter;
 }
 
-export async function sendOneTimePassword(recipient: string, otp: string): Promise<boolean> {
+export async function sendOneTimePassword(
+  recipient: string,
+  otp: string,
+): Promise<boolean> {
   try {
-    const transporter = createTransporter()
-    
+    const transporter = createTransporter();
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -80,29 +83,32 @@ export async function sendOneTimePassword(recipient: string, otp: string): Promi
         </div>
       </body>
       </html>
-    `
+    `;
 
     const mailOptions = {
       from: `"KishaX" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: recipient,
-      subject: '[KishaX] ワンタイムパスワード',
+      subject: "[KishaX] ワンタイムパスワード",
       html,
-    }
+    };
 
-    const info = await transporter.sendMail(mailOptions)
-    console.log('OTP email sent successfully: %s', info.messageId)
+    const info = await transporter.sendMail(mailOptions);
+    console.log("OTP email sent successfully: %s", info.messageId);
 
-    return true
+    return true;
   } catch (error) {
-    console.error('Error sending OTP email:', error)
-    return false
+    console.error("Error sending OTP email:", error);
+    return false;
   }
 }
 
-export async function sendVerificationEmail(recipient: string, verificationUrl: string): Promise<boolean> {
+export async function sendVerificationEmail(
+  recipient: string,
+  verificationUrl: string,
+): Promise<boolean> {
   try {
-    const transporter = createTransporter()
-    
+    const transporter = createTransporter();
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -155,21 +161,21 @@ export async function sendVerificationEmail(recipient: string, verificationUrl: 
         </div>
       </body>
       </html>
-    `
+    `;
 
     const mailOptions = {
       from: `"KishaX" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: recipient,
-      subject: '[KishaX] メールアドレス認証のお願い',
+      subject: "[KishaX] メールアドレス認証のお願い",
       html,
-    }
+    };
 
-    const info = await transporter.sendMail(mailOptions)
-    console.log('Verification email sent successfully: %s', info.messageId)
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Verification email sent successfully: %s", info.messageId);
 
-    return true
+    return true;
   } catch (error) {
-    console.error('Error sending verification email:', error)
-    return false
+    console.error("Error sending verification email:", error);
+    return false;
   }
 }

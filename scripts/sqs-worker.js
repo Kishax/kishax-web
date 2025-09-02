@@ -16,23 +16,23 @@ let redisClient = null;
 async function getRedisClient() {
   if (!redisClient) {
     redisClient = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: process.env.REDIS_URL || "redis://localhost:6379",
       socket: {
         connectTimeout: 5000,
-        lazyConnect: true
-      }
+        lazyConnect: true,
+      },
     });
 
-    redisClient.on('error', (error) => {
-      console.error('❌ Redis connection error:', error);
+    redisClient.on("error", (error) => {
+      console.error("❌ Redis connection error:", error);
     });
 
-    redisClient.on('connect', () => {
-      console.log('✅ Redis connected successfully');
+    redisClient.on("connect", () => {
+      console.log("✅ Redis connected successfully");
     });
 
-    redisClient.on('disconnect', () => {
-      console.log('⚠️ Redis disconnected');
+    redisClient.on("disconnect", () => {
+      console.log("⚠️ Redis disconnected");
     });
 
     await redisClient.connect();
@@ -207,18 +207,18 @@ class SQSWorker {
         timestamp: data.timestamp,
         received: true,
       });
-      
+
       // 5分間のTTLを設定
       await redis.setEx(key, 300, value);
       console.log(`📝 OTP response saved to Redis: ${key}`);
-      
+
       // Pub/Subでリアルタイム通知
       const channelName = `otp_response:${data.mcid}_${data.uuid}`;
       await redis.publish(channelName, value);
       console.log(`📡 Published OTP response notification: ${channelName}`);
 
       console.log(
-        `✅ Successfully processed OTP response for player: ${data.mcid} - Status: ${data.success ? 'Success' : 'Failed'}`,
+        `✅ Successfully processed OTP response for player: ${data.mcid} - Status: ${data.success ? "Success" : "Failed"}`,
       );
     } catch (error) {
       console.error("❌ Error handling OTP response message:", error);
@@ -251,11 +251,13 @@ class SQSWorker {
       console.log(
         `🔒 Processing web auth response for player: ${data.playerName} (${data.playerUuid})`,
       );
-      console.log(`📝 Auth result: ${data.success ? 'Success' : 'Failed'} - ${data.message}`);
+      console.log(
+        `📝 Auth result: ${data.success ? "Success" : "Failed"} - ${data.message}`,
+      );
 
       // 必要に応じてWeb側での追加処理を行う
       // 例：統計情報の更新、ログの保存、通知の送信など
-      
+
       // 現在のところ、この応答はログ出力のみで十分
       // MC側で既にDBの更新や権限付与が完了している
 
@@ -302,4 +304,3 @@ worker.start().catch((error) => {
   console.error("💥 Failed to start SQS Worker:", error);
   process.exit(1);
 });
-

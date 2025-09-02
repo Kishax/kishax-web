@@ -1,20 +1,20 @@
-import NextAuth from "next-auth"
-import { authConfig } from "@/auth.config"
-import Google from "next-auth/providers/google"
-import Discord from "next-auth/providers/discord"
-import Twitter from "next-auth/providers/twitter"
-import Credentials from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcrypt"
-import { verify } from "jsonwebtoken"
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
+import Google from "next-auth/providers/google";
+import Discord from "next-auth/providers/discord";
+import Twitter from "next-auth/providers/twitter";
+import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+import { verify } from "jsonwebtoken";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
-  
+
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -29,7 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Twitter({
       clientId: process.env.TWITTER_CLIENT_ID!,
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-      
+
       allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
@@ -38,27 +38,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
         autoLogin: { label: "Auto Login", type: "text" },
-        sessionToken: { label: "Session Token", type: "text" }
+        sessionToken: { label: "Session Token", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.username) {
-          return null
+          return null;
         }
 
         // Special case for auto-login with session token
         if (credentials.autoLogin === "true" && credentials.sessionToken) {
           try {
             // Verify the session token
-            const decodedToken = verify(credentials.sessionToken as string, process.env.NEXTAUTH_SECRET!) as {
-              id: string
-              email: string
-              username: string
-              purpose: string
-            }
+            const decodedToken = verify(
+              credentials.sessionToken as string,
+              process.env.NEXTAUTH_SECRET!,
+            ) as {
+              id: string;
+              email: string;
+              username: string;
+              purpose: string;
+            };
 
             // Check token purpose
-            if (decodedToken.purpose !== 'auto-login') {
-              return null
+            if (decodedToken.purpose !== "auto-login") {
+              return null;
             }
 
             // Get user from database
@@ -72,10 +75,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 emailVerified: true,
                 image: true,
               },
-            })
+            });
 
             if (!user || !user.username || !user.emailVerified) {
-              return null
+              return null;
             }
 
             return {
@@ -83,96 +86,96 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               name: user.name || user.username,
               email: user.email,
               image: user.image,
-            }
+            };
           } catch {
-            return null
+            return null;
           }
         }
 
         // For other cases, password is required
         if (!credentials?.password) {
-          return null
+          return null;
         }
 
         // Special case for OTP login
         if (credentials.password === "otp-verified") {
           const user = await prisma.user.findUnique({
             where: {
-              email: credentials.username as string
-            }
-          })
+              email: credentials.username as string,
+            },
+          });
 
           if (!user || !user.emailVerified) {
-            return null
+            return null;
           }
 
           return {
             id: user.id.toString(),
             name: user.name,
             email: user.email,
-          }
+          };
         }
 
         // Special case for auto-login after username setup (legacy)
         if (credentials.password === "auto-login-after-setup") {
           const user = await prisma.user.findUnique({
             where: {
-              email: credentials.username as string
-            }
-          })
+              email: credentials.username as string,
+            },
+          });
 
           if (!user || !user.emailVerified || !user.name) {
-            return null
+            return null;
           }
 
           return {
             id: user.id.toString(),
             name: user.name,
             email: user.email,
-          }
+          };
         }
 
         // Try email login first (new system)
         let user = await prisma.user.findUnique({
           where: {
-            email: credentials.username as string
-          }
-        })
+            email: credentials.username as string,
+          },
+        });
 
         // If no user found by email, try username (old system compatibility)
         if (!user) {
           user = await prisma.user.findFirst({
             where: {
-              name: credentials.username as string
-            }
-          })
+              name: credentials.username as string,
+            },
+          });
         }
 
         if (!user) {
-          return null
+          return null;
         }
 
         // Check if email is verified for new users
         if (user.email && !user.emailVerified) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
-          user.password || ""
-        )
+          user.password || "",
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
           id: user.id.toString(),
           name: user.name,
           email: user.email,
-        }
-      }
-    })
+        };
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -193,17 +196,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           dbUser = await prisma.user.create({
             data: {
               email: user.email,
-              name: user.name || profile?.name || '',
+              name: user.name || profile?.name || "",
               image: user.image,
               emailVerified: new Date(), // OAuth providers are pre-verified
-            }
+            },
           });
         } else {
           // If user exists but emailVerified is null, update it for OAuth
           if (!dbUser.emailVerified) {
             await prisma.user.update({
               where: { id: dbUser.id },
-              data: { emailVerified: new Date() }
+              data: { emailVerified: new Date() },
             });
           }
         }
@@ -222,18 +225,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!dbUser || !dbUser.emailVerified) {
         // Returning false will display a default error message
         // You can also throw an error with a specific message
-        return false
+        return false;
       }
 
-      return true
+      return true;
     },
     async jwt({ token, user }) {
       // If user object exists, it's the first sign-in, so we set the subject (user id)
       if (user) {
-        token.sub = user.id
+        token.sub = user.id;
       }
 
-      // On subsequent calls, token.sub will exist. 
+      // On subsequent calls, token.sub will exist.
       // We check the database to see if the username is still missing.
       if (token.sub) {
         const dbUser = await prisma.user.findUnique({
@@ -245,15 +248,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.needsUsername = !dbUser?.username;
       }
 
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.sub!
+        session.user.id = token.sub!;
         if (token.needsUsername === true) {
-          session.user.needsUsername = true
+          session.user.needsUsername = true;
         }
-        
+
         // Add username to session
         if (token.sub) {
           const dbUser = await prisma.user.findUnique({
@@ -263,7 +266,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           session.user.username = dbUser?.username || null;
         }
       }
-      return session
+      return session;
     },
   },
-})
+});

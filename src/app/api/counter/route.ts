@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { CounterQuerySchema, CounterResponseSchema } from "@/lib/schemas"
-import { validateRequest, createErrorResponse } from "@/lib/api-middleware"
-import { format, subDays, startOfMonth, startOfYear, endOfDay } from "date-fns"
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { CounterQuerySchema, CounterResponseSchema } from "@/lib/schemas";
+import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
+import { format, subDays, startOfMonth, startOfYear, endOfDay } from "date-fns";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 /**
  * @swagger
@@ -51,29 +51,29 @@ const prisma = new PrismaClient()
 export async function GET(req: NextRequest) {
   try {
     // Validate request
-    const validation = await validateRequest(CounterQuerySchema)(req)
+    const validation = await validateRequest(CounterQuerySchema)(req);
     if (validation.error) {
-      return validation.error
+      return validation.error;
     }
-    
-    const { type } = validation.data
+
+    const { type } = validation.data;
 
     // Calculate date range based on type
-    let startDate: Date
-    const endDate = new Date()
+    let startDate: Date;
+    const endDate = new Date();
 
     switch (type) {
       case "last7days":
-        startDate = subDays(endDate, 6) // Last 7 days including today
-        break
+        startDate = subDays(endDate, 6); // Last 7 days including today
+        break;
       case "month":
-        startDate = startOfMonth(endDate)
-        break
+        startDate = startOfMonth(endDate);
+        break;
       case "year":
-        startDate = startOfYear(endDate)
-        break
+        startDate = startOfYear(endDate);
+        break;
       default:
-        startDate = subDays(endDate, 6)
+        startDate = subDays(endDate, 6);
     }
 
     // Query counter data
@@ -81,45 +81,50 @@ export async function GET(req: NextRequest) {
       where: {
         date: {
           gte: startDate,
-          lte: endOfDay(endDate)
-        }
+          lte: endOfDay(endDate),
+        },
       },
       orderBy: {
-        date: 'asc'
-      }
-    })
+        date: "asc",
+      },
+    });
 
     // Group by date and aggregate counts
-    const aggregatedData = counters.reduce((acc, counter) => {
-      const dateKey = format(counter.date, 'yyyy-MM-dd')
-      
-      if (!acc[dateKey]) {
-        acc[dateKey] = {
-          date: dateKey,
-          count: 0
+    const aggregatedData = counters.reduce(
+      (acc, counter) => {
+        const dateKey = format(counter.date, "yyyy-MM-dd");
+
+        if (!acc[dateKey]) {
+          acc[dateKey] = {
+            date: dateKey,
+            count: 0,
+          };
         }
-      }
-      
-      acc[dateKey].count += counter.count
-      return acc
-    }, {} as Record<string, { date: string; count: number }>)
+
+        acc[dateKey].count += counter.count;
+        return acc;
+      },
+      {} as Record<string, { date: string; count: number }>,
+    );
 
     // Convert to array and sort
-    const data = Object.values(aggregatedData).sort((a, b) => a.date.localeCompare(b.date))
+    const data = Object.values(aggregatedData).sort((a, b) =>
+      a.date.localeCompare(b.date),
+    );
 
     // Validate response
     const response = CounterResponseSchema.parse({
       data,
-      error: null
-    })
+      error: null,
+    });
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    console.error("Counter API error:", error)
+    console.error("Counter API error:", error);
     return createErrorResponse(
       "Internal Server Error",
       "Failed to retrieve counter data",
-      500
-    )
+      500,
+    );
   }
 }

@@ -1,42 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { verify } from 'jsonwebtoken'
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { verify } from "jsonwebtoken";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionToken } = await request.json()
+    const { sessionToken } = await request.json();
 
     if (!sessionToken) {
       return NextResponse.json(
-        { error: 'Session token is required' },
-        { status: 400 }
-      )
+        { error: "Session token is required" },
+        { status: 400 },
+      );
     }
 
     // Verify the session token
-    let decodedToken
+    let decodedToken;
     try {
       decodedToken = verify(sessionToken, process.env.NEXTAUTH_SECRET!) as {
-        id: string
-        email: string
-        username: string
-        purpose: string
-      }
+        id: string;
+        email: string;
+        username: string;
+        purpose: string;
+      };
     } catch {
       return NextResponse.json(
-        { error: 'Invalid session token' },
-        { status: 401 }
-      )
+        { error: "Invalid session token" },
+        { status: 401 },
+      );
     }
 
     // Check token purpose
-    if (decodedToken.purpose !== 'auto-login') {
+    if (decodedToken.purpose !== "auto-login") {
       return NextResponse.json(
-        { error: 'Invalid token purpose' },
-        { status: 401 }
-      )
+        { error: "Invalid token purpose" },
+        { status: 401 },
+      );
     }
 
     // Get user from database to ensure they still exist and have username
@@ -50,13 +50,13 @@ export async function POST(request: NextRequest) {
         emailVerified: true,
         image: true,
       },
-    })
+    });
 
     if (!user || !user.username) {
       return NextResponse.json(
-        { error: 'User not found or username not set' },
-        { status: 404 }
-      )
+        { error: "User not found or username not set" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -69,12 +69,12 @@ export async function POST(request: NextRequest) {
         image: user.image,
         emailVerified: !!user.emailVerified,
       },
-    })
+    });
   } catch (error) {
-    console.error('Auto-login error:', error)
+    console.error("Auto-login error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

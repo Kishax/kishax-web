@@ -1,22 +1,24 @@
-import { auth } from "@/lib/auth"
-import Link from "next/link"
-import { PrismaClient } from "@prisma/client"
+import { auth } from "@/lib/auth";
+import Link from "next/link";
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export default async function DashboardPage() {
-  const session = await auth()
-  
+  const session = await auth();
+
   // Allow access without session, but show sign-in prompt
-  const isLoggedIn = !!session
+  const isLoggedIn = !!session;
 
   // Get user's MC authentication status only if logged in
-  const mcConnections = isLoggedIn ? await prisma.minecraftPlayer.findMany({
-    where: { 
-      kishaxUserId: session.user.id,
-      confirmed: true
-    }
-  }) : []
+  const mcConnections = isLoggedIn
+    ? await prisma.minecraftPlayer.findMany({
+        where: {
+          kishaxUserId: session.user.id,
+          confirmed: true,
+        },
+      })
+    : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -28,7 +30,10 @@ export default async function DashboardPage() {
               <Link href="/" className="text-blue-600 hover:text-blue-800">
                 Home
               </Link>
-              <Link href="/api/auth/signout?callbackUrl=/" className="text-red-600 hover:text-red-800">
+              <Link
+                href="/api/auth/signout?callbackUrl=/"
+                className="text-red-600 hover:text-red-800"
+              >
                 Logout
               </Link>
             </nav>
@@ -41,7 +46,11 @@ export default async function DashboardPage() {
           <div className="mb-6">
             {isLoggedIn ? (
               <h2 className="text-2xl font-bold text-gray-900">
-                ようこそ、{session.user?.username || session.user?.name || "[ユーザーID未設定]"}さん
+                ようこそ、
+                {session.user?.username ||
+                  session.user?.name ||
+                  "[ユーザーID未設定]"}
+                さん
               </h2>
             ) : (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
@@ -77,8 +86,8 @@ export default async function DashboardPage() {
                   Minecraft認証
                 </h3>
                 <p className="mt-2 text-sm text-green-600">
-                  {mcConnections.length > 0 
-                    ? `${mcConnections.length}個のアカウント連携済み - 新しい認証を追加` 
+                  {mcConnections.length > 0
+                    ? `${mcConnections.length}個のアカウント連携済み - 新しい認証を追加`
                     : "Minecraftサーバーで認証を完了してください"}
                 </p>
                 <div className="mt-3 text-xs text-green-500 font-medium">
@@ -191,11 +200,15 @@ export default async function DashboardPage() {
                 <ul className="space-y-3">
                   <li className="flex items-center">
                     <span className="text-green-500 mr-3">✓</span>
-                    <span className="text-gray-700">イメージマップの発行（1日5枚まで）</span>
+                    <span className="text-gray-700">
+                      イメージマップの発行（1日5枚まで）
+                    </span>
                   </li>
                   <li className="flex items-center">
                     <span className="text-green-500 mr-3">✓</span>
-                    <span className="text-gray-700">サーバの起動リクエスト（Discordを通じて）</span>
+                    <span className="text-gray-700">
+                      サーバの起動リクエスト（Discordを通じて）
+                    </span>
                   </li>
                   <li className="flex items-center">
                     <span className="text-yellow-500 mr-3">⏳</span>
@@ -212,5 +225,5 @@ export default async function DashboardPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
