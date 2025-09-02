@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react";
 
 export default function DocsPage() {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Dynamically import and initialize Scalar
     const initScalar = async () => {
       try {
-        const { ApiReference } = await import("@scalar/api-reference")
-        
+        const { ApiReference } = await import("@scalar/api-reference");
+
         if (containerRef.current) {
           // Clear container
-          containerRef.current.innerHTML = ""
-          
+          containerRef.current.innerHTML = "";
+
           // Initialize Scalar API Reference
           new ApiReference(containerRef.current, {
             spec: {
-              url: "/api/docs"
+              url: "/api/docs",
             },
             theme: "default",
             layout: "modern",
@@ -27,11 +27,11 @@ export default function DocsPage() {
               .scalar-app {
                 height: 100vh;
               }
-            `
-          })
+            `,
+          });
         }
       } catch (error) {
-        console.error("Failed to load API documentation:", error)
+        console.error("Failed to load API documentation:", error);
         if (containerRef.current) {
           containerRef.current.innerHTML = `
             <div class="flex items-center justify-center h-screen">
@@ -40,17 +40,17 @@ export default function DocsPage() {
                 <p class="text-gray-600">Please try refreshing the page.</p>
               </div>
             </div>
-          `
+          `;
         }
       }
-    }
+    };
 
-    initScalar()
-  }, [])
+    initScalar();
+  }, []);
 
   return (
     <div className="w-full h-screen">
       <div ref={containerRef} className="w-full h-full" />
     </div>
-  )
+  );
 }

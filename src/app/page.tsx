@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth"
-import Link from "next/link"
-import { Suspense } from "react"
-import WelcomeMessage from "@/components/WelcomeMessage"
-import { OAuthRedirectHandler } from "@/components/OAuthRedirectHandler"
+import { auth } from "@/lib/auth";
+import Link from "next/link";
+import { Suspense } from "react";
+import WelcomeMessage from "@/components/WelcomeMessage";
+import { OAuthRedirectHandler } from "@/components/OAuthRedirectHandler";
 
 export default async function HomePage() {
-  const session = await auth()
+  const session = await auth();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -14,25 +14,42 @@ export default async function HomePage() {
           <div className="flex justify-between items-center py-6">
             <h1 className="text-3xl font-bold text-gray-900">KishaX</h1>
             <nav className="flex space-x-4">
-              <Link href="/mc/auth" className="text-green-600 hover:text-green-800">
+              <Link
+                href="/mc/auth"
+                className="text-green-600 hover:text-green-800"
+              >
                 MC Auth
               </Link>
               {session ? (
                 <>
-                  <span className="text-gray-700">Welcome, {session.user?.username || "[ユーザーID未設定]"}</span>
-                  <Link href="/dashboard" className="text-purple-600 hover:text-purple-800">
+                  <span className="text-gray-700">
+                    Welcome, {session.user?.username || "[ユーザーID未設定]"}
+                  </span>
+                  <Link
+                    href="/dashboard"
+                    className="text-purple-600 hover:text-purple-800"
+                  >
                     Dashboard
                   </Link>
-                  <Link href="/api/auth/signout?callbackUrl=/" className="text-red-600 hover:text-red-800">
+                  <Link
+                    href="/api/auth/signout?callbackUrl=/"
+                    className="text-red-600 hover:text-red-800"
+                  >
                     Logout
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link href="/signin" className="text-blue-600 hover:text-blue-800">
+                  <Link
+                    href="/signin"
+                    className="text-blue-600 hover:text-blue-800"
+                  >
                     Sign In
                   </Link>
-                  <Link href="/signup" className="text-green-600 hover:text-green-800">
+                  <Link
+                    href="/signup"
+                    className="text-green-600 hover:text-green-800"
+                  >
                     Sign Up
                   </Link>
                 </>
@@ -48,7 +65,7 @@ export default async function HomePage() {
           <Suspense fallback={<div>Loading...</div>}>
             <WelcomeMessage />
           </Suspense>
-          
+
           <div className="text-center">
             <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
               Welcome to KishaX
@@ -56,7 +73,7 @@ export default async function HomePage() {
             <p className="mt-4 text-xl text-gray-600">
               A modern web application with secure authentication
             </p>
-            
+
             {!session && (
               <div className="mt-8 space-x-4">
                 <Link
@@ -67,7 +84,7 @@ export default async function HomePage() {
                 </Link>
               </div>
             )}
-            
+
             {session && (
               <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Link
@@ -80,9 +97,7 @@ export default async function HomePage() {
                     </span>
                   </div>
                   <div className="mt-8">
-                    <h3 className="text-lg font-medium">
-                      Minecraft Auth
-                    </h3>
+                    <h3 className="text-lg font-medium">Minecraft Auth</h3>
                     <p className="mt-2 text-sm text-gray-500">
                       Authenticate with Minecraft server
                     </p>
@@ -90,10 +105,9 @@ export default async function HomePage() {
                 </Link>
               </div>
             )}
-            
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }

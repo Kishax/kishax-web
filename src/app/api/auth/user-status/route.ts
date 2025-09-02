@@ -1,18 +1,15 @@
-import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { PrismaClient } from '@prisma/client'
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const session = await auth()
-    
+    const session = await auth();
+
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: '認証が必要です。' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -22,15 +19,15 @@ export async function GET() {
         name: true,
         username: true,
         email: true,
-        emailVerified: true
-      }
-    })
+        emailVerified: true,
+      },
+    });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'ユーザーが見つかりません。' },
-        { status: 404 }
-      )
+        { error: "ユーザーが見つかりません。" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -40,15 +37,14 @@ export async function GET() {
         name: user.name,
         username: user.username,
         email: user.email,
-        emailVerified: !!user.emailVerified
-      }
-    })
-
+        emailVerified: !!user.emailVerified,
+      },
+    });
   } catch (error) {
-    console.error('User status error:', error)
+    console.error("User status error:", error);
     return NextResponse.json(
-      { error: '内部サーバーエラーが発生しました。' },
-      { status: 500 }
-    )
+      { error: "内部サーバーエラーが発生しました。" },
+      { status: 500 },
+    );
   }
 }

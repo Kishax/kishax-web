@@ -1,29 +1,31 @@
-"use client"
+"use client";
 
-import { signIn } from "next-auth/react"
-import { useState } from "react"
-import Link from "next/link"
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import Link from "next/link";
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: ""
-  })
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [step, setStep] = useState<'signup' | 'verify'>('signup')
-  const [verificationMethod, setVerificationMethod] = useState<'otp' | 'link'>('otp')
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<"signup" | "verify">("signup");
+  const [verificationMethod, setVerificationMethod] = useState<"otp" | "link">(
+    "otp",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("パスワードが一致しません")
-      setLoading(false)
-      return
+      setError("パスワードが一致しません");
+      setLoading(false);
+      return;
     }
 
     try {
@@ -36,47 +38,48 @@ export default function SignUpPage() {
           email: formData.email,
           password: formData.password,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
         // 直接招待リンクを送信（デフォルト）
-        await handleVerificationMethod('link')
+        await handleVerificationMethod("link");
       } else {
-        setError(data.error || "サインアップ中にエラーが発生しました")
+        setError(data.error || "サインアップ中にエラーが発生しました");
       }
     } catch {
-      setError("サインアップ中にエラーが発生しました")
+      setError("サインアップ中にエラーが発生しました");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleVerificationMethod = async (method: 'otp' | 'link') => {
-    setVerificationMethod(method)
-    setLoading(true)
-    setError("")
+  const handleVerificationMethod = async (method: "otp" | "link") => {
+    setVerificationMethod(method);
+    setLoading(true);
+    setError("");
 
     try {
       // 現在は招待リンクのみ使用、OTPロジックは将来のために保持
-      const endpoint = method === 'otp' 
-        ? '/api/auth/otp/send'  // OTP機能（現在は使用しない）
-        : '/api/auth/verification/send'  // 招待リンク（デフォルト）
-      
+      const endpoint =
+        method === "otp"
+          ? "/api/auth/otp/send" // OTP機能（現在は使用しない）
+          : "/api/auth/verification/send"; // 招待リンク（デフォルト）
+
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: formData.email }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        if (method === 'link') {
-          setStep('verify')
+        if (method === "link") {
+          setStep("verify");
         }
         /* OTP処理（現在は使用しない）
         if (method === 'otp') {
@@ -85,18 +88,18 @@ export default function SignUpPage() {
         }
         */
       } else {
-        setError(data.error || '認証メール送信に失敗しました')
+        setError(data.error || "認証メール送信に失敗しました");
       }
     } catch {
-      setError('認証メール送信に失敗しました')
+      setError("認証メール送信に失敗しました");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleOAuthSignUp = (provider: string) => {
-    signIn(provider, { callbackUrl: "/" })
-  }
+    signIn(provider, { callbackUrl: "/" });
+  };
 
   /* 
   // メール認証方法選択画面（現在は使用しない - 招待リンクがデフォルト）
@@ -158,7 +161,7 @@ export default function SignUpPage() {
   }
   */
 
-  if (step === 'verify' && verificationMethod === 'link') {
+  if (step === "verify" && verificationMethod === "link") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
@@ -173,7 +176,9 @@ export default function SignUpPage() {
 
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <div className="text-sm text-blue-800">
-              <p className="font-medium mb-2">📧 次の手順で認証を完了してください：</p>
+              <p className="font-medium mb-2">
+                📧 次の手順で認証を完了してください：
+              </p>
               <ol className="list-decimal list-inside space-y-1">
                 <li>メールボックスを確認してください</li>
                 <li>「メールアドレス認証」というタイトルのメールを開きます</li>
@@ -185,7 +190,7 @@ export default function SignUpPage() {
           <div className="text-center">
             <button
               onClick={() => {
-                setStep('signup')
+                setStep("signup");
               }}
               className="text-indigo-600 hover:text-indigo-500"
             >
@@ -194,7 +199,7 @@ export default function SignUpPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -211,7 +216,7 @@ export default function SignUpPage() {
               {error}
             </div>
           )}
-          
+
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <input
@@ -222,7 +227,9 @@ export default function SignUpPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="メールアドレス"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </div>
             <div>
@@ -234,7 +241,9 @@ export default function SignUpPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="パスワード"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
               />
             </div>
             <div>
@@ -246,7 +255,9 @@ export default function SignUpPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="パスワード確認"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
               />
             </div>
           </div>
@@ -268,7 +279,9 @@ export default function SignUpPage() {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-gray-50 text-gray-500">または他のサービスで続ける</span>
+                  <span className="px-2 bg-gray-50 text-gray-500">
+                    または他のサービスで続ける
+                  </span>
                 </div>
               </div>
 
@@ -295,7 +308,10 @@ export default function SignUpPage() {
             </div>
 
             <div className="text-center">
-              <Link href="/signin" className="text-indigo-600 hover:text-indigo-500">
+              <Link
+                href="/signin"
+                className="text-indigo-600 hover:text-indigo-500"
+              >
                 すでにアカウントをお持ちですか？ サインイン
               </Link>
             </div>
@@ -303,5 +319,5 @@ export default function SignUpPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

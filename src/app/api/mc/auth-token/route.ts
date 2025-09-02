@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { z } from "zod"
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // MC側からのSQSメッセージの形式
 const AuthTokenMessageSchema = z.object({
@@ -10,8 +10,8 @@ const AuthTokenMessageSchema = z.object({
   uuid: z.string(),
   authToken: z.string(),
   expiresAt: z.string().datetime(),
-  action: z.string()
-})
+  action: z.string(),
+});
 
 /**
  * @swagger
@@ -71,27 +71,29 @@ const AuthTokenMessageSchema = z.object({
  */
 export async function POST(req: NextRequest) {
   try {
-    console.log("Received auth token message from MC server")
+    console.log("Received auth token message from MC server");
 
-    const body = await req.json()
-    
+    const body = await req.json();
+
     // メッセージの検証
-    const validation = AuthTokenMessageSchema.safeParse(body)
+    const validation = AuthTokenMessageSchema.safeParse(body);
     if (!validation.success) {
-      console.error("Invalid auth token message format:", validation.error)
+      console.error("Invalid auth token message format:", validation.error);
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           message: "Invalid message format",
-          error: validation.error.issues
+          error: validation.error.issues,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
-    const { mcid, uuid, authToken, expiresAt, action } = validation.data
+    const { mcid, uuid, authToken, expiresAt, action } = validation.data;
 
-    console.log(`Processing auth token for player: ${mcid} (${uuid}), action: ${action}`)
+    console.log(
+      `Processing auth token for player: ${mcid} (${uuid}), action: ${action}`,
+    );
 
     // MinecraftPlayerの作成または更新
     const player = await prisma.minecraftPlayer.upsert({
@@ -100,34 +102,35 @@ export async function POST(req: NextRequest) {
         uuid,
         authToken,
         tokenExpires: new Date(expiresAt),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       create: {
         mcid,
         uuid,
         authToken,
         tokenExpires: new Date(expiresAt),
-        confirmed: false
-      }
-    })
+        confirmed: false,
+      },
+    });
 
-    console.log(`Auth token updated for player ${mcid}, expires at: ${expiresAt}`)
+    console.log(
+      `Auth token updated for player ${mcid}, expires at: ${expiresAt}`,
+    );
 
     return NextResponse.json({
       success: true,
       message: "Auth token processed successfully",
-      playerId: player.id
-    })
-
+      playerId: player.id,
+    });
   } catch (error) {
-    console.error("Error processing auth token:", error)
-    
+    console.error("Error processing auth token:", error);
+
     return NextResponse.json(
-      { 
-        success: false, 
-        message: "Internal server error" 
+      {
+        success: false,
+        message: "Internal server error",
       },
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }
