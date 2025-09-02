@@ -9,7 +9,7 @@ import Link from "next/link";
 const prisma = new PrismaClient();
 
 interface PageProps {
-  searchParams: Promise<{ n?: string; t?: string }>;
+  searchParams: Promise<{ n?: string; t?: string; success?: string }>;
 }
 
 export default async function McAuthPage({ searchParams }: PageProps) {
@@ -19,6 +19,24 @@ export default async function McAuthPage({ searchParams }: PageProps) {
     ? parseInt(resolvedSearchParams.n)
     : undefined;
   const authToken = resolvedSearchParams.t;
+  const success = resolvedSearchParams.success === "true";
+
+  // Handle success parameter first
+  if (success) {
+    const pageData: McAuthPageData = {
+      isAuth: !!session,
+      username: session?.user?.username || "[ユーザーID未設定]",
+      mcAuth: false,
+      successMessage: ["MC認証完了済みです！"],
+      errorMessage: undefined,
+      infoMessage: [
+        "Kishaxアカウントと連携すると、さらに多くの機能をご利用いただけます。",
+      ],
+    };
+    return (
+      <McAuthPageComponent pageData={pageData} showAccountLinking={true} />
+    );
+  }
 
   // Initialize page data
   let pageData: McAuthPageData = {
@@ -381,6 +399,63 @@ function McAuthPageComponent({
               </div>
             )}
 
+            {/* Kishax Account Linking Invitation */}
+            {showAccountLinking && (
+              <div className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <span className="text-2xl">🚀</span>
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <h3 className="text-lg font-medium text-blue-900 mb-2">
+                      Kishaxアカウントと連携しませんか？
+                    </h3>
+                    <p className="text-blue-700 mb-4">
+                      MC認証が完了しました！Kishaxアカウントと連携すると、さらに多くの機能をご利用いただけます。
+                    </p>
+                    <div className="bg-white rounded-lg p-4 mb-4">
+                      <h4 className="font-semibold text-gray-900 mb-2">
+                        🎁 連携特典
+                      </h4>
+                      <ul className="space-y-1 text-sm text-gray-700">
+                        <li className="flex items-center">
+                          <span className="text-green-500 mr-2">✓</span>
+                          イメージマップの発行（1日5枚まで）
+                        </li>
+                        <li className="flex items-center">
+                          <span className="text-green-500 mr-2">✓</span>
+                          サーバの起動リクエスト（Discordを通じて）
+                        </li>
+                        <li className="flex items-center">
+                          <span className="text-yellow-500 mr-2">⏳</span>
+                          プレイヤー統計の表示（準備中）
+                        </li>
+                        <li className="flex items-center">
+                          <span className="text-yellow-500 mr-2">⏳</span>
+                          サーバー状況の監視（準備中）
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Link
+                        href="/signup"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        アカウント作成で連携
+                      </Link>
+                      <Link
+                        href="/signin"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        既存アカウントでログイン
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Server Join Message for non-authenticated users */}
             {showServerJoinMessage && (
               <div className="mb-6">
@@ -395,7 +470,6 @@ function McAuthPageComponent({
                       <h3 className="text-lg font-semibold text-green-800 mb-3">
                         🚀 Minecraftサーバーに参加して認証を始めよう！
                       </h3>
-
                       <div className="space-y-4">
                         <div className="bg-white rounded-lg p-4 border border-green-200 shadow-sm">
                           <div className="flex items-center space-x-3 mb-2">
@@ -472,64 +546,6 @@ function McAuthPageComponent({
             </div>
 
             <McAuthForm pageData={pageData} />
-
-            {/* Kishax Account Linking Invitation */}
-            {showAccountLinking && (
-              <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <span className="text-2xl">🚀</span>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="text-lg font-medium text-blue-900 mb-2">
-                      Kishaxアカウントと連携しませんか？
-                    </h3>
-                    <p className="text-blue-700 mb-4">
-                      MC認証が完了しました！Kishaxアカウントと連携すると、さらに多くの機能をご利用いただけます。
-                    </p>
-
-                    <div className="bg-white rounded-lg p-4 mb-4">
-                      <h4 className="font-semibold text-gray-900 mb-2">
-                        🎁 連携特典
-                      </h4>
-                      <ul className="space-y-1 text-sm text-gray-700">
-                        <li className="flex items-center">
-                          <span className="text-green-500 mr-2">✓</span>
-                          イメージマップの発行（1日5枚まで）
-                        </li>
-                        <li className="flex items-center">
-                          <span className="text-green-500 mr-2">✓</span>
-                          サーバの起動リクエスト（Discordを通じて）
-                        </li>
-                        <li className="flex items-center">
-                          <span className="text-yellow-500 mr-2">⏳</span>
-                          プレイヤー統計の表示（準備中）
-                        </li>
-                        <li className="flex items-center">
-                          <span className="text-yellow-500 mr-2">⏳</span>
-                          サーバー状況の監視（準備中）
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Link
-                        href="/signup"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        アカウント作成で連携
-                      </Link>
-                      <Link
-                        href="/signin"
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        既存アカウントでログイン
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </main>
