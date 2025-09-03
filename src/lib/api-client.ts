@@ -67,6 +67,21 @@ export class KishaxApiClient {
   }
 
   /**
+   * Kishaxアカウント連携通知メッセージ送信
+   */
+  async sendAccountLink(
+    playerName: string,
+    playerUuid: string,
+    kishaxUserId: string,
+  ): Promise<ApiResponse> {
+    return this.sendToMc("web_mc_account_link", {
+      playerName,
+      playerUuid,
+      kishaxUserId,
+    });
+  }
+
+  /**
    * MCへOTP送信
    */
   async sendOtp(
@@ -234,6 +249,9 @@ export function getApiClient(config?: Partial<ApiConfig>): KishaxApiClient {
 export const kishaxApi = {
   sendAuthConfirm: (playerName: string, playerUuid: string) =>
     getApiClient().sendAuthConfirm(playerName, playerUuid),
+
+  sendAccountLink: (playerName: string, playerUuid: string, kishaxUserId: string) =>
+    getApiClient().sendAccountLink(playerName, playerUuid, kishaxUserId),
 
   sendTeleport: (playerName: string, location: string) =>
     getApiClient().sendTeleportCommand(playerName, location),
