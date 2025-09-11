@@ -41,8 +41,6 @@ services:
       - AWS_SQS_MCTOWEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL}
       - AWS_SQS_WEBTOMCQUEUEURL=${WEB_TO_MC_QUEUE_URL}
       - REDIS_URL=redis://redis:6379
-      - WEB_API_BASEURL=http://host.docker.internal:${APP_PORT:-3000}
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
       - TZ=Asia/Tokyo
     command: |
       java -jar /root/.m2/repository/net/kishax/kishax-aws/1.0.0-SNAPSHOT/kishax-aws-1.0.0-SNAPSHOT-with-dependencies.jar
