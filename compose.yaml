@@ -36,10 +36,10 @@ services:
       - ~/.m2/repository:/root/.m2/repository:ro
     environment:
       - AWS_REGION=${AWS_REGION:-ap-northeast-1}
-      - AWS_SQS_ACCESSKEYID=${MC_WEB_SQS_ACCESS_KEY_ID}
-      - AWS_SQS_SECRETACCESSKEY=${MC_WEB_SQS_SECRET_ACCESS_KEY}
-      - AWS_SQS_MCTOWEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL}
-      - AWS_SQS_WEBTOMCQUEUEURL=${WEB_TO_MC_QUEUE_URL}
+      - MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID}
+      - MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY}
+      - MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL}
+      - WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL}
       - REDIS_URL=redis://redis:6379
       - TZ=Asia/Tokyo
     command: |
