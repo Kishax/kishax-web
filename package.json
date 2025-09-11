@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\"",
+    "dev:full": "concurrently \"npm run dev\" \"npm run kishax:worker\"",
+    "kishax:worker": "java -jar /app/lib/kishax-aws.jar",
+    "kishax:worker:dev": "java -jar ~/.m2/repository/net/kishax/aws/kishax-aws/1.0.0/kishax-aws-1.0.0-with-dependencies.jar",
     "sqs:worker": "java -jar ~/.m2/repository/net/kishax/kishax-aws/1.0.0-SNAPSHOT/kishax-aws-1.0.0-SNAPSHOT-with-dependencies.jar",
     "sqs:worker:legacy": "node scripts/sqs-worker.js",
     "build": "next build",
