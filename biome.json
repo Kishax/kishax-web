@@ -1,6 +1,13 @@
 {
   "files": {
-    "includes": ["**/*.js", "**/*.json", "**/*.ts", "**/*.tsx"]
+    "includes": [
+      "**/*.js",
+      "**/*.json",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.yml",
+      "**/*.yaml"
+    ]
   },
   "formatter": {
     "indentStyle": "space",

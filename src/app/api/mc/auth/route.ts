@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 import { McAuthRequestSchema, McAuthResponseSchema } from "@/lib/schemas";
 import {
   validateRequest,
-  requireAuth,
   createErrorResponse,
 } from "@/lib/api-middleware";
 import jwt from "jsonwebtoken";
