@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\"",
-    "sqs:worker": "source .env && java -jar ~/.m2/repository/net/kishax/aws/kishax-aws/1.0.0/kishax-aws-1.0.0-with-dependencies.jar",
+    "sqs:worker": "make run",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
