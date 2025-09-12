@@ -8,4 +8,5 @@ run:
 	export WEB_TO_MC_QUEUE_URL=$(WEB_TO_MC_QUEUE_URL)
 	export MC_TO_WEB_QUEUE_URL=$(MC_TO_WEB_QUEUE_URL)
 	export REDIS_URL=$(REDIS_URL)
-	@java -jar ~/.m2/repository/net/kishax/aws/kishax-aws/1.0.0/kishax-aws-1.0.0-with-dependencies.jar
+	export KISHAX_AWS_VERSION=$(KISHAX_AWS_VERSION)
+	@java -jar ~/.m2/repository/net/kishax/aws/kishax-aws/$(KISHAX_AWS_VERSION)/kishax-aws-$(KISHAX_AWS_VERSION)-with-dependencies.jar

@@ -7,9 +7,10 @@ WORKDIR /app
 # 開発に必要なパッケージをインストール（curl、openjdk21追加）
 RUN apk add --no-cache git curl openjdk21-jre
 
-# kishax-aws JARをMaven Centralからダウンロード
+# kishax-aws JARをMaven Centralからダウンロード（環境変数でバージョン指定）
+ARG KISHAX_AWS_VERSION=1.0.1
 RUN mkdir -p /app/lib && \
-    curl -o /app/lib/kishax-aws.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-aws/1.0.0/kishax-aws-1.0.0-with-dependencies.jar
+    curl -o /app/lib/kishax-aws.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-aws/${KISHAX_AWS_VERSION}/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar
 
 # package.jsonとpackage-lock.jsonをコピー
 COPY package*.json ./
