@@ -73,6 +73,32 @@ export async function POST(req: NextRequest) {
   try {
     console.log("Received auth token message from MC server");
 
+    // API Key認証
+    const apiKey = req.headers.get("x-api-key");
+    const expectedApiKey = process.env.WEB_API_KEY;
+
+    if (!expectedApiKey) {
+      console.error("WEB_API_KEY not configured");
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Server configuration error",
+        },
+        { status: 500 },
+      );
+    }
+
+    if (!apiKey || apiKey !== expectedApiKey) {
+      console.error("Invalid or missing API key");
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
     const body = await req.json();
 
     // メッセージの検証
