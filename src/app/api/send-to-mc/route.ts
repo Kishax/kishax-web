@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getRedisClient } from '@/lib/redis-client';
+import { NextRequest, NextResponse } from "next/server";
+import { getRedisClient } from "@/lib/redis-client";
 
 interface SendToMcRequest {
   messageType: string;
@@ -9,18 +9,18 @@ interface SendToMcRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: SendToMcRequest = await request.json();
-    
+
     if (!body.messageType) {
       return NextResponse.json(
-        { success: false, error: 'messageType is required' },
-        { status: 400 }
+        { success: false, error: "messageType is required" },
+        { status: 400 },
       );
     }
 
     if (!body.data) {
       return NextResponse.json(
-        { success: false, error: 'data is required' },
-        { status: 400 }
+        { success: false, error: "data is required" },
+        { status: 400 },
       );
     }
 
@@ -31,25 +31,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         messageType: result.messageType,
-        message: 'Message sent successfully to MC via Redis'
+        message: "Message sent successfully to MC via Redis",
       });
     } else {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: result.error || 'Failed to send message'
+        {
+          success: false,
+          error: result.error || "Failed to send message",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
-    console.error('Error in send-to-mc API:', error);
+    console.error("Error in send-to-mc API:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -59,9 +59,9 @@ export async function OPTIONS() {
   return new Response(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

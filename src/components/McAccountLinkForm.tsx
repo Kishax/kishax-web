@@ -21,7 +21,7 @@ interface LinkResult {
 export default function McAccountLinkForm({
   mcid = "",
   uuid = "",
-  onLinkSuccess
+  onLinkSuccess,
 }: McAccountLinkFormProps) {
   const [mcidInput, setMcidInput] = useState(mcid);
   const [uuidInput, setUuidInput] = useState(uuid);
@@ -30,11 +30,11 @@ export default function McAccountLinkForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!mcidInput.trim() || !uuidInput.trim()) {
       setResult({
         success: false,
-        message: "MCIDとUUIDを入力してください。"
+        message: "MCIDとUUIDを入力してください。",
       });
       return;
     }
@@ -58,8 +58,10 @@ export default function McAccountLinkForm({
 
       setResult({
         success: response.ok && data.success,
-        message: data.message || (response.ok ? "連携が完了しました" : "連携に失敗しました"),
-        user: data.user
+        message:
+          data.message ||
+          (response.ok ? "連携が完了しました" : "連携に失敗しました"),
+        user: data.user,
       });
 
       if (response.ok && data.success && onLinkSuccess) {
@@ -68,12 +70,11 @@ export default function McAccountLinkForm({
           onLinkSuccess();
         }, 2000);
       }
-
     } catch (error) {
       console.error("Account linking error:", error);
       setResult({
         success: false,
-        message: "連携中にエラーが発生しました。"
+        message: "連携中にエラーが発生しました。",
       });
     } finally {
       setLoading(false);
@@ -98,32 +99,40 @@ export default function McAccountLinkForm({
       </div>
 
       {result && (
-        <div className={`mb-6 p-4 rounded-lg border ${
-          result.success 
-            ? "bg-green-50 border-green-200" 
-            : "bg-red-50 border-red-200"
-        }`}>
+        <div
+          className={`mb-6 p-4 rounded-lg border ${
+            result.success
+              ? "bg-green-50 border-green-200"
+              : "bg-red-50 border-red-200"
+          }`}
+        >
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <span className="text-xl">
-                {result.success ? "✅" : "❌"}
-              </span>
+              <span className="text-xl">{result.success ? "✅" : "❌"}</span>
             </div>
             <div className="ml-3 flex-1">
-              <h4 className={`font-medium ${
-                result.success ? "text-green-900" : "text-red-900"
-              }`}>
+              <h4
+                className={`font-medium ${
+                  result.success ? "text-green-900" : "text-red-900"
+                }`}
+              >
                 {result.success ? "連携成功" : "連携失敗"}
               </h4>
-              <p className={`text-sm mt-1 ${
-                result.success ? "text-green-700" : "text-red-700"
-              }`}>
+              <p
+                className={`text-sm mt-1 ${
+                  result.success ? "text-green-700" : "text-red-700"
+                }`}
+              >
                 {result.message}
               </p>
               {result.success && result.user && (
                 <div className="mt-3 text-sm text-green-700">
-                  <p><strong>MCID:</strong> {result.user.mcid}</p>
-                  <p><strong>UUID:</strong> {result.user.uuid}</p>
+                  <p>
+                    <strong>MCID:</strong> {result.user.mcid}
+                  </p>
+                  <p>
+                    <strong>UUID:</strong> {result.user.uuid}
+                  </p>
                   <p className="mt-2 text-green-600">
                     2秒後にページが更新されます...
                   </p>
@@ -145,7 +154,10 @@ export default function McAccountLinkForm({
       {!result?.success && (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="mcid" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="mcid"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               MCID（マインクラフトプレイヤー名）
             </label>
             <input
@@ -161,7 +173,10 @@ export default function McAccountLinkForm({
           </div>
 
           <div>
-            <label htmlFor="uuid" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="uuid"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               UUID（プレイヤーID）
             </label>
             <input
@@ -182,11 +197,15 @@ export default function McAccountLinkForm({
                 <span className="text-blue-600">💡</span>
               </div>
               <div className="ml-3">
-                <h4 className="text-sm font-medium text-blue-900">
-                  連携方法
-                </h4>
+                <h4 className="text-sm font-medium text-blue-900">連携方法</h4>
                 <div className="text-sm text-blue-700 mt-1">
-                  <p>1. マインクラフトで <code className="bg-blue-100 px-1 rounded">/kishax confirm</code> コマンドを実行</p>
+                  <p>
+                    1. マインクラフトで{" "}
+                    <code className="bg-blue-100 px-1 rounded">
+                      /kishax confirm
+                    </code>{" "}
+                    コマンドを実行
+                  </p>
                   <p>2. 表示されたMCIDとUUIDをここに入力</p>
                   <p>3. 「連携する」ボタンをクリック</p>
                 </div>
@@ -201,9 +220,25 @@ export default function McAccountLinkForm({
           >
             {loading ? (
               <div className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 連携中...
               </div>

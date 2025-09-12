@@ -1,4 +1,4 @@
-import { createClient, RedisClientType } from 'redis';
+import { createClient, RedisClientType } from "redis";
 
 interface RedisMessage {
   type: string;
@@ -16,15 +16,19 @@ interface RedisClientConfig {
 export class RedisMessageClient {
   private subscriber: RedisClientType;
   private publisher: RedisClientType;
-  private messageHandlers: Map<string, (message: RedisMessage) => Promise<void>> = new Map();
+  private messageHandlers: Map<
+    string,
+    (message: RedisMessage) => Promise<void>
+  > = new Map();
   private isConnected: boolean = false;
 
   constructor(config: RedisClientConfig = {}) {
-    const redisUrl = config.redisUrl || process.env.REDIS_URL || 'redis://localhost:6379';
-    
+    const redisUrl =
+      config.redisUrl || process.env.REDIS_URL || "redis://localhost:6379";
+
     // Subscriber connection
     this.subscriber = createClient({ url: redisUrl });
-    
+
     // Publisher connection (separate for pub/sub pattern)
     this.publisher = createClient({ url: redisUrl });
 
@@ -32,27 +36,27 @@ export class RedisMessageClient {
   }
 
   private setupEventHandlers() {
-    this.subscriber.on('connect', () => {
-      console.log('Redis subscriber connected');
+    this.subscriber.on("connect", () => {
+      console.log("Redis subscriber connected");
       this.isConnected = true;
     });
 
-    this.subscriber.on('error', (error) => {
-      console.error('Redis subscriber error:', error);
+    this.subscriber.on("error", (error) => {
+      console.error("Redis subscriber error:", error);
       this.isConnected = false;
     });
 
-    this.subscriber.on('end', () => {
-      console.log('Redis subscriber connection closed');
+    this.subscriber.on("end", () => {
+      console.log("Redis subscriber connection closed");
       this.isConnected = false;
     });
 
-    this.publisher.on('connect', () => {
-      console.log('Redis publisher connected');
+    this.publisher.on("connect", () => {
+      console.log("Redis publisher connected");
     });
 
-    this.publisher.on('error', (error) => {
-      console.error('Redis publisher error:', error);
+    this.publisher.on("error", (error) => {
+      console.error("Redis publisher error:", error);
     });
   }
 
@@ -64,20 +68,23 @@ export class RedisMessageClient {
       // Connect both clients
       await this.subscriber.connect();
       await this.publisher.connect();
-      
+
       // Subscribe to message handler
-      await this.subscriber.subscribe('mc_to_web', async (message: string, channel: string) => {
-        try {
-          const messageData: RedisMessage = JSON.parse(message);
-          await this.handleMessage(channel, messageData);
-        } catch (error) {
-          console.error('Failed to parse Redis message:', error, message);
-        }
-      });
-      
-      console.log('Subscribed to mc_to_web Redis channel');
+      await this.subscriber.subscribe(
+        "mc_to_web",
+        async (message: string, channel: string) => {
+          try {
+            const messageData: RedisMessage = JSON.parse(message);
+            await this.handleMessage(channel, messageData);
+          } catch (error) {
+            console.error("Failed to parse Redis message:", error, message);
+          }
+        },
+      );
+
+      console.log("Subscribed to mc_to_web Redis channel");
     } catch (error) {
-      console.error('Failed to subscribe to mc_to_web channel:', error);
+      console.error("Failed to subscribe to mc_to_web channel:", error);
       throw error;
     }
   }
@@ -89,7 +96,7 @@ export class RedisMessageClient {
     try {
       const message: RedisMessage = {
         type: messageType,
-        source: 'web',
+        source: "web",
         timestamp: new Date().toISOString(),
         data: {
           ...data,
@@ -97,19 +104,25 @@ export class RedisMessageClient {
         },
       };
 
-      await this.publisher.publish('web_to_mc', JSON.stringify(message));
+      await this.publisher.publish("web_to_mc", JSON.stringify(message));
       console.log(`Published message to MC: ${messageType}`);
       return { success: true, messageType };
     } catch (error) {
-      console.error('Failed to publish message to MC:', error);
-      return { success: false, error: error instanceof Error ? error.message : String(error) };
+      console.error("Failed to publish message to MC:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   }
 
   /**
    * Register message type handler
    */
-  registerHandler(messageType: string, handler: (message: RedisMessage) => Promise<void>) {
+  registerHandler(
+    messageType: string,
+    handler: (message: RedisMessage) => Promise<void>,
+  ) {
     this.messageHandlers.set(messageType, handler);
     console.log(`Redis handler registered for message type: ${messageType}`);
   }
@@ -120,7 +133,7 @@ export class RedisMessageClient {
   private async handleMessage(channel: string, message: RedisMessage) {
     try {
       console.debug(`Received Redis message on ${channel}: ${message.type}`);
-      
+
       const handler = this.messageHandlers.get(message.type);
       if (handler) {
         await handler(message);
@@ -138,16 +151,16 @@ export class RedisMessageClient {
    */
   private async handleDefaultMessage(message: RedisMessage) {
     switch (message.type) {
-      case 'mc_web_auth_response':
+      case "mc_web_auth_response":
         await this.handleAuthResponse(message);
         break;
-      case 'mc_web_player_status':
+      case "mc_web_player_status":
         await this.handlePlayerStatus(message);
         break;
-      case 'mc_web_server_info':
+      case "mc_web_server_info":
         await this.handleServerInfo(message);
         break;
-      case 'mc_otp_response':
+      case "mc_otp_response":
         await this.handleOtpResponse(message);
         break;
       default:
@@ -162,12 +175,14 @@ export class RedisMessageClient {
       success: boolean;
       message: string;
     };
-    
-    console.log(`MC Auth Response: ${data.playerName} (${data.playerUuid}) - ${data.success ? 'Success' : 'Failed'}: ${data.message}`);
-    
+
+    console.log(
+      `MC Auth Response: ${data.playerName} (${data.playerUuid}) - ${data.success ? "Success" : "Failed"}: ${data.message}`,
+    );
+
     // Dispatch browser event for UI updates
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('mcAuthResponse', { detail: data }));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("mcAuthResponse", { detail: data }));
     }
   }
 
@@ -178,11 +193,13 @@ export class RedisMessageClient {
       status: string;
       serverName: string;
     };
-    
-    console.log(`Player Status: ${data.playerName} is ${data.status} on ${data.serverName}`);
-    
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('mcPlayerStatus', { detail: data }));
+
+    console.log(
+      `Player Status: ${data.playerName} is ${data.status} on ${data.serverName}`,
+    );
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("mcPlayerStatus", { detail: data }));
     }
   }
 
@@ -193,11 +210,13 @@ export class RedisMessageClient {
       playerCount: number;
       additionalData?: unknown;
     };
-    
-    console.log(`Server Info: ${data.serverName} is ${data.status} with ${data.playerCount} players`);
-    
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('mcServerInfo', { detail: data }));
+
+    console.log(
+      `Server Info: ${data.serverName} is ${data.status} with ${data.playerCount} players`,
+    );
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("mcServerInfo", { detail: data }));
     }
   }
 
@@ -209,11 +228,13 @@ export class RedisMessageClient {
       message: string;
       timestamp: number;
     };
-    
-    console.log(`OTP Response: ${data.mcid} (${data.uuid}) - ${data.success ? 'Success' : 'Failed'}: ${data.message}`);
+
+    console.log(
+      `OTP Response: ${data.mcid} (${data.uuid}) - ${data.success ? "Success" : "Failed"}: ${data.message}`,
+    );
 
     // Store in global cache (same pattern as existing code)
-    if (typeof global !== 'undefined') {
+    if (typeof global !== "undefined") {
       global.otpResponses = global.otpResponses || new Map();
       global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
         success: data.success,
@@ -230,8 +251,8 @@ export class RedisMessageClient {
       }, 30000);
     }
 
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('mcOtpResponse', { detail: data }));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("mcOtpResponse", { detail: data }));
     }
   }
 
@@ -249,9 +270,9 @@ export class RedisMessageClient {
     try {
       await this.subscriber.quit();
       await this.publisher.quit();
-      console.log('Redis client disconnected');
+      console.log("Redis client disconnected");
     } catch (error) {
-      console.error('Error disconnecting Redis client:', error);
+      console.error("Error disconnecting Redis client:", error);
     }
   }
 }
@@ -270,30 +291,65 @@ export function getRedisClient(config?: RedisClientConfig): RedisMessageClient {
 export const redisApi = {
   // Web → MC message sending
   sendAuthConfirm: (playerName: string, playerUuid: string) =>
-    getRedisClient().publishToMc('web_mc_auth_confirm', { playerName, playerUuid }),
+    getRedisClient().publishToMc("web_mc_auth_confirm", {
+      playerName,
+      playerUuid,
+    }),
 
-  sendAccountLink: (playerName: string, playerUuid: string, kishaxUserId: string) =>
-    getRedisClient().publishToMc('web_mc_account_link', { playerName, playerUuid, kishaxUserId }),
+  sendAccountLink: (
+    playerName: string,
+    playerUuid: string,
+    kishaxUserId: string,
+  ) =>
+    getRedisClient().publishToMc("web_mc_account_link", {
+      playerName,
+      playerUuid,
+      kishaxUserId,
+    }),
 
   sendOtp: (playerName: string, playerUuid: string, otp: string) =>
-    getRedisClient().publishToMc('web_mc_otp', { playerName, playerUuid, otp }),
+    getRedisClient().publishToMc("web_mc_otp", { playerName, playerUuid, otp }),
 
   sendTeleport: (playerName: string, location: string) =>
-    getRedisClient().publishToMc('web_mc_command', { commandType: 'teleport', playerName, data: { location } }),
+    getRedisClient().publishToMc("web_mc_command", {
+      commandType: "teleport",
+      playerName,
+      data: { location },
+    }),
 
   sendServerSwitch: (playerName: string, serverName: string) =>
-    getRedisClient().publishToMc('web_mc_command', { commandType: 'server_switch', playerName, data: { server: serverName } }),
+    getRedisClient().publishToMc("web_mc_command", {
+      commandType: "server_switch",
+      playerName,
+      data: { server: serverName },
+    }),
 
   sendMessage: (playerName: string, message: string) =>
-    getRedisClient().publishToMc('web_mc_command', { commandType: 'message', playerName, data: { message } }),
+    getRedisClient().publishToMc("web_mc_command", {
+      commandType: "message",
+      playerName,
+      data: { message },
+    }),
 
   // Server/Player requests
   requestServerStatus: (playerName: string, serverName?: string) =>
-    getRedisClient().publishToMc('web_mc_player_request', { requestType: 'server_status', playerName, data: { serverName } }),
+    getRedisClient().publishToMc("web_mc_player_request", {
+      requestType: "server_status",
+      playerName,
+      data: { serverName },
+    }),
 
   requestPlayerList: (playerName: string, serverName?: string) =>
-    getRedisClient().publishToMc('web_mc_player_request', { requestType: 'player_list', playerName, data: { serverName } }),
+    getRedisClient().publishToMc("web_mc_player_request", {
+      requestType: "player_list",
+      playerName,
+      data: { serverName },
+    }),
 
   requestServerInfo: (playerName: string, serverName?: string) =>
-    getRedisClient().publishToMc('web_mc_player_request', { requestType: 'server_info', playerName, data: { serverName } }),
+    getRedisClient().publishToMc("web_mc_player_request", {
+      requestType: "server_info",
+      playerName,
+      data: { serverName },
+    }),
 };

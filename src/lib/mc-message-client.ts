@@ -29,10 +29,10 @@ export class McMessageClient {
 
   private connect() {
     try {
-      this.eventSource = new EventSource('/api/mc-messages');
-      
+      this.eventSource = new EventSource("/api/mc-messages");
+
       this.eventSource.onopen = () => {
-        console.log('Connected to MC messages stream');
+        console.log("Connected to MC messages stream");
         this.isConnected = true;
         this.reconnectAttempts = 0;
       };
@@ -42,50 +42,52 @@ export class McMessageClient {
           const messageData: McMessageData = JSON.parse(event.data);
           this.handleMessage(messageData);
         } catch (error) {
-          console.error('Failed to parse MC message:', error, event.data);
+          console.error("Failed to parse MC message:", error, event.data);
         }
       };
 
       this.eventSource.onerror = (error) => {
-        console.error('MC messages stream error:', error);
+        console.error("MC messages stream error:", error);
         this.isConnected = false;
-        
+
         // Attempt to reconnect
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.reconnectAttempts++;
-          console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-          
+          console.log(
+            `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,
+          );
+
           setTimeout(() => {
             this.disconnect();
             this.connect();
           }, this.reconnectDelay * this.reconnectAttempts);
         } else {
-          console.error('Max reconnection attempts reached');
+          console.error("Max reconnection attempts reached");
         }
       };
     } catch (error) {
-      console.error('Failed to connect to MC messages stream:', error);
+      console.error("Failed to connect to MC messages stream:", error);
     }
   }
 
   private handleMessage(message: McMessageData) {
-    console.debug('Received MC message:', message);
+    console.debug("Received MC message:", message);
 
     // Handle heartbeat messages
-    if (message.type === 'heartbeat') {
+    if (message.type === "heartbeat") {
       return;
     }
 
     // Handle connection messages
-    if (message.type === 'connected') {
-      console.log('MC message stream connected:', message.data);
+    if (message.type === "connected") {
+      console.log("MC message stream connected:", message.data);
       return;
     }
 
     // Dispatch to registered handlers
     const handlers = this.messageHandlers.get(message.type);
     if (handlers && handlers.length > 0) {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         try {
           handler(message);
         } catch (error) {
@@ -98,24 +100,26 @@ export class McMessageClient {
     }
 
     // Also dispatch as window events (for backwards compatibility)
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const eventName = this.getEventName(message.type);
-      window.dispatchEvent(new CustomEvent(eventName, { detail: message.data }));
+      window.dispatchEvent(
+        new CustomEvent(eventName, { detail: message.data }),
+      );
     }
   }
 
   private handleDefaultMessage(message: McMessageData) {
     switch (message.type) {
-      case 'mc_web_auth_response':
+      case "mc_web_auth_response":
         this.handleAuthResponse(message);
         break;
-      case 'mc_web_player_status':
+      case "mc_web_player_status":
         this.handlePlayerStatus(message);
         break;
-      case 'mc_web_server_info':
+      case "mc_web_server_info":
         this.handleServerInfo(message);
         break;
-      case 'mc_otp_response':
+      case "mc_otp_response":
         this.handleOtpResponse(message);
         break;
       default:
@@ -130,8 +134,10 @@ export class McMessageClient {
       success: boolean;
       message: string;
     };
-    
-    console.log(`MC Auth Response: ${data.playerName} (${data.playerUuid}) - ${data.success ? 'Success' : 'Failed'}: ${data.message}`);
+
+    console.log(
+      `MC Auth Response: ${data.playerName} (${data.playerUuid}) - ${data.success ? "Success" : "Failed"}: ${data.message}`,
+    );
   }
 
   private handlePlayerStatus(message: McMessageData) {
@@ -141,8 +147,10 @@ export class McMessageClient {
       status: string;
       serverName: string;
     };
-    
-    console.log(`Player Status: ${data.playerName} is ${data.status} on ${data.serverName}`);
+
+    console.log(
+      `Player Status: ${data.playerName} is ${data.status} on ${data.serverName}`,
+    );
   }
 
   private handleServerInfo(message: McMessageData) {
@@ -152,8 +160,10 @@ export class McMessageClient {
       playerCount: number;
       additionalData?: unknown;
     };
-    
-    console.log(`Server Info: ${data.serverName} is ${data.status} with ${data.playerCount} players`);
+
+    console.log(
+      `Server Info: ${data.serverName} is ${data.status} with ${data.playerCount} players`,
+    );
   }
 
   private handleOtpResponse(message: McMessageData) {
@@ -164,11 +174,13 @@ export class McMessageClient {
       message: string;
       timestamp: number;
     };
-    
-    console.log(`OTP Response: ${data.mcid} (${data.uuid}) - ${data.success ? 'Success' : 'Failed'}: ${data.message}`);
+
+    console.log(
+      `OTP Response: ${data.mcid} (${data.uuid}) - ${data.success ? "Success" : "Failed"}: ${data.message}`,
+    );
 
     // Store in global cache (matching existing pattern)
-    if (typeof global !== 'undefined') {
+    if (typeof global !== "undefined") {
       global.otpResponses = global.otpResponses || new Map();
       global.otpResponses.set(`${data.mcid}_${data.uuid}`, {
         success: data.success,
@@ -188,12 +200,12 @@ export class McMessageClient {
 
   private getEventName(messageType: string): string {
     const eventMap: Record<string, string> = {
-      'mc_web_auth_response': 'mcAuthResponse',
-      'mc_web_player_status': 'mcPlayerStatus', 
-      'mc_web_server_info': 'mcServerInfo',
-      'mc_otp_response': 'mcOtpResponse',
+      mc_web_auth_response: "mcAuthResponse",
+      mc_web_player_status: "mcPlayerStatus",
+      mc_web_server_info: "mcServerInfo",
+      mc_otp_response: "mcOtpResponse",
     };
-    
+
     return eventMap[messageType] || messageType;
   }
 
@@ -205,7 +217,7 @@ export class McMessageClient {
       this.messageHandlers.set(messageType, []);
     }
     this.messageHandlers.get(messageType)!.push(handler);
-    
+
     console.log(`Registered handler for MC message type: ${messageType}`);
   }
 
@@ -225,12 +237,15 @@ export class McMessageClient {
   /**
    * Send message to MC via API
    */
-  async sendToMc(messageType: string, data: Record<string, unknown>): Promise<ApiResponse> {
+  async sendToMc(
+    messageType: string,
+    data: Record<string, unknown>,
+  ): Promise<ApiResponse> {
     try {
-      const response = await fetch('/api/send-to-mc', {
-        method: 'POST',
+      const response = await fetch("/api/send-to-mc", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           messageType,
@@ -239,17 +254,17 @@ export class McMessageClient {
       });
 
       const result = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send message');
+        throw new Error(result.error || "Failed to send message");
       }
 
       return result;
     } catch (error) {
-      console.error('Failed to send message to MC:', error);
+      console.error("Failed to send message to MC:", error);
       return {
         success: false,
-        message: 'Failed to send message to MC',
+        message: "Failed to send message to MC",
         error: error instanceof Error ? error.message : String(error),
       };
     }
@@ -289,30 +304,69 @@ export function getMcMessageClient(): McMessageClient {
 export const mcApi = {
   // Web → MC message sending
   sendAuthConfirm: (playerName: string, playerUuid: string) =>
-    getMcMessageClient().sendToMc('web_mc_auth_confirm', { playerName, playerUuid }),
+    getMcMessageClient().sendToMc("web_mc_auth_confirm", {
+      playerName,
+      playerUuid,
+    }),
 
-  sendAccountLink: (playerName: string, playerUuid: string, kishaxUserId: string) =>
-    getMcMessageClient().sendToMc('web_mc_account_link', { playerName, playerUuid, kishaxUserId }),
+  sendAccountLink: (
+    playerName: string,
+    playerUuid: string,
+    kishaxUserId: string,
+  ) =>
+    getMcMessageClient().sendToMc("web_mc_account_link", {
+      playerName,
+      playerUuid,
+      kishaxUserId,
+    }),
 
   sendOtp: (playerName: string, playerUuid: string, otp: string) =>
-    getMcMessageClient().sendToMc('web_mc_otp', { playerName, playerUuid, otp }),
+    getMcMessageClient().sendToMc("web_mc_otp", {
+      playerName,
+      playerUuid,
+      otp,
+    }),
 
   sendTeleport: (playerName: string, location: string) =>
-    getMcMessageClient().sendToMc('web_mc_command', { commandType: 'teleport', playerName, data: { location } }),
+    getMcMessageClient().sendToMc("web_mc_command", {
+      commandType: "teleport",
+      playerName,
+      data: { location },
+    }),
 
   sendServerSwitch: (playerName: string, serverName: string) =>
-    getMcMessageClient().sendToMc('web_mc_command', { commandType: 'server_switch', playerName, data: { server: serverName } }),
+    getMcMessageClient().sendToMc("web_mc_command", {
+      commandType: "server_switch",
+      playerName,
+      data: { server: serverName },
+    }),
 
   sendMessage: (playerName: string, message: string) =>
-    getMcMessageClient().sendToMc('web_mc_command', { commandType: 'message', playerName, data: { message } }),
+    getMcMessageClient().sendToMc("web_mc_command", {
+      commandType: "message",
+      playerName,
+      data: { message },
+    }),
 
   // Server/Player requests
   requestServerStatus: (playerName: string, serverName?: string) =>
-    getMcMessageClient().sendToMc('web_mc_player_request', { requestType: 'server_status', playerName, data: { serverName } }),
+    getMcMessageClient().sendToMc("web_mc_player_request", {
+      requestType: "server_status",
+      playerName,
+      data: { serverName },
+    }),
 
   requestPlayerList: (playerName: string, serverName?: string) =>
-    getMcMessageClient().sendToMc('web_mc_player_request', { requestType: 'player_list', playerName, data: { serverName } }),
+    getMcMessageClient().sendToMc("web_mc_player_request", {
+      requestType: "player_list",
+      playerName,
+      data: { serverName },
+    }),
 
   requestServerInfo: (playerName: string, serverName?: string) =>
-    getMcMessageClient().sendToMc('web_mc_player_request', { requestType: 'server_info', playerName, data: { serverName } }),
+    getMcMessageClient().sendToMc("web_mc_player_request", {
+      requestType: "server_info",
+      playerName,
+      data: { serverName },
+    }),
 };

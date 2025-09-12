@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export default async function McLinkPage() {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     redirect("/signin?callbackUrl=/mc/link");
   }
@@ -17,8 +17,8 @@ export default async function McLinkPage() {
   const existingLink = await prisma.minecraftPlayer.findFirst({
     where: {
       kishaxUserId: session.user.id,
-      confirmed: true
-    }
+      confirmed: true,
+    },
   });
 
   return (
@@ -30,7 +30,10 @@ export default async function McLinkPage() {
               Minecraftアカウント連携
             </h1>
             <nav className="flex space-x-4">
-              <Link href="/dashboard" className="text-blue-600 hover:text-blue-800">
+              <Link
+                href="/dashboard"
+                className="text-blue-600 hover:text-blue-800"
+              >
                 ダッシュボード
               </Link>
               <Link href="/" className="text-blue-600 hover:text-blue-800">
@@ -48,7 +51,8 @@ export default async function McLinkPage() {
               <span className="text-2xl">👋</span>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {session.user?.username || session.user?.name || "ユーザー"}さん、こんにちは
+                  {session.user?.username || session.user?.name || "ユーザー"}
+                  さん、こんにちは
                 </h2>
                 <p className="text-gray-600">
                   Minecraftアカウント連携ページへようこそ
@@ -76,14 +80,23 @@ export default async function McLinkPage() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                   <h4 className="font-medium text-green-900 mb-2">連携情報</h4>
                   <div className="space-y-1 text-sm text-green-800">
-                    <p><strong>MCID:</strong> {existingLink.mcid}</p>
-                    <p><strong>UUID:</strong> {existingLink.uuid}</p>
-                    <p><strong>連携日時:</strong> {new Date(existingLink.updatedAt).toLocaleString('ja-JP')}</p>
+                    <p>
+                      <strong>MCID:</strong> {existingLink.mcid}
+                    </p>
+                    <p>
+                      <strong>UUID:</strong> {existingLink.uuid}
+                    </p>
+                    <p>
+                      <strong>連携日時:</strong>{" "}
+                      {new Date(existingLink.updatedAt).toLocaleString("ja-JP")}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">🎁 利用可能な機能</h4>
+                    <h4 className="font-medium text-blue-900 mb-2">
+                      🎁 利用可能な機能
+                    </h4>
                     <ul className="space-y-1 text-sm text-blue-800">
                       <li className="flex items-center">
                         <span className="text-green-500 mr-2">✓</span>
@@ -150,15 +163,26 @@ export default async function McLinkPage() {
                       重要：事前にMC認証を完了してください
                     </h4>
                     <div className="text-sm text-yellow-700 mt-1">
-                      <p>この連携機能は、既にMC認証（Web認証）を完了しているプレイヤー向けです。</p>
-                      <p>まだMC認証を完了していない場合は、<Link href="/mc/auth" className="underline hover:no-underline">こちら</Link>から認証を行ってください。</p>
+                      <p>
+                        この連携機能は、既にMC認証（Web認証）を完了しているプレイヤー向けです。
+                      </p>
+                      <p>
+                        まだMC認証を完了していない場合は、
+                        <Link
+                          href="/mc/auth"
+                          className="underline hover:no-underline"
+                        >
+                          こちら
+                        </Link>
+                        から認証を行ってください。
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <McAccountLinkForm 
+            <McAccountLinkForm
               onLinkSuccess={() => {
                 // 成功時にページをリロード
                 window.location.reload();
@@ -171,7 +195,9 @@ export default async function McLinkPage() {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h5 className="font-medium text-green-900 mb-2">✅ 即座に利用可能</h5>
+                  <h5 className="font-medium text-green-900 mb-2">
+                    ✅ 即座に利用可能
+                  </h5>
                   <ul className="space-y-1 text-sm text-green-800">
                     <li>• イメージマップの発行（1日5枚まで）</li>
                     <li>• サーバーの起動リクエスト</li>
@@ -179,7 +205,9 @@ export default async function McLinkPage() {
                   </ul>
                 </div>
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <h5 className="font-medium text-yellow-900 mb-2">⏳ 開発中</h5>
+                  <h5 className="font-medium text-yellow-900 mb-2">
+                    ⏳ 開発中
+                  </h5>
                   <ul className="space-y-1 text-sm text-yellow-800">
                     <li>• プレイヤー統計の詳細表示</li>
                     <li>• リアルタイムサーバー監視</li>
