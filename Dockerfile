@@ -8,9 +8,18 @@ WORKDIR /app
 RUN apk add --no-cache git curl openjdk21-jre
 
 # kishax-aws JARをMaven Centralからダウンロード（環境変数でバージョン指定）
-ARG KISHAX_AWS_VERSION=1.0.1
-RUN mkdir -p /app/lib && \
-    curl -o /app/lib/kishax-aws.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-aws/${KISHAX_AWS_VERSION}/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar
+ARG KISHAX_AWS_VERSION=1.0.2
+
+# Create lib directory
+RUN mkdir -p /app/lib
+
+# Copy local JAR if exists, otherwise download from Maven Central
+COPY kishax-aws-*-with-dependencies.jar* /tmp/
+RUN if [ -f "/tmp/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar" ]; then \
+        cp "/tmp/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar" /app/lib/kishax-aws.jar ; \
+    else \
+        curl -o /app/lib/kishax-aws.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-aws/${KISHAX_AWS_VERSION}/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar ; \
+    fi
 
 # package.jsonとpackage-lock.jsonをコピー
 COPY package*.json ./
