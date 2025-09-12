@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     console.log("Received auth token message from MC server");
 
     // API Key認証
-    const apiKey = req.headers.get("x-api-key");
+    const apiKey = req.headers.get("X-API-Key");
     const expectedApiKey = process.env.WEB_API_KEY;
 
     if (!expectedApiKey) {
