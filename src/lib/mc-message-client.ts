@@ -15,6 +15,16 @@ interface ApiResponse {
   error?: string;
 }
 
+// Helper to get the base URL
+function getBaseUrl() {
+  if (typeof window !== "undefined") {
+    // Client-side
+    return "";
+  }
+  // Server-side
+  return process.env.NEXTAUTH_URL || "http://localhost:3000";
+}
+
 export class McMessageClient {
   private eventSource: EventSource | null = null;
   private messageHandlers: Map<string, McMessageHandler[]> = new Map();
@@ -28,6 +38,11 @@ export class McMessageClient {
   }
 
   private connect() {
+    // EventSource is only available in the browser
+    if (typeof window === "undefined") {
+      return;
+    }
+
     try {
       this.eventSource = new EventSource("/api/mc-messages");
 
@@ -242,7 +257,8 @@ export class McMessageClient {
     data: Record<string, unknown>,
   ): Promise<ApiResponse> {
     try {
-      const response = await fetch("/api/send-to-mc", {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/send-to-mc`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -362,6 +378,8 @@ export const mcApi = {
       playerName,
       data: { serverName },
     }),
+
+
 
   requestServerInfo: (playerName: string, serverName?: string) =>
     getMcMessageClient().sendToMc("web_mc_player_request", {
