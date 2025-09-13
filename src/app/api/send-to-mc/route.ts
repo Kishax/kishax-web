@@ -12,7 +12,8 @@ export async function POST(request: NextRequest) {
     const apiKey = request.headers.get("X-API-Key");
     const expectedApiKey = process.env.WEB_API_KEY;
     const internalToken = request.headers.get("X-Internal-Token");
-    const expectedInternalToken = process.env.INTERNAL_API_KEY || "local-dev-api-key";
+    const expectedInternalToken =
+      process.env.INTERNAL_API_KEY || "local-dev-api-key";
     let isAuthenticated = false;
 
     // APIキー認証を試行
@@ -39,7 +40,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isAuthenticated) {
-      console.error("Authentication failed - no valid API key or internal token");
+      console.error(
+        "Authentication failed - no valid API key or internal token",
+      );
       return NextResponse.json(
         {
           success: false,
@@ -102,7 +105,8 @@ export async function OPTIONS() {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-API-Key, X-Internal-Token",
+      "Access-Control-Allow-Headers":
+        "Content-Type, X-API-Key, X-Internal-Token",
     },
   });
 }

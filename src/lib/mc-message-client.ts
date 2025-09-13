@@ -265,7 +265,8 @@ export class McMessageClient {
 
       // サーバーサイドからの呼び出しの場合、内部認証トークンを追加
       if (typeof window === "undefined") {
-        const internalToken = process.env.INTERNAL_API_KEY || "local-dev-api-key";
+        const internalToken =
+          process.env.INTERNAL_API_KEY || "local-dev-api-key";
         headers["X-Internal-Token"] = internalToken;
       }
 
