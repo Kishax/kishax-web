@@ -7,10 +7,13 @@ echo "🚀 Starting kishax-aws worker on Web side..."
 # Environment variables for kishax-aws
 export MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID}
 export MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY}
-export AWS_REGION=${AWS_REGION:-us-east-1}
+export AWS_REGION=${AWS_REGION:-ap-northeast-1}
 export MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL}
 export WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL}
 export REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+export QUEUE_MODE=${QUEUE_MODE:-WEB}
+export WEB_API_KEY=${WEB_API_KEY}
+export WEB_API_URL=${WEB_API_URL:-http://localhost:3000}
 
 # Log configuration
 export LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -60,4 +63,3 @@ trap cleanup TERM INT
 
 # Wait for background process
 wait $KISHAX_PID
-
