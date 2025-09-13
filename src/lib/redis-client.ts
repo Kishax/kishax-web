@@ -94,6 +94,10 @@ export class RedisMessageClient {
    */
   async publishToMc(messageType: string, data: Record<string, unknown>) {
     try {
+      if (!this.publisher.isOpen) {
+        await this.publisher.connect();
+      }
+
       const message: RedisMessage = {
         type: messageType,
         source: "web",
