@@ -34,24 +34,12 @@ export async function POST(request: NextRequest) {
       isAuthenticated = true;
       console.log("Internal token auth successful");
     } else {
-      // APIキーが提供されていない場合、セッション認証を試行
-      try {
-        const { auth } = await import("@/lib/auth");
-        const session = await auth();
-        console.log("Session auth check:", { hasSession: !!session, hasUser: !!session?.user });
-        if (session?.user) {
-          isAuthenticated = true;
-          console.log("Session auth successful for user:", session.user.id);
-        } else {
-          console.log("No valid session found");
-        }
-      } catch (error) {
-        console.error("Session auth error:", error);
-      }
+      // APIキーも内部トークンも提供されていない場合は認証失敗
+      console.log("No API key or internal token provided");
     }
 
     if (!isAuthenticated) {
-      console.error("Authentication failed - no valid API key, internal token, or session");
+      console.error("Authentication failed - no valid API key or internal token");
       return NextResponse.json(
         {
           success: false,
