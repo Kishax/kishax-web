@@ -258,11 +258,20 @@ export class McMessageClient {
   ): Promise<ApiResponse> {
     try {
       const baseUrl = getBaseUrl();
+      // サーバーサイドからの呼び出しかチェック
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // サーバーサイドからの呼び出しの場合、内部認証トークンを追加
+      if (typeof window === "undefined") {
+        const internalToken = process.env.INTERNAL_API_KEY || "local-dev-api-key";
+        headers["X-Internal-Token"] = internalToken;
+      }
+
       const response = await fetch(`${baseUrl}/api/send-to-mc`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
           messageType,
           data,
