@@ -379,8 +379,6 @@ export const mcApi = {
       data: { serverName },
     }),
 
-
-
   requestServerInfo: (playerName: string, serverName?: string) =>
     getMcMessageClient().sendToMc("web_mc_player_request", {
       requestType: "server_info",
