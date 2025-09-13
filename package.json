@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\"",
-    "sqs:worker": "node scripts/sqs-worker.js",
+    "sqs:worker": "make run",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -14,8 +14,6 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
-    "@aws-sdk/client-sqs": "^3.873.0",
-    "@aws-sdk/credential-provider-node": "^3.873.0",
     "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^6.15.0",
     "@scalar/api-reference": "^1.34.1",

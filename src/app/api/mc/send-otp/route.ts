@@ -173,12 +173,11 @@ export async function POST(req: NextRequest) {
 
     console.log(`Generated OTP ${otp} for player ${player.mcid}`);
 
-    // MC側にOTPを送信（SQS経由）
+    // MC側にOTPを送信（Redis/SQS経由）
     try {
-      const { getApiClient } = await import("@/lib/api-client");
-      const apiClient = getApiClient();
-      await apiClient.sendOtp(player.mcid, player.uuid, otp);
-      console.log("OTP sent to MC via SQS");
+      const { mcApi } = await import("@/lib/mc-message-client");
+      await mcApi.sendOtp(player.mcid, player.uuid, otp);
+      console.log("OTP sent to MC via Redis/SQS");
     } catch (error) {
       console.error("Failed to send OTP to MC:", error);
       // Don't fail the request if notification fails, OTP is already stored

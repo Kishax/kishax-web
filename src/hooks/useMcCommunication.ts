@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getApiClient } from "@/lib/api-client";
-import { useSqsMessages } from "@/components/SqsMessageProvider";
+import { mcApi } from "@/lib/mc-message-client";
+import { useMcMessages } from "@/components/McMessageProvider";
 
 interface McAuthResponse {
   playerName: string;
@@ -26,26 +26,23 @@ interface McServerInfo {
 }
 
 export function useMcCommunication() {
-  const { registerHandler } = useSqsMessages();
+  const { registerHandler } = useMcMessages();
   const [authResponses, setAuthResponses] = useState<McAuthResponse[]>([]);
   const [playerStatuses, setPlayerStatuses] = useState<McPlayerStatus[]>([]);
   const [serverInfos, setServerInfos] = useState<McServerInfo[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  // API クライアント取得
-  const apiClient = getApiClient();
-
   // SQSメッセージハンドラー登録
   useEffect(() => {
     // MC認証レスポンス処理
-    registerHandler("mc_web_auth_response", async (message) => {
+    registerHandler("mc_web_auth_response", (message) => {
       const messageData = message as { data: McAuthResponse };
       const authResponse: McAuthResponse = messageData.data;
       setAuthResponses((prev) => [...prev, authResponse]);
     });
 
     // プレイヤーステータス処理
-    registerHandler("mc_web_player_status", async (message) => {
+    registerHandler("mc_web_player_status", (message) => {
       const messageData = message as { data: McPlayerStatus };
       const playerStatus: McPlayerStatus = messageData.data;
       setPlayerStatuses((prev) => {
@@ -57,7 +54,7 @@ export function useMcCommunication() {
     });
 
     // サーバー情報処理
-    registerHandler("mc_web_server_info", async (message) => {
+    registerHandler("mc_web_server_info", (message) => {
       const messageData = message as { data: McServerInfo };
       const serverInfo: McServerInfo = messageData.data;
       setServerInfos((prev) => {
@@ -132,96 +129,84 @@ export function useMcCommunication() {
   const sendAuthConfirm = useCallback(
     async (playerName: string, playerUuid: string) => {
       try {
-        const result = await apiClient.sendAuthConfirm(playerName, playerUuid);
+        const result = await mcApi.sendAuthConfirm(playerName, playerUuid);
         return result;
       } catch (error) {
         console.error("Failed to send auth confirmation:", error);
         throw error;
       }
     },
-    [apiClient],
+    [],
   );
 
   // テレポートコマンド送信
   const sendTeleportCommand = useCallback(
     async (playerName: string, location: string) => {
       try {
-        const result = await apiClient.sendTeleportCommand(
-          playerName,
-          location,
-        );
+        const result = await mcApi.sendTeleport(playerName, location);
         return result;
       } catch (error) {
         console.error("Failed to send teleport command:", error);
         throw error;
       }
     },
-    [apiClient],
+    [],
   );
 
   // サーバー切り替えコマンド送信
   const sendServerSwitchCommand = useCallback(
     async (playerName: string, serverName: string) => {
       try {
-        const result = await apiClient.sendServerSwitchCommand(
-          playerName,
-          serverName,
-        );
+        const result = await mcApi.sendServerSwitch(playerName, serverName);
         return result;
       } catch (error) {
         console.error("Failed to send server switch command:", error);
         throw error;
       }
     },
-    [apiClient],
+    [],
   );
 
   // メッセージ送信
   const sendMessage = useCallback(
     async (playerName: string, message: string) => {
       try {
-        const result = await apiClient.sendMessageCommand(playerName, message);
+        const result = await mcApi.sendMessage(playerName, message);
         return result;
       } catch (error) {
         console.error("Failed to send message:", error);
         throw error;
       }
     },
-    [apiClient],
+    [],
   );
 
   // サーバーステータスリクエスト
   const requestServerStatus = useCallback(
     async (playerName: string, serverName?: string) => {
       try {
-        const result = await apiClient.requestServerStatus(
-          playerName,
-          serverName,
-        );
+        const result = await mcApi.requestServerStatus(playerName, serverName);
         return result;
       } catch (error) {
         console.error("Failed to request server status:", error);
         throw error;
       }
     },
-    [apiClient],
+    [],
   );
 
   // プレイヤーリストリクエスト
   const requestPlayerList = useCallback(
     async (playerName: string, serverName?: string) => {
       try {
-        const result = await apiClient.requestPlayerList(
-          playerName,
-          serverName,
-        );
+        const result = await mcApi.requestPlayerList(playerName, serverName);
         return result;
       } catch (error) {
         console.error("Failed to request player list:", error);
         throw error;
       }
     },
-    [apiClient],
+    [],
   );
 
   // 特定プレイヤーの最新認証レスポンス取得

@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { 
-  requireAuth, 
-  createErrorResponse 
-} from "@/lib/api-middleware";
+import { requireAuth, createErrorResponse } from "@/lib/api-middleware";
 
 const prisma = new PrismaClient();
 
@@ -65,13 +62,9 @@ export async function POST(req: NextRequest) {
   try {
     // Authentication required
     const { session } = await requireAuth();
-    
+
     if (!session?.user?.id) {
-      return createErrorResponse(
-        "Unauthorized",
-        "ログインが必要です",
-        401
-      );
+      return createErrorResponse("Unauthorized", "ログインが必要です", 401);
     }
 
     // Parse request body
@@ -82,7 +75,7 @@ export async function POST(req: NextRequest) {
       return createErrorResponse(
         "Invalid request",
         "MCIDとUUIDが必要です",
-        400
+        400,
       );
     }
 
@@ -91,7 +84,7 @@ export async function POST(req: NextRequest) {
       where: {
         mcid: mcid,
         uuid: uuid,
-        confirmed: true // Must be MC-authenticated
+        confirmed: true, // Must be MC-authenticated
       },
     });
 
@@ -99,7 +92,7 @@ export async function POST(req: NextRequest) {
       return createErrorResponse(
         "Player not found",
         "指定されたプレイヤーが見つからないか、MC認証が完了していません",
-        400
+        400,
       );
     }
 
@@ -113,15 +106,15 @@ export async function POST(req: NextRequest) {
           user: {
             kishaxUserId: session.user.id,
             mcid: mcPlayer.mcid,
-            uuid: mcPlayer.uuid
-          }
+            uuid: mcPlayer.uuid,
+          },
         });
       } else {
         // Linked to different user
         return createErrorResponse(
           "Already linked",
           "このプレイヤーは既に他のKishaxアカウントと連携されています",
-          400
+          400,
         );
       }
     }
@@ -130,15 +123,15 @@ export async function POST(req: NextRequest) {
     const existingLink = await prisma.minecraftPlayer.findFirst({
       where: {
         kishaxUserId: session.user.id,
-        confirmed: true
-      }
+        confirmed: true,
+      },
     });
 
     if (existingLink) {
       return createErrorResponse(
         "User already linked",
         "このKishaxアカウントは既に別のMinecraftプレイヤーと連携されています",
-        400
+        400,
       );
     }
 
@@ -147,22 +140,21 @@ export async function POST(req: NextRequest) {
       where: { id: mcPlayer.id },
       data: {
         kishaxUserId: session.user.id,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
 
     // Send notification to Minecraft server for permission update
     try {
-      const { getApiClient } = await import("@/lib/api-client");
+      const { mcApi } = await import("@/lib/mc-message-client");
 
       try {
-        const apiClient = getApiClient();
-        await apiClient.sendAccountLink(mcid, uuid, session.user.id);
-        console.log("Account link notification sent via SQS");
-      } catch (sqsError) {
+        await mcApi.sendAccountLink(mcid, uuid, session.user.id);
+        console.log("Account link notification sent via Redis/SQS");
+      } catch (mcApiError) {
         console.warn(
-          "Failed to send SQS message for account link:",
-          sqsError
+          "Failed to send Redis/SQS message for account link:",
+          mcApiError,
         );
 
         // Fallback to socket method if available
@@ -174,7 +166,7 @@ export async function POST(req: NextRequest) {
                 name: mcid,
                 uuid: uuid,
               },
-              kishaxUserId: session.user.id
+              kishaxUserId: session.user.id,
             },
           },
         };
@@ -192,16 +184,15 @@ export async function POST(req: NextRequest) {
       user: {
         kishaxUserId: session.user.id,
         mcid: updatedPlayer.mcid,
-        uuid: updatedPlayer.uuid
-      }
+        uuid: updatedPlayer.uuid,
+      },
     });
-
   } catch (error) {
     console.error("MC Account Link API error:", error);
     return createErrorResponse(
       "Internal Server Error",
       "アカウント連携中にエラーが発生しました",
-      500
+      500,
     );
   }
 }

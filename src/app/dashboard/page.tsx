@@ -30,10 +30,16 @@ export default async function DashboardPage() {
               <Link href="/" className="text-blue-600 hover:text-blue-800">
                 Home
               </Link>
-              <Link href="/mc/auth" className="text-blue-600 hover:text-blue-800">
+              <Link
+                href="/mc/auth"
+                className="text-blue-600 hover:text-blue-800"
+              >
                 MC認証
               </Link>
-              <Link href="/mc/link" className="text-blue-600 hover:text-blue-800">
+              <Link
+                href="/mc/link"
+                className="text-blue-600 hover:text-blue-800"
+              >
                 MC連携
               </Link>
               <Link

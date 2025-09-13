@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { McAuthRequestSchema, McAuthResponseSchema } from "@/lib/schemas";
-import {
-  validateRequest,
-  createErrorResponse,
-} from "@/lib/api-middleware";
+import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import jwt from "jsonwebtoken";
 import { sendSocketMessage } from "@/lib/socket-client";
 
@@ -186,17 +183,16 @@ export async function POST(req: NextRequest) {
 
     // Send notification to Minecraft server
     try {
-      // Try new SQS method first, fallback to socket
-      const { getApiClient } = await import("@/lib/api-client");
+      // Try new Redis/SQS method first, fallback to socket
+      const { mcApi } = await import("@/lib/mc-message-client");
 
       try {
-        const apiClient = getApiClient();
-        await apiClient.sendAuthConfirm(mcid, uuid);
-        console.log("Auth confirmation sent via SQS");
-      } catch (sqsError) {
+        await mcApi.sendAuthConfirm(mcid, uuid);
+        console.log("Auth confirmation sent via Redis/SQS");
+      } catch (mcApiError) {
         console.warn(
-          "Failed to send SQS message, falling back to socket:",
-          sqsError,
+          "Failed to send Redis/SQS message, falling back to socket:",
+          mcApiError,
         );
 
         // Fallback to existing socket method
