@@ -13,3 +13,9 @@ run-local:
 	LOG_LEVEL=$(LOG_LEVEL) \
 	QUEUE_MODE=$(QUEUE_MODE) \
 	java -jar ~/.m2/repository/net/kishax/aws/kishax-aws/$(KISHAX_AWS_VERSION)/kishax-aws-$(KISHAX_AWS_VERSION)-with-dependencies.jar
+
+.PHONY: cp-aws-jar
+cp-aws-jar:
+	@echo "INFO: Copying Kishax AWS SQS Worker..."
+	cp ~/.m2/repository/net/kishax/aws/kishax-aws/$(KISHAX_AWS_VERSION)/kishax-aws-$(KISHAX_AWS_VERSION)-with-dependencies.jar ./
+	@echo "INFO: Copyed Kishax AWS SQS Worker."
