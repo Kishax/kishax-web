@@ -18,8 +18,9 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - ${REDIS_PORT:-6380}:6379
+    # not portforwarded: default 6379 in only internal container network
+    # ports:
+    #   - 6379:6379
     volumes:
       - redis-data:/data
     environment:
@@ -36,18 +37,19 @@ services:
       dockerfile: Dockerfile
       target: base
       args:
-        KISHAX_AWS_VERSION: ${KISHAX_AWS_VERSION:-1.0.2}
+        KISHAX_AWS_VERSION: ${KISHAX_AWS_VERSION:-1.0.3}
     environment:
       - AWS_REGION=${AWS_REGION:-ap-northeast-1}
       - MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID}
       - MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY}
       - MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL}
       - WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL}
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - QUEUE_MODE=${QUEUE_MODE:-WEB}
-      - KISHAX_AWS_VERSION=${KISHAX_AWS_VERSION:-1.0.2}
-      - WEB_API_URL=${WEB_API_URL:-http://localhost:3000}
+      - KISHAX_AWS_VERSION=${KISHAX_AWS_VERSION:-1.0.3}
+      - WEB_API_URL=${WEB_API_URL:-http://web:3000}
       - WEB_API_KEY=${WEB_API_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
       - TZ=Asia/Tokyo
     command: |
       java -jar /app/lib/kishax-aws.jar
@@ -56,43 +58,73 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-# app:
-#   build:
-#     context: .
-#     dockerfile: Dockerfile
-#     target: development
-#     args:
-#       NODE_ENV: development
-#   ports:
-#     - ${APP_PORT:-3000}:3000
-#   volumes:
-#     - .:/app
-#     - /app/node_modules
-#     - /app/.next
-#   environment:
-#     - NODE_ENV=development
-#     - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-kishax_db}
-#     - NEXTAUTH_URL=http://localhost:${APP_PORT:-3000}
-#     - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-development-secret-key-minimum-32-chars}
-#     - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
-#     - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
-#     - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID:-}
-#     - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET:-}
-#     - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID:-}
-#     - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET:-}
-#   depends_on:
-#     db:
-#       condition: service_healthy
-#   develop:
-#     watch:
-#       - action: sync
-#         path: ./src
-#         target: /app/src
-#       - action: sync
-#         path: ./public
-#         target: /app/public
-#       - action: rebuild
-#         path: package.json
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        NODE_ENV: development
+    ports:
+      - ${APP_PORT:-3000}:3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-kishax_db}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-development-secret-key-minimum-32-chars}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID:-}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET:-}
+      - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID:-}
+      - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET:-}
+      - MC_SOCKET_HOST=${MC_SOCKET_HOST:-localhost}
+      - MC_SOCKET_PORT=${MC_SOCKET_PORT:-9999}
+      - EMAIL_HOST=${EMAIL_HOST:-}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASS=${EMAIL_PASS:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+      - AWS_REGION=${AWS_REGION:-ap-northeast-1}
+      - MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID:-}
+      - MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY:-}
+      - WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL:-}
+      - MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL:-}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - QUEUE_MODE=${QUEUE_MODE:-WEB}
+      - KISHAX_AWS_VERSION=${KISHAX_AWS_VERSION:-1.0.3}
+      - WEB_API_URL=${WEB_API_URL:-http://web:3000}
+      - WEB_API_KEY=${WEB_API_KEY:-}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
+      - TZ=Asia/Tokyo
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        while ! pg_isready -h db -p 5432 -U $POSTGRES_USER; do
+          echo 'Waiting for database...'
+          sleep 2
+        done
+        echo 'Database is ready!'
+        npx prisma migrate dev && npm run dev
+      "
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+        - action: sync
+          path: ./public
+          target: /app/public
+        - action: rebuild
+          path: package.json
 
 volumes:
   postgres-data:

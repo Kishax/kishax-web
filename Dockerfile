@@ -5,10 +5,10 @@ FROM node:22-alpine AS base
 WORKDIR /app
 
 # 開発に必要なパッケージをインストール（curl、openjdk21追加）
-RUN apk add --no-cache git curl openjdk21-jre
+RUN apk add --no-cache git curl openjdk21-jre postgresql-client
 
 # kishax-aws JARをMaven Centralからダウンロード（環境変数でバージョン指定）
-ARG KISHAX_AWS_VERSION=1.0.2
+ARG KISHAX_AWS_VERSION=1.0.3
 
 # Create lib directory
 RUN mkdir -p /app/lib
@@ -38,7 +38,7 @@ ENV NODE_ENV=development
 COPY scripts/start-kishax-aws.sh /app/scripts/
 RUN chmod +x /app/scripts/start-kishax-aws.sh
 EXPOSE 3000
-CMD ["npm", "run", "dev:full"]
+CMD ["npm", "run", "dev"]
 
 # Production stage
 FROM base AS production
