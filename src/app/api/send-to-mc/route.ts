@@ -8,6 +8,50 @@ interface SendToMcRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // 認証チェック - APIキー認証、内部認証、またはセッション認証
+    const apiKey = request.headers.get("X-API-Key");
+    const expectedApiKey = process.env.WEB_API_KEY;
+    const internalToken = request.headers.get("X-Internal-Token");
+    const expectedInternalToken =
+      process.env.INTERNAL_API_KEY || "local-dev-api-key";
+    let isAuthenticated = false;
+
+    // APIキー認証を試行
+    if (apiKey && expectedApiKey && apiKey === expectedApiKey) {
+      isAuthenticated = true;
+      console.log("API key auth successful");
+    } else if (apiKey && expectedApiKey && apiKey !== expectedApiKey) {
+      // APIキーが提供されたが間違っている場合
+      console.error("Invalid API key provided");
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    } else if (internalToken && internalToken === expectedInternalToken) {
+      // 内部認証トークンによる認証
+      isAuthenticated = true;
+      console.log("Internal token auth successful");
+    } else {
+      // APIキーも内部トークンも提供されていない場合は認証失敗
+      console.log("No API key or internal token provided");
+    }
+
+    if (!isAuthenticated) {
+      console.error(
+        "Authentication failed - no valid API key or internal token",
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required",
+        },
+        { status: 401 },
+      );
+    }
+
     const body: SendToMcRequest = await request.json();
 
     if (!body.messageType) {
@@ -61,7 +105,8 @@ export async function OPTIONS() {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers":
+        "Content-Type, X-API-Key, X-Internal-Token",
     },
   });
 }
