@@ -38,7 +38,7 @@ ENV NODE_ENV=development
 COPY scripts/start-kishax-aws.sh /app/scripts/
 RUN chmod +x /app/scripts/start-kishax-aws.sh
 EXPOSE 3000
-CMD ["npm", "run", "dev:full"]
+CMD ["npm", "run", "dev"]
 
 # Production stage
 FROM base AS production
