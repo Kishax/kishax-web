@@ -128,6 +128,7 @@ export async function POST(req: NextRequest) {
         uuid,
         authToken,
         tokenExpires: new Date(expiresAt),
+        confirmed: true, // MC認証完了時はconfirmedをtrueに設定
         updatedAt: new Date(),
       },
       create: {
