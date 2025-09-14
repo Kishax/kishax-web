@@ -112,6 +112,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
     const token = searchParams.get("token");
+    const mcid = searchParams.get("mcid");
+    const uuid = searchParams.get("uuid");
+    const authToken = searchParams.get("authToken");
 
     if (!email || !token) {
       return NextResponse.redirect(
@@ -160,11 +163,79 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Update user's email verification status
+    // Update user's email verification status and handle MC linking
     await prisma.user.update({
       where: { email },
       data: { emailVerified: new Date() },
     });
+
+    // Handle MC authentication linking if provided
+    let mcLinked = false;
+    if (mcid && uuid && authToken) {
+      try {
+        // Find the MC player with matching auth token
+        const mcPlayer = await prisma.minecraftPlayer.findFirst({
+          where: {
+            mcid,
+            uuid,
+            authToken,
+            confirmed: true,
+          },
+        });
+
+        if (mcPlayer && !mcPlayer.kishaxUserId) {
+          // Check if token is still valid (within 10 minutes)
+          if (
+            mcPlayer.tokenExpires &&
+            new Date() <= new Date(mcPlayer.tokenExpires)
+          ) {
+            // Link the accounts
+            await prisma.minecraftPlayer.update({
+              where: { id: mcPlayer.id },
+              data: {
+                kishaxUserId: user.id,
+                updatedAt: new Date(),
+              },
+            });
+
+            mcLinked = true;
+            console.log(
+              `MC account linked during email verification: ${user.id} -> MC: ${mcid}`,
+            );
+
+            // Send notification to MC server for permission update
+            try {
+              const { mcApi } = await import("@/lib/mc-message-client");
+              await mcApi.sendAccountLink(mcid, uuid, user.id);
+              console.log("Account link notification sent to MC server");
+            } catch (mcApiError) {
+              console.warn(
+                "Failed to send account link notification to MC:",
+                mcApiError,
+              );
+            }
+          } else {
+            console.warn(
+              `MC auth token expired for ${mcid}, cannot link accounts`,
+            );
+          }
+        } else if (mcPlayer?.kishaxUserId) {
+          console.log(
+            `MC account ${mcid} already linked to user ${mcPlayer.kishaxUserId}`,
+          );
+        } else {
+          console.warn(
+            `No valid MC player found for ${mcid} with token ${authToken}`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Error linking MC account during email verification:",
+          error,
+        );
+        // Don't fail the email verification if MC linking fails
+      }
+    }
 
     // Don't delete verification token yet - will be deleted after username setup
     // await prisma.verificationToken.delete({
@@ -177,9 +248,22 @@ export async function GET(request: NextRequest) {
     // })
 
     // Redirect to username setup if needed, otherwise to signin
-    const redirectUrl = user.name
-      ? `/signin?message=email_verified`
-      : `/auth/setup-username?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
+    let redirectUrl;
+    if (user.name) {
+      redirectUrl = mcLinked
+        ? `/signin?message=email_verified&mc_linked=true`
+        : `/signin?message=email_verified`;
+    } else {
+      // Pass MC info to username setup if linking was successful
+      const usernameSetupParams = new URLSearchParams({
+        email: email,
+        token: token,
+      });
+      if (mcLinked) {
+        usernameSetupParams.set("mc_linked", "true");
+      }
+      redirectUrl = `/auth/setup-username?${usernameSetupParams.toString()}`;
+    }
 
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   } catch (error) {
