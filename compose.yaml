@@ -100,11 +100,21 @@ services:
       - WEB_API_URL=${WEB_API_URL:-http://web:3000}
       - WEB_API_KEY=${WEB_API_KEY:-}
       - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
       - TZ=Asia/Tokyo
     depends_on:
       db:
         condition: service_healthy
+    command: >
+      sh -c "
+        while ! pg_isready -h db -p 5432 -U $POSTGRES_USER; do
+          echo 'Waiting for database...'
+          sleep 2
+        done
+        echo 'Database is ready!'
+        npx prisma migrate dev && npm run dev
+      "
     develop:
       watch:
         - action: sync
