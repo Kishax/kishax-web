@@ -7,12 +7,16 @@ const prisma = new PrismaClient();
 const verifyEmailSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),
   token: z.string().min(1, "トークンは必須です"),
+  mcid: z.string().optional(),
+  uuid: z.string().optional(),
+  authToken: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, token } = verifyEmailSchema.parse(body);
+    const { email, token, mcid, uuid, authToken } =
+      verifyEmailSchema.parse(body);
 
     // Find and validate verification token
     const verificationToken = await prisma.verificationToken.findUnique({
@@ -109,12 +113,15 @@ export async function POST(request: NextRequest) {
 // Handle GET request for email verification link clicks
 export async function GET(request: NextRequest) {
   try {
+    console.log("GET verify-email called:", request.url);
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
     const token = searchParams.get("token");
     const mcid = searchParams.get("mcid");
     const uuid = searchParams.get("uuid");
     const authToken = searchParams.get("authToken");
+
+    console.log("GET parsed params:", { email, token, mcid, uuid, authToken });
 
     if (!email || !token) {
       return NextResponse.redirect(
@@ -171,8 +178,15 @@ export async function GET(request: NextRequest) {
 
     // Handle MC authentication linking if provided
     let mcLinked = false;
+    console.log("Email verification - MC auth params:", {
+      mcid,
+      uuid,
+      authToken,
+    });
+
     if (mcid && uuid && authToken) {
       try {
+        console.log("Searching for MC player with auth token...");
         // Find the MC player with matching auth token
         const mcPlayer = await prisma.minecraftPlayer.findFirst({
           where: {
@@ -183,12 +197,26 @@ export async function GET(request: NextRequest) {
           },
         });
 
+        console.log(
+          "MC player found:",
+          mcPlayer
+            ? {
+                id: mcPlayer.id,
+                mcid: mcPlayer.mcid,
+                kishaxUserId: mcPlayer.kishaxUserId,
+                tokenExpires: mcPlayer.tokenExpires,
+                confirmed: mcPlayer.confirmed,
+              }
+            : "null",
+        );
+
         if (mcPlayer && !mcPlayer.kishaxUserId) {
           // Check if token is still valid (within 10 minutes)
           if (
             mcPlayer.tokenExpires &&
             new Date() <= new Date(mcPlayer.tokenExpires)
           ) {
+            console.log(`Linking MC account ${mcid} to user ${user.id}`);
             // Link the accounts
             await prisma.minecraftPlayer.update({
               where: { id: mcPlayer.id },
@@ -200,7 +228,7 @@ export async function GET(request: NextRequest) {
 
             mcLinked = true;
             console.log(
-              `MC account linked during email verification: ${user.id} -> MC: ${mcid}`,
+              `✅ MC account linked during email verification: ${user.id} -> MC: ${mcid}`,
             );
 
             // Send notification to MC server for permission update
@@ -216,7 +244,7 @@ export async function GET(request: NextRequest) {
             }
           } else {
             console.warn(
-              `MC auth token expired for ${mcid}, cannot link accounts`,
+              `MC auth token expired for ${mcid}, expires: ${mcPlayer.tokenExpires}, now: ${new Date()}`,
             );
           }
         } else if (mcPlayer?.kishaxUserId) {
@@ -235,6 +263,8 @@ export async function GET(request: NextRequest) {
         );
         // Don't fail the email verification if MC linking fails
       }
+    } else {
+      console.log("No MC auth params provided for email verification");
     }
 
     // Don't delete verification token yet - will be deleted after username setup
