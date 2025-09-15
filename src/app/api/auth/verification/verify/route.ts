@@ -13,8 +13,7 @@ const verifyEmailSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, token, mcid, uuid, authToken } =
-      verifyEmailSchema.parse(body);
+    const { email, token } = verifyEmailSchema.parse(body);
 
     // Find and validate verification token
     const verificationToken = await prisma.verificationToken.findUnique({
