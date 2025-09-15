@@ -35,6 +35,26 @@ export default function McAuthPageClient({
     }
   };
 
+  const handleSignInClick = () => {
+    // MC認証データをパラメータとして既存のサインインページに遷移
+    if (
+      pageData.mcAuth &&
+      pageData.mcid &&
+      pageData.uuid &&
+      pageData.authToken
+    ) {
+      const params = new URLSearchParams({
+        mcid: pageData.mcid,
+        uuid: pageData.uuid,
+        authToken: pageData.authToken,
+      });
+      window.location.href = `/signin?${params.toString()}`;
+    } else {
+      // 通常のサインインページに遷移
+      window.location.href = "/signin";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -147,12 +167,12 @@ export default function McAuthPageClient({
                           ? "🔗 アカウント作成で連携"
                           : "アカウント作成で連携"}
                       </button>
-                      <Link
-                        href="/signin"
+                      <button
+                        onClick={handleSignInClick}
                         className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
                         既存アカウントでログイン
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
