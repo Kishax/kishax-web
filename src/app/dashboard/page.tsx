@@ -36,12 +36,14 @@ export default async function DashboardPage() {
               >
                 MC Auth
               </Link>
-              <Link
-                href="/api/auth/signout?callbackUrl=/"
-                className="text-red-600 hover:text-red-800"
-              >
-                Logout
-              </Link>
+              {isLoggedIn && (
+                <Link
+                  href="/api/auth/signout?callbackUrl=/"
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Logout
+                </Link>
+              )}
             </nav>
           </div>
         </div>
