@@ -48,8 +48,6 @@ model User {
   customAvatar  String?   @map("custom_avatar")
   discordId     String?   @map("discord_id")
   avatar        String?
-  otp           String?
-  otpExpires    DateTime? @map("otp_expires")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
