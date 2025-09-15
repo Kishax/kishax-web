@@ -99,9 +99,25 @@ export default async function McAuthPage({ searchParams }: PageProps) {
     return await handleTokenAuth(authToken, session, pageData);
   }
 
-  // If no member ID provided, show initial message
+  // If no member ID provided, check for existing MC account link
   if (!memberId) {
-    pageData.infoMessage = ["サーバーに参加しよう！"];
+    // Check if user has linked Minecraft accounts
+    const linkedMcAccounts = await prisma.minecraftPlayer.findMany({
+      where: { kishaxUserId: user.id },
+    });
+
+    if (linkedMcAccounts.length > 0) {
+      // Show linked accounts info
+      const mcAccountNames = linkedMcAccounts.map((acc) => acc.mcid).join(", ");
+      pageData.successMessage = [
+        `連携済みMinecraftアカウント: ${mcAccountNames}`,
+      ];
+      pageData.infoMessage = [
+        "MinecraftアカウントとKishaxアカウントの連携が完了しています。",
+      ];
+    } else {
+      pageData.infoMessage = ["サーバーに参加しよう！"];
+    }
     return <McAuthPageClient pageData={pageData} />;
   }
 
