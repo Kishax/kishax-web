@@ -136,10 +136,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update user with username
+    // Update user with username and set name to username if name is null
     const updatedUser = await prisma.user.update({
       where: { email },
-      data: { username: username },
+      data: {
+        username: username,
+        name: user.name || username, // Set name to username if it's currently null
+      },
     });
 
     // Clean up verification token now that username setup is complete
