@@ -41,7 +41,13 @@ function VerifyEmailContent() {
       }
 
       try {
-        const requestBody: any = { email, token };
+        const requestBody: {
+          email: string;
+          token: string;
+          mcid?: string;
+          uuid?: string;
+          authToken?: string;
+        } = { email, token };
 
         // MC認証パラメータがある場合は含める
         if (mcid && uuid && authToken) {
