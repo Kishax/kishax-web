@@ -58,7 +58,10 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         setSuccess(result.message || "Minecraft認証が正常に完了しました！");
         // Show success message for 3 seconds then redirect
         setTimeout(() => {
-          router.push("/mc/auth?success=true");
+          const successUrl = pageData.authToken
+            ? `/mc/auth?success=true&t=${encodeURIComponent(pageData.authToken)}`
+            : "/mc/auth?success=true";
+          router.push(successUrl);
         }, 3000);
       } else {
         setError(result.message || "認証に失敗しました。");
