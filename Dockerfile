@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add --no-cache git curl openjdk21-jre postgresql-client
 
 # kishax-aws JARをMaven Centralからダウンロード（環境変数でバージョン指定）
-ARG KISHAX_AWS_VERSION=1.0.3
+ARG KISHAX_AWS_VERSION=1.0.4
 
 # Create lib directory
 RUN mkdir -p /app/lib
