@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { McAuthPageData } from "@/lib/schemas";
 import McAuthForm from "@/components/McAuthForm";
-import McOtpAccountForm from "@/components/McOtpAccountForm";
 
 interface McAuthPageClientProps {
   pageData: McAuthPageData;
@@ -15,24 +13,33 @@ export default function McAuthPageClient({
   pageData,
   showAccountLinking,
 }: McAuthPageClientProps) {
-  const [showOtpAccountForm, setShowOtpAccountForm] = useState(false);
   const showServerJoinMessage = !pageData.isAuth && !pageData.mcAuth;
 
-  const handleOtpAccountSuccess = () => {
-    // ページリロードまたはリダイレクト
-    window.location.reload();
-  };
-
   const handleCreateAccountClick = () => {
-    // MC認証が完了している場合のみOTPフォームを表示
+    // MC認証データをパラメータとして既存のサインアップページに遷移
+    console.log("McAuthPageClient - pageData:", pageData);
+    console.log("MC Auth check:", {
+      mcAuth: pageData.mcAuth,
+      mcid: pageData.mcid,
+      uuid: pageData.uuid,
+      authToken: pageData.authToken,
+    });
+
     if (
       pageData.mcAuth &&
       pageData.mcid &&
       pageData.uuid &&
       pageData.authToken
     ) {
-      setShowOtpAccountForm(true);
+      const params = new URLSearchParams({
+        mcid: pageData.mcid,
+        uuid: pageData.uuid,
+        authToken: pageData.authToken,
+      });
+      console.log("Redirecting to signup with MC params:", params.toString());
+      window.location.href = `/signup?${params.toString()}`;
     } else {
+      console.log("No MC auth data found, redirecting to normal signup");
       // 通常のサインアップページに遷移
       window.location.href = "/signup";
     }
@@ -103,48 +110,8 @@ export default function McAuthPageClient({
               </div>
             )}
 
-            {/* OTP Account Creation Form */}
-            {showOtpAccountForm &&
-              pageData.mcAuth &&
-              pageData.mcid &&
-              pageData.uuid &&
-              pageData.authToken && (
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      Kishaxアカウント作成
-                    </h2>
-                    <button
-                      onClick={() => setShowOtpAccountForm(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <span className="sr-only">閉じる</span>
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <McOtpAccountForm
-                    mcid={pageData.mcid}
-                    uuid={pageData.uuid}
-                    authToken={pageData.authToken}
-                    onSuccess={handleOtpAccountSuccess}
-                  />
-                </div>
-              )}
-
             {/* Kishax Account Linking Invitation */}
-            {showAccountLinking && !showOtpAccountForm && (
+            {showAccountLinking && (
               <div className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
@@ -187,7 +154,7 @@ export default function McAuthPageClient({
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
                         {pageData.mcAuth
-                          ? "📱 OTPでアカウント作成"
+                          ? "🔗 アカウント作成で連携"
                           : "アカウント作成で連携"}
                       </button>
                       <Link

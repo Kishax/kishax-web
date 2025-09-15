@@ -30,6 +30,9 @@ function VerifyEmailContent() {
     const verifyEmail = async () => {
       const token = searchParams.get("token");
       const email = searchParams.get("email");
+      const mcid = searchParams.get("mcid");
+      const uuid = searchParams.get("uuid");
+      const authToken = searchParams.get("authToken");
 
       if (!token || !email) {
         setStatus("error");
@@ -38,12 +41,26 @@ function VerifyEmailContent() {
       }
 
       try {
+        const requestBody: any = { email, token };
+
+        // MC認証パラメータがある場合は含める
+        if (mcid && uuid && authToken) {
+          requestBody.mcid = mcid;
+          requestBody.uuid = uuid;
+          requestBody.authToken = authToken;
+          console.log("Including MC auth data in verification request:", {
+            mcid,
+            uuid,
+            authToken,
+          });
+        }
+
         const response = await fetch("/api/auth/verification/verify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, token }),
+          body: JSON.stringify(requestBody),
         });
 
         const data = await response.json();

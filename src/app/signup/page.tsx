@@ -1,21 +1,44 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function SignUpPage() {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [mcAuthData, setMcAuthData] = useState<{
+    mcid: string;
+    uuid: string;
+    authToken: string;
+  } | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"signup" | "verify">("signup");
   const [verificationMethod, setVerificationMethod] = useState<"otp" | "link">(
-    "otp",
+    "link",
   );
+
+  useEffect(() => {
+    // URLパラメータからMC認証データを取得
+    const mcid = searchParams.get("mcid");
+    const uuid = searchParams.get("uuid");
+    const authToken = searchParams.get("authToken");
+
+    console.log("Signup page - URL params:", { mcid, uuid, authToken });
+
+    if (mcid && uuid && authToken) {
+      setMcAuthData({ mcid, uuid, authToken });
+      console.log("MC Auth data set:", { mcid, uuid, authToken });
+    } else {
+      console.log("MC Auth data incomplete - one or more params missing");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +60,7 @@ export default function SignUpPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          mcAuthData: mcAuthData,
         }),
       });
 
@@ -67,12 +91,20 @@ export default function SignUpPage() {
           ? "/api/auth/otp/send" // OTP機能（現在は使用しない）
           : "/api/auth/verification/send"; // 招待リンク（デフォルト）
 
+      console.log("Sending verification email with MC data:", {
+        email: formData.email,
+        mcAuthData,
+      });
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({
+          email: formData.email,
+          mcAuthData: mcAuthData,
+        }),
       });
 
       const data = await response.json();
@@ -209,6 +241,21 @@ export default function SignUpPage() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             アカウントを作成
           </h2>
+          {mcAuthData && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">🎮</span>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Minecraft認証済み
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    {mcAuthData.mcid} として認証されています
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (

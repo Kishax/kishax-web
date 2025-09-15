@@ -24,7 +24,7 @@ export default async function McAuthPage({ searchParams }: PageProps) {
 
   // Handle success parameter first
   if (success) {
-    const pageData: McAuthPageData = {
+    let pageData: McAuthPageData = {
       isAuth: !!session,
       username: session?.user?.username || "[ユーザーID未設定]",
       mcAuth: false,
@@ -34,6 +34,32 @@ export default async function McAuthPage({ searchParams }: PageProps) {
         "Kishaxアカウントと連携すると、さらに多くの機能をご利用いただけます。",
       ],
     };
+
+    // If auth token is provided with success, get MC auth data
+    if (authToken) {
+      try {
+        const mcuser = await prisma.minecraftPlayer.findFirst({
+          where: { authToken: authToken, confirmed: true },
+        });
+
+        if (
+          mcuser &&
+          mcuser.tokenExpires &&
+          new Date() <= new Date(mcuser.tokenExpires)
+        ) {
+          pageData = {
+            ...pageData,
+            mcid: mcuser.mcid,
+            uuid: mcuser.uuid,
+            authToken: authToken,
+            mcAuth: true,
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching MC auth data on success:", error);
+      }
+    }
+
     return <McAuthPageClient pageData={pageData} showAccountLinking={true} />;
   }
 
