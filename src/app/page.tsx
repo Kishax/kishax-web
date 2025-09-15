@@ -91,7 +91,9 @@ export default async function HomePage() {
                     </span>
                   </div>
                   <div className="mt-8">
-                    <h3 className="text-lg font-medium">Minecraft Auth</h3>
+                    <h3 className="text-lg font-medium text-green-600 hover:text-green-800">
+                      Minecraft Auth
+                    </h3>
                     <p className="mt-2 text-sm text-gray-500">
                       Authenticate with Minecraft server
                     </p>
