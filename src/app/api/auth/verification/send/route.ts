@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendVerificationEmail } from "@/lib/email";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
 
 const sendVerificationSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),

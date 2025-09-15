@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { McAuthRequestSchema, McAuthResponseSchema } from "@/lib/schemas";
 import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import jwt from "jsonwebtoken";
 import { sendSocketMessage } from "@/lib/socket-client";
-
-const prisma = new PrismaClient();
 
 /**
  * @swagger

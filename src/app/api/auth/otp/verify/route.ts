@@ -3,9 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyOTP } from "@/lib/otp";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 const verifyOTPSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),

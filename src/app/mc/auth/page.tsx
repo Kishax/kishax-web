@@ -1,13 +1,11 @@
 import { auth } from "@/lib/auth";
 import { Session } from "next-auth";
-import { PrismaClient } from "@prisma/client";
 import McAuthForm from "@/components/McAuthForm";
+import { prisma } from "@/lib/prisma";
 import { McAuthPageData } from "@/lib/schemas";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
 import McAuthPageClient from "@/components/McAuthPageClient";
-
-const prisma = new PrismaClient();
 
 interface PageProps {
   searchParams: Promise<{ n?: string; t?: string; success?: string }>;

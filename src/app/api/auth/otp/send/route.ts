@@ -9,9 +9,7 @@ import {
   hasActiveOTP,
   getOTPRemainingTime,
 } from "@/lib/otp";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 const sendOTPSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),

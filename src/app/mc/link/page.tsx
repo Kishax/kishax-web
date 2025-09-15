@@ -1,10 +1,8 @@
 import { auth } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import McAccountLinkForm from "@/components/McAccountLinkForm";
-
-const prisma = new PrismaClient();
 
 export default async function McLinkPage() {
   const session = await auth();

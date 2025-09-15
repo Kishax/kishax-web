@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { requireAuth, createErrorResponse } from "@/lib/api-middleware";
-
-const prisma = new PrismaClient();
 
 /**
  * @swagger
