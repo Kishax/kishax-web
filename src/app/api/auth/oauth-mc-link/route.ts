@@ -23,10 +23,11 @@ export async function POST(req: NextRequest) {
     // Verify and decode JWT token
     let mcAuthData: { mcid: string; uuid: string; authToken: string };
     try {
-      const decoded = jwt.verify(
-        mcAuthToken,
-        process.env.NEXTAUTH_SECRET!,
-      ) as any;
+      const decoded = jwt.verify(mcAuthToken, process.env.NEXTAUTH_SECRET!) as {
+        mcid: string;
+        uuid: string;
+        authToken: string;
+      };
       mcAuthData = decoded;
     } catch (jwtError) {
       console.warn("Invalid MC auth token:", jwtError);
