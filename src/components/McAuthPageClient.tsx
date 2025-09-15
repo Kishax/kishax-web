@@ -75,26 +75,6 @@ export default function McAuthPageClient({
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="bg-white shadow rounded-lg p-6">
-            <div className="mb-6">
-              {pageData.isAuth ? (
-                <p className="text-sm text-gray-600">
-                  {pageData.username}さん、ようこそ
-                </p>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm text-gray-600">
-                    {pageData.username}さん、ようこそ &gt;&gt;
-                  </p>
-                  <Link
-                    href="/signup"
-                    className="text-blue-600 hover:text-blue-800 text-sm underline"
-                  >
-                    サインアップはこちら
-                  </Link>
-                </div>
-              )}
-            </div>
-
             {/* Messages */}
             {pageData.successMessage && (
               <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
