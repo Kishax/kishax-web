@@ -19,3 +19,8 @@ cp-aws-jar:
 	@echo "INFO: Copying Kishax AWS SQS Worker..."
 	cp ~/.m2/repository/net/kishax/aws/kishax-aws/$(KISHAX_AWS_VERSION)/kishax-aws-$(KISHAX_AWS_VERSION)-with-dependencies.jar ./
 	@echo "INFO: Copyed Kishax AWS SQS Worker."
+
+.PHONY: logs
+logs:
+	@echo "INFO: Tailing logs..."
+	@docker compose logs kishax-aws web -f || true
