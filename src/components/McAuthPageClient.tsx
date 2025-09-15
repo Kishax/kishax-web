@@ -17,14 +17,6 @@ export default function McAuthPageClient({
 
   const handleCreateAccountClick = () => {
     // MC認証データをパラメータとして既存のサインアップページに遷移
-    console.log("McAuthPageClient - pageData:", pageData);
-    console.log("MC Auth check:", {
-      mcAuth: pageData.mcAuth,
-      mcid: pageData.mcid,
-      uuid: pageData.uuid,
-      authToken: pageData.authToken,
-    });
-
     if (
       pageData.mcAuth &&
       pageData.mcid &&
@@ -36,10 +28,8 @@ export default function McAuthPageClient({
         uuid: pageData.uuid,
         authToken: pageData.authToken,
       });
-      console.log("Redirecting to signup with MC params:", params.toString());
       window.location.href = `/signup?${params.toString()}`;
     } else {
-      console.log("No MC auth data found, redirecting to normal signup");
       // 通常のサインアップページに遷移
       window.location.href = "/signup";
     }

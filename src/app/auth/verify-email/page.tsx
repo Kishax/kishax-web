@@ -48,11 +48,6 @@ function VerifyEmailContent() {
           requestBody.mcid = mcid;
           requestBody.uuid = uuid;
           requestBody.authToken = authToken;
-          console.log("Including MC auth data in verification request:", {
-            mcid,
-            uuid,
-            authToken,
-          });
         }
 
         const response = await fetch("/api/auth/verification/verify", {

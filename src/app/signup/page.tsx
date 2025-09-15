@@ -30,13 +30,8 @@ export default function SignUpPage() {
     const uuid = searchParams.get("uuid");
     const authToken = searchParams.get("authToken");
 
-    console.log("Signup page - URL params:", { mcid, uuid, authToken });
-
     if (mcid && uuid && authToken) {
       setMcAuthData({ mcid, uuid, authToken });
-      console.log("MC Auth data set:", { mcid, uuid, authToken });
-    } else {
-      console.log("MC Auth data incomplete - one or more params missing");
     }
   }, [searchParams]);
 
@@ -90,11 +85,6 @@ export default function SignUpPage() {
         method === "otp"
           ? "/api/auth/otp/send" // OTP機能（現在は使用しない）
           : "/api/auth/verification/send"; // 招待リンク（デフォルト）
-
-      console.log("Sending verification email with MC data:", {
-        email: formData.email,
-        mcAuthData,
-      });
 
       const response = await fetch(endpoint, {
         method: "POST",
