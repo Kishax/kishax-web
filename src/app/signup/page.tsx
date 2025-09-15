@@ -119,8 +119,32 @@ export default function SignUpPage() {
     }
   };
 
-  const handleOAuthSignUp = (provider: string) => {
-    signIn(provider, { callbackUrl: "/" });
+  const handleOAuthSignUp = async (provider: string) => {
+    let callbackUrl = "/";
+
+    // MC認証データがある場合、サーバーサイドでJWTを生成
+    if (mcAuthData) {
+      try {
+        const response = await fetch("/api/auth/encode-mc-data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(mcAuthData),
+        });
+
+        if (response.ok) {
+          const { token } = await response.json();
+          callbackUrl = `/?mcAuthToken=${encodeURIComponent(token)}`;
+        } else {
+          console.warn("Failed to encode MC auth data");
+        }
+      } catch (error) {
+        console.warn("Failed to encode MC auth data:", error);
+      }
+    }
+
+    signIn(provider, { callbackUrl });
   };
 
   /* 

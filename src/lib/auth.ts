@@ -181,7 +181,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile, email, credentials }) {
       // For OAuth providers, allow sign in but handle username check in JWT callback
       if (account?.provider !== "credentials") {
         if (!user?.email) return false;
@@ -267,6 +267,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // If url contains mcAuthToken parameter, preserve it
+      if (url.includes("mcAuthToken=")) {
+        return url;
+      }
+
+      // Starts with same-origin relative URL, relative to baseUrl
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Starts with same-origin absolute URL
+      else if (new URL(url).origin === baseUrl) return url;
+
+      return baseUrl;
     },
   },
 });
