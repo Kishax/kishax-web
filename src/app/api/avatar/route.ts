@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { AvatarQuerySchema } from "@/lib/schemas";
 import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import fs from "fs/promises";
 import path from "path";
-
-const prisma = new PrismaClient();
 
 /**
  * @swagger

@@ -1,18 +1,35 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignInPage() {
+function SignInContent() {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+  const [mcAuthData, setMcAuthData] = useState<{
+    mcid: string;
+    uuid: string;
+    authToken: string;
+  } | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // URLパラメータからMC認証データを取得
+    const mcid = searchParams.get("mcid");
+    const uuid = searchParams.get("uuid");
+    const authToken = searchParams.get("authToken");
+
+    if (mcid && uuid && authToken) {
+      setMcAuthData({ mcid, uuid, authToken });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,16 +37,47 @@ export default function SignInPage() {
     setError("");
 
     try {
+      // MC認証データがある場合はJWTエンコードして含める
+      let mcAuthToken = null;
+      if (mcAuthData) {
+        try {
+          const response = await fetch("/api/auth/encode-mc-data", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(mcAuthData),
+          });
+
+          if (response.ok) {
+            const { token } = await response.json();
+            mcAuthToken = token;
+          } else {
+            console.warn("Failed to encode MC auth data for credentials login");
+          }
+        } catch (error) {
+          console.warn(
+            "Failed to encode MC auth data for credentials login:",
+            error,
+          );
+        }
+      }
+
       const result = await signIn("credentials", {
         username: formData.username,
         password: formData.password,
+        mcAuthToken: mcAuthToken,
         redirect: false,
       });
 
       if (result?.error) {
         setError("Invalid username or password");
       } else {
-        router.push("/dashboard");
+        // MC認証データがある場合はMC連携パラメータ付きでリダイレクト
+        const redirectUrl = mcAuthData
+          ? "/dashboard?mc_linked=true"
+          : "/dashboard";
+        router.push(redirectUrl);
       }
     } catch {
       setError("An error occurred during sign in");
@@ -38,8 +86,32 @@ export default function SignInPage() {
     }
   };
 
-  const handleOAuthSignIn = (provider: string) => {
-    signIn(provider, { callbackUrl: "/dashboard" });
+  const handleOAuthSignIn = async (provider: string) => {
+    let callbackUrl = "/dashboard";
+
+    // MC認証データがある場合、サーバーサイドでJWTを生成
+    if (mcAuthData) {
+      try {
+        const response = await fetch("/api/auth/encode-mc-data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(mcAuthData),
+        });
+
+        if (response.ok) {
+          const { token } = await response.json();
+          callbackUrl = `/dashboard?mcAuthToken=${encodeURIComponent(token)}`;
+        } else {
+          console.warn("Failed to encode MC auth data");
+        }
+      } catch (error) {
+        console.warn("Failed to encode MC auth data:", error);
+      }
+    }
+
+    signIn(provider, { callbackUrl });
   };
 
   return (
@@ -49,6 +121,21 @@ export default function SignInPage() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             アカウントにサインイン
           </h2>
+          {mcAuthData && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">🎮</span>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Minecraft認証済み
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    {mcAuthData.mcid} として認証されています
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
@@ -139,7 +226,11 @@ export default function SignInPage() {
 
           <div className="text-center">
             <Link
-              href="/signup"
+              href={
+                mcAuthData
+                  ? `/signup?mcid=${encodeURIComponent(mcAuthData.mcid)}&uuid=${encodeURIComponent(mcAuthData.uuid)}&authToken=${encodeURIComponent(mcAuthData.authToken)}`
+                  : "/signup"
+              }
               className="text-indigo-600 hover:text-indigo-500"
             >
               アカウントをお持ちでない方はこちら
@@ -148,5 +239,19 @@ export default function SignInPage() {
         </>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }

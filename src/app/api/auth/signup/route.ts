@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, mcAuthData } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -38,6 +36,27 @@ export async function POST(req: NextRequest) {
         emailVerified: null, // Email not verified yet
       },
     });
+
+    // MC認証データがある場合、MinecraftPlayerテーブルを更新
+    if (mcAuthData && mcAuthData.mcid && mcAuthData.uuid) {
+      try {
+        await prisma.minecraftPlayer.updateMany({
+          where: {
+            mcid: mcAuthData.mcid,
+            uuid: mcAuthData.uuid,
+          },
+          data: {
+            kishaxUserId: user.id,
+          },
+        });
+        console.log(
+          `MinecraftPlayer updated: ${mcAuthData.mcid} -> User ID: ${user.id}`,
+        );
+      } catch (mcError) {
+        console.error("Failed to link MinecraftPlayer:", mcError);
+        // MC連携エラーでもアカウント作成は成功とする
+      }
+    }
 
     return NextResponse.json(
       {

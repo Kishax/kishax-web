@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sendVerificationEmail } from "@/lib/email";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
 
 const sendVerificationSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),
+  mcAuthData: z
+    .object({
+      mcid: z.string(),
+      uuid: z.string(),
+      authToken: z.string(),
+    })
+    .nullable()
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email } = sendVerificationSchema.parse(body);
+    const { email, mcAuthData } = sendVerificationSchema.parse(body);
 
     // Check if user exists
     const user = await prisma.user.findUnique({
@@ -60,7 +66,12 @@ export async function POST(request: NextRequest) {
 
     // Create verification URL
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-    const verificationUrl = `${baseUrl}/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+    let verificationUrl = `${baseUrl}/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+
+    // Add MC authentication data to verification URL if provided
+    if (mcAuthData) {
+      verificationUrl += `&mcid=${encodeURIComponent(mcAuthData.mcid)}&uuid=${encodeURIComponent(mcAuthData.uuid)}&authToken=${encodeURIComponent(mcAuthData.authToken)}`;
+    }
 
     // Send verification email
     const emailSent = await sendVerificationEmail(email, verificationUrl);

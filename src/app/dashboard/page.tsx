@@ -1,8 +1,7 @@
 import { auth } from "@/lib/auth";
 import Link from "next/link";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { DashboardClient } from "@/components/DashboardClient";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -22,6 +21,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <DashboardClient />
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -32,22 +32,18 @@ export default async function DashboardPage() {
               </Link>
               <Link
                 href="/mc/auth"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-green-600 hover:text-green-800"
               >
-                MC認証
+                MC Auth
               </Link>
-              <Link
-                href="/mc/link"
-                className="text-blue-600 hover:text-blue-800"
-              >
-                MC連携
-              </Link>
-              <Link
-                href="/api/auth/signout?callbackUrl=/"
-                className="text-red-600 hover:text-red-800"
-              >
-                Logout
-              </Link>
+              {isLoggedIn && (
+                <Link
+                  href="/api/auth/signout?callbackUrl=/"
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Logout
+                </Link>
+              )}
             </nav>
           </div>
         </div>

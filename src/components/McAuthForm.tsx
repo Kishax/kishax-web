@@ -58,7 +58,10 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
         setSuccess(result.message || "Minecraft認証が正常に完了しました！");
         // Show success message for 3 seconds then redirect
         setTimeout(() => {
-          router.push("/mc/auth?success=true");
+          const successUrl = pageData.authToken
+            ? `/mc/auth?success=true&t=${encodeURIComponent(pageData.authToken)}`
+            : "/mc/auth?success=true";
+          router.push(successUrl);
         }, 3000);
       } else {
         setError(result.message || "認証に失敗しました。");
@@ -266,7 +269,7 @@ export default function McAuthForm({ pageData }: McAuthFormProps) {
           }
           maxLength={6}
           readOnly={!otpSent || !mcResponse?.success}
-          className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+          className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black placeholder-gray-500 ${
             !otpSent || !mcResponse?.success ? "bg-gray-100" : "bg-white"
           }`}
         />

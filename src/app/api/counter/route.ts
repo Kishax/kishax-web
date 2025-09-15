@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { CounterQuerySchema, CounterResponseSchema } from "@/lib/schemas";
 import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import { format, subDays, startOfMonth, startOfYear, endOfDay } from "date-fns";
-
-const prisma = new PrismaClient();
 
 /**
  * @swagger

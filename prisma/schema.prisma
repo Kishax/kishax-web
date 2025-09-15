@@ -39,7 +39,7 @@ model Session {
 
 model User {
   id            String    @id @default(cuid())
-  name          String?   // 表示名（OAuthプロバイダーの名前）
+  name          String? // 表示名（OAuthプロバイダーの名前）
   username      String?   @unique // 公開ユーザー名（ユーザーが入力）
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
@@ -48,10 +48,9 @@ model User {
   customAvatar  String?   @map("custom_avatar")
   discordId     String?   @map("discord_id")
   avatar        String?
-  otp           String?
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
-  
+
   accounts         Account[]
   sessions         Session[]
   tasks            Task[]
@@ -109,18 +108,18 @@ model Status {
 }
 
 model MinecraftPlayer {
-  id            String   @id @default(cuid())
-  mcid          String   @unique
-  uuid          String   @unique
-  authToken     String?  @map("auth_token")
-  tokenExpires  DateTime? @map("token_expires")
-  otp           String?  @map("otp")
-  otpExpires    DateTime? @map("otp_expires")
-  confirmed     Boolean  @default(false)
-  kishaxUserId  String?  @map("kishax_user_id")
-  user          User?    @relation(fields: [kishaxUserId], references: [id])
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-  
+  id           String    @id @default(cuid())
+  mcid         String    @unique
+  uuid         String    @unique
+  authToken    String?   @map("auth_token")
+  tokenExpires DateTime? @map("token_expires")
+  otp          String?   @map("otp")
+  otpExpires   DateTime? @map("otp_expires")
+  confirmed    Boolean   @default(false)
+  kishaxUserId String?   @map("kishax_user_id")
+  user         User?     @relation(fields: [kishaxUserId], references: [id])
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
   @@map("minecraft_players")
 }

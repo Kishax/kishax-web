@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
 
 // OTP送信回数制限の設定
 const OTP_RATE_LIMIT = {
@@ -137,8 +135,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 連続送信のクールダウンチェック
-    const lastOtpTime = player.updatedAt;
+    // 連続送信のクールダウンチェック（OTPが存在する場合のみ）
+    const lastOtpTime = player.otp ? player.updatedAt : null;
     if (
       lastOtpTime &&
       currentTime.getTime() - lastOtpTime.getTime() < OTP_RATE_LIMIT.COOLDOWN

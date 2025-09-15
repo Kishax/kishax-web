@@ -1,21 +1,39 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignUpPage() {
+function SignUpContent() {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [mcAuthData, setMcAuthData] = useState<{
+    mcid: string;
+    uuid: string;
+    authToken: string;
+  } | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"signup" | "verify">("signup");
   const [verificationMethod, setVerificationMethod] = useState<"otp" | "link">(
-    "otp",
+    "link",
   );
+
+  useEffect(() => {
+    // URLパラメータからMC認証データを取得
+    const mcid = searchParams.get("mcid");
+    const uuid = searchParams.get("uuid");
+    const authToken = searchParams.get("authToken");
+
+    if (mcid && uuid && authToken) {
+      setMcAuthData({ mcid, uuid, authToken });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +55,7 @@ export default function SignUpPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          mcAuthData: mcAuthData,
         }),
       });
 
@@ -72,7 +91,10 @@ export default function SignUpPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({
+          email: formData.email,
+          mcAuthData: mcAuthData,
+        }),
       });
 
       const data = await response.json();
@@ -97,8 +119,32 @@ export default function SignUpPage() {
     }
   };
 
-  const handleOAuthSignUp = (provider: string) => {
-    signIn(provider, { callbackUrl: "/" });
+  const handleOAuthSignUp = async (provider: string) => {
+    let callbackUrl = "/dashboard";
+
+    // MC認証データがある場合、サーバーサイドでJWTを生成
+    if (mcAuthData) {
+      try {
+        const response = await fetch("/api/auth/encode-mc-data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(mcAuthData),
+        });
+
+        if (response.ok) {
+          const { token } = await response.json();
+          callbackUrl = `/dashboard?mcAuthToken=${encodeURIComponent(token)}`;
+        } else {
+          console.warn("Failed to encode MC auth data");
+        }
+      } catch (error) {
+        console.warn("Failed to encode MC auth data:", error);
+      }
+    }
+
+    signIn(provider, { callbackUrl });
   };
 
   /* 
@@ -209,6 +255,21 @@ export default function SignUpPage() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             アカウントを作成
           </h2>
+          {mcAuthData && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">🎮</span>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Minecraft認証済み
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    {mcAuthData.mcid} として認証されています
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -309,7 +370,11 @@ export default function SignUpPage() {
 
             <div className="text-center">
               <Link
-                href="/signin"
+                href={
+                  mcAuthData
+                    ? `/signin?mcid=${encodeURIComponent(mcAuthData.mcid)}&uuid=${encodeURIComponent(mcAuthData.uuid)}&authToken=${encodeURIComponent(mcAuthData.authToken)}`
+                    : "/signin"
+                }
                 className="text-indigo-600 hover:text-indigo-500"
               >
                 すでにアカウントをお持ちですか？ サインイン
@@ -319,5 +384,19 @@ export default function SignUpPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <SignUpContent />
+    </Suspense>
   );
 }

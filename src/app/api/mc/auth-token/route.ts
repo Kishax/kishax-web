@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
 
 // MC側からのSQSメッセージの形式
 const AuthTokenMessageSchema = z.object({
@@ -128,6 +126,7 @@ export async function POST(req: NextRequest) {
         uuid,
         authToken,
         tokenExpires: new Date(expiresAt),
+        confirmed: true, // MC認証完了時はconfirmedをtrueに設定
         updatedAt: new Date(),
       },
       create: {
