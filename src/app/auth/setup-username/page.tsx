@@ -221,13 +221,19 @@ function SetupUsernameContent() {
               if (signInResult?.error) {
                 router.push("/signin?message=username_set_login_required");
               } else {
-                // Auto-login success, redirect to home
-                router.push("/?message=account_complete");
+                // Auto-login success, redirect to dashboard
+                router.push("/dashboard?message=account_complete");
               }
             } else {
+              const errorText = await autoLoginResponse.text();
+              console.error(
+                "[USERNAME_SETUP] auto-login API failed:",
+                errorText,
+              );
               router.push("/signin?message=username_set_login_required");
             }
-          } catch {
+          } catch (error) {
+            console.error("[USERNAME_SETUP] auto-login exception:", error);
             router.push("/signin?message=username_set_login_required");
           }
         } else {
