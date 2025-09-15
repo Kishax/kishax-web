@@ -14,12 +14,6 @@ export default async function HomePage() {
           <div className="flex justify-between items-center py-6">
             <h1 className="text-3xl font-bold text-gray-900">KishaX</h1>
             <nav className="flex space-x-4">
-              <Link
-                href="/mc/auth"
-                className="text-green-600 hover:text-green-800"
-              >
-                MC Auth
-              </Link>
               {session ? (
                 <>
                   <span className="text-gray-700">
