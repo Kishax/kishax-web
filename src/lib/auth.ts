@@ -37,6 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
         autoLogin: { label: "Auto Login", type: "text" },
         sessionToken: { label: "Session Token", type: "text" },
+        mcAuthToken: { label: "MC Auth Token", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.username) {
@@ -167,6 +168,63 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        // Handle MC auth token if provided
+        if (credentials.mcAuthToken) {
+          try {
+            const { verify } = await import("jsonwebtoken");
+            const decodedToken = verify(
+              credentials.mcAuthToken as string,
+              process.env.NEXTAUTH_SECRET!,
+            ) as { mcid: string; uuid: string; authToken: string };
+
+            // Find and link MC account
+            const mcPlayer = await prisma.minecraftPlayer.findFirst({
+              where: {
+                mcid: decodedToken.mcid,
+                uuid: decodedToken.uuid,
+                authToken: decodedToken.authToken,
+                confirmed: true,
+              },
+            });
+
+            if (mcPlayer && !mcPlayer.kishaxUserId) {
+              // Check if token is still valid
+              if (
+                mcPlayer.tokenExpires &&
+                new Date() <= new Date(mcPlayer.tokenExpires)
+              ) {
+                await prisma.minecraftPlayer.update({
+                  where: { id: mcPlayer.id },
+                  data: {
+                    kishaxUserId: user.id,
+                    updatedAt: new Date(),
+                  },
+                });
+
+                // Send notification to MC server
+                try {
+                  const { mcApi } = await import("@/lib/mc-message-client");
+                  await mcApi.sendAccountLink(
+                    decodedToken.mcid,
+                    decodedToken.uuid,
+                    user.id,
+                  );
+                } catch (mcApiError) {
+                  console.warn(
+                    "Failed to send account link notification to MC:",
+                    mcApiError,
+                  );
+                }
+              }
+            }
+          } catch (mcAuthError) {
+            console.warn(
+              "Failed to process MC auth token during credentials login:",
+              mcAuthError,
+            );
+          }
+        }
+
         return {
           id: user.id.toString(),
           name: user.name,
@@ -179,7 +237,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account }) {
       // For OAuth providers, allow sign in but handle username check in JWT callback
       if (account?.provider !== "credentials") {
         if (!user?.email) return false;
@@ -191,10 +249,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // If user doesn't exist, create them
         if (!dbUser) {
+          // For OAuth signup, don't automatically set name to force username setup
           dbUser = await prisma.user.create({
             data: {
               email: user.email,
-              name: user.name || profile?.name || "",
+              name: null, // Force username setup for new OAuth users
               image: user.image,
               emailVerified: new Date(), // OAuth providers are pre-verified
             },

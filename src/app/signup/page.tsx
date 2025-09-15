@@ -1,11 +1,11 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignUpPage() {
+function SignUpContent() {
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
@@ -120,7 +120,7 @@ export default function SignUpPage() {
   };
 
   const handleOAuthSignUp = async (provider: string) => {
-    let callbackUrl = "/";
+    let callbackUrl = "/dashboard";
 
     // MC認証データがある場合、サーバーサイドでJWTを生成
     if (mcAuthData) {
@@ -135,7 +135,7 @@ export default function SignUpPage() {
 
         if (response.ok) {
           const { token } = await response.json();
-          callbackUrl = `/?mcAuthToken=${encodeURIComponent(token)}`;
+          callbackUrl = `/dashboard?mcAuthToken=${encodeURIComponent(token)}`;
         } else {
           console.warn("Failed to encode MC auth data");
         }
@@ -370,7 +370,11 @@ export default function SignUpPage() {
 
             <div className="text-center">
               <Link
-                href="/signin"
+                href={
+                  mcAuthData
+                    ? `/signin?mcid=${encodeURIComponent(mcAuthData.mcid)}&uuid=${encodeURIComponent(mcAuthData.uuid)}&authToken=${encodeURIComponent(mcAuthData.authToken)}`
+                    : "/signin"
+                }
                 className="text-indigo-600 hover:text-indigo-500"
               >
                 すでにアカウントをお持ちですか？ サインイン
@@ -380,5 +384,19 @@ export default function SignUpPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <SignUpContent />
+    </Suspense>
   );
 }
