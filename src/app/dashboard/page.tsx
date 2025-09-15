@@ -32,9 +32,9 @@ export default async function DashboardPage() {
               </Link>
               <Link
                 href="/mc/auth"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-green-600 hover:text-green-800"
               >
-                MC認証
+                MC Auth
               </Link>
               <Link
                 href="/api/auth/signout?callbackUrl=/"
