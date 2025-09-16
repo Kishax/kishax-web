@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# kishax-aws Worker startup script for Web side
+# kishax-api Worker startup script for Web side
 
-echo "🚀 Starting kishax-aws worker on Web side..."
+echo "🚀 Starting kishax-api worker on Web side..."
 
-# Environment variables for kishax-aws
+# Environment variables for kishax-api
 export MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID}
 export MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY}
 export AWS_REGION=${AWS_REGION:-ap-northeast-1}
@@ -21,8 +21,8 @@ export AWS_SDK_LOG_LEVEL=${AWS_SDK_LOG_LEVEL:-WARN}
 export LETTUCE_LOG_LEVEL=${LETTUCE_LOG_LEVEL:-WARN}
 
 # Check if JAR exists
-if [ ! -f "/app/lib/kishax-aws.jar" ]; then
-  echo "❌ kishax-aws.jar not found at /app/lib/kishax-aws.jar"
+if [ ! -f "/app/lib/kishax-api.jar" ]; then
+  echo "❌ kishax-api.jar not found at /app/lib/kishax-api.jar"
   exit 1
 fi
 
@@ -38,23 +38,23 @@ fi
 echo "📡 Connecting to Redis at: $REDIS_URL"
 echo "🌍 AWS Region: $AWS_REGION"
 
-# Start kishax-aws worker in background
-java -jar /app/lib/kishax-aws.jar &
+# Start kishax-api worker in background
+java -jar /app/lib/kishax-api.jar &
 KISHAX_PID=$!
 
-echo "✅ kishax-aws worker started with PID: $KISHAX_PID"
+echo "✅ kishax-api worker started with PID: $KISHAX_PID"
 
 # Create PID file for later cleanup
-echo $KISHAX_PID >/app/kishax-aws.pid
+echo $KISHAX_PID >/app/kishax-api.pid
 
 # Function to handle shutdown
 cleanup() {
-  echo "🛑 Stopping kishax-aws worker..."
-  if [ -f "/app/kishax-aws.pid" ]; then
-    PID=$(cat /app/kishax-aws.pid)
+  echo "🛑 Stopping kishax-api worker..."
+  if [ -f "/app/kishax-api.pid" ]; then
+    PID=$(cat /app/kishax-api.pid)
     kill $PID 2>/dev/null
-    rm -f /app/kishax-aws.pid
-    echo "✅ kishax-aws worker stopped"
+    rm -f /app/kishax-api.pid
+    echo "✅ kishax-api worker stopped"
   fi
 }
 

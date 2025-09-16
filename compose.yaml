@@ -31,7 +31,7 @@ services:
       timeout: 5s
       retries: 5
 
-  kishax-aws:
+  kishax-api:
     build:
       context: .
       dockerfile: Dockerfile
@@ -52,7 +52,7 @@ services:
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
       - TZ=Asia/Tokyo
     command: |
-      java -jar /app/lib/kishax-aws.jar
+      java -jar /app/lib/kishax-api.jar
     depends_on:
       redis:
         condition: service_healthy

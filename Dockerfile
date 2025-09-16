@@ -7,18 +7,18 @@ WORKDIR /app
 # 開発に必要なパッケージをインストール（curl、openjdk21追加）
 RUN apk add --no-cache git curl openjdk21-jre postgresql-client
 
-# kishax-aws JARをMaven Centralからダウンロード（環境変数でバージョン指定）
+# kishax-api JARをMaven Centralからダウンロード（環境変数でバージョン指定）
 ARG KISHAX_AWS_VERSION=1.0.4
 
 # Create lib directory
 RUN mkdir -p /app/lib
 
 # Copy local JAR if exists, otherwise download from Maven Central
-COPY kishax-aws-*-with-dependencies.jar* /tmp/
-RUN if [ -f "/tmp/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar" ]; then \
-        cp "/tmp/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar" /app/lib/kishax-aws.jar ; \
+COPY kishax-api-*-with-dependencies.jar* /tmp/
+RUN if [ -f "/tmp/kishax-api-${KISHAX_AWS_VERSION}-with-dependencies.jar" ]; then \
+        cp "/tmp/kishax-api-${KISHAX_AWS_VERSION}-with-dependencies.jar" /app/lib/kishax-api.jar ; \
     else \
-        curl -o /app/lib/kishax-aws.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-aws/${KISHAX_AWS_VERSION}/kishax-aws-${KISHAX_AWS_VERSION}-with-dependencies.jar ; \
+        curl -o /app/lib/kishax-api.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-api/${KISHAX_AWS_VERSION}/kishax-api-${KISHAX_AWS_VERSION}-with-dependencies.jar ; \
     fi
 
 # package.jsonとpackage-lock.jsonをコピー
@@ -35,8 +35,8 @@ RUN npx prisma generate
 FROM base AS development
 ENV NODE_ENV=development
 # Copy startup script
-COPY scripts/start-kishax-aws.sh /app/scripts/
-RUN chmod +x /app/scripts/start-kishax-aws.sh
+COPY scripts/start-kishax-api.sh /app/scripts/
+RUN chmod +x /app/scripts/start-kishax-api.sh
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
@@ -55,8 +55,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy startup script and set permissions
-COPY scripts/start-kishax-aws.sh /app/scripts/
-RUN chmod +x /app/scripts/start-kishax-aws.sh
+COPY scripts/start-kishax-api.sh /app/scripts/
+RUN chmod +x /app/scripts/start-kishax-api.sh
 
 # ファイルの所有権を変更
 RUN chown -R nextjs:nodejs /app
@@ -65,8 +65,8 @@ USER nextjs
 # ポート3000を公開
 EXPOSE 3000
 
-# アプリケーションを起動（kishax-awsワーカーも含む）
-CMD ["sh", "-c", "/app/scripts/start-kishax-aws.sh & npm start"]
+# アプリケーションを起動（kishax-apiワーカーも含む）
+CMD ["sh", "-c", "/app/scripts/start-kishax-api.sh & npm start"]
 
 # Default to production
 FROM production
