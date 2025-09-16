@@ -31,13 +31,19 @@ services:
       timeout: 5s
       retries: 5
 
-  kishax-api:
+  # Development-only sqs-redis-bridge service (not used in production)
+  sqs-redis-bridge:
+    profiles:
+      - dev
+      - development
+    ports:
+      - ${AUTH_API_PORT:-8080}:8080
     build:
       context: .
       dockerfile: Dockerfile
-      target: base
+      target: dev-base
       args:
-        KISHAX_AWS_VERSION: ${KISHAX_AWS_VERSION:-1.0.4}
+        SQS_BRIDGE_VERSION: ${SQS_BRIDGE_VERSION:-1.0.4}
     environment:
       - AWS_REGION=${AWS_REGION:-ap-northeast-1}
       - MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID}
@@ -46,13 +52,17 @@ services:
       - WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - QUEUE_MODE=${QUEUE_MODE:-WEB}
-      - KISHAX_AWS_VERSION=${KISHAX_AWS_VERSION:-1.0.4}
+      - SQS_BRIDGE_VERSION=${SQS_BRIDGE_VERSION:-1.0.4}
       - WEB_API_URL=${WEB_API_URL:-http://web:3000}
       - WEB_API_KEY=${WEB_API_KEY}
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
+      - AUTH_API_ENABLED=${AUTH_API_ENABLED:-true}
+      - AUTH_API_PORT=${AUTH_API_PORT:-8080}
+      - AUTH_API_KEY=${AUTH_API_KEY:-local-dev-api-key}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-kishax_db}
       - TZ=Asia/Tokyo
     command: |
-      java -jar /app/lib/kishax-api.jar
+      java -jar /app/lib/sqs-redis-bridge.jar
     depends_on:
       redis:
         condition: service_healthy
@@ -96,7 +106,7 @@ services:
       - MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL:-}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - QUEUE_MODE=${QUEUE_MODE:-WEB}
-      - KISHAX_AWS_VERSION=${KISHAX_AWS_VERSION:-1.0.4}
+      - SQS_BRIDGE_VERSION=${SQS_BRIDGE_VERSION:-1.0.4}
       - WEB_API_URL=${WEB_API_URL:-http://web:3000}
       - WEB_API_KEY=${WEB_API_KEY:-}
       - LOG_LEVEL=${LOG_LEVEL:-DEBUG}

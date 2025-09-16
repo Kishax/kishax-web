@@ -4,22 +4,8 @@ FROM node:22-alpine AS base
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# 開発に必要なパッケージをインストール（curl、openjdk21追加）
-RUN apk add --no-cache git curl openjdk21-jre postgresql-client
-
-# kishax-api JARをMaven Centralからダウンロード（環境変数でバージョン指定）
-ARG KISHAX_AWS_VERSION=1.0.4
-
-# Create lib directory
-RUN mkdir -p /app/lib
-
-# Copy local JAR if exists, otherwise download from Maven Central
-COPY kishax-api-*-with-dependencies.jar* /tmp/
-RUN if [ -f "/tmp/kishax-api-${KISHAX_AWS_VERSION}-with-dependencies.jar" ]; then \
-        cp "/tmp/kishax-api-${KISHAX_AWS_VERSION}-with-dependencies.jar" /app/lib/kishax-api.jar ; \
-    else \
-        curl -o /app/lib/kishax-api.jar https://repo1.maven.org/maven2/net/kishax/aws/kishax-api/${KISHAX_AWS_VERSION}/kishax-api-${KISHAX_AWS_VERSION}-with-dependencies.jar ; \
-    fi
+# 基本パッケージをインストール
+RUN apk add --no-cache git postgresql-client
 
 # package.jsonとpackage-lock.jsonをコピー
 COPY package*.json ./
@@ -31,16 +17,36 @@ RUN npm ci
 # Prismaクライアントを生成
 RUN npx prisma generate
 
-# Development stage
-FROM base AS development
+# Development base - kishax-api JARを含める
+FROM base AS dev-base
+
+# 開発環境用パッケージをインストール（curl、openjdk21追加）
+RUN apk add --no-cache curl openjdk21-jre
+
+# sqs-redis-bridge JARをMaven Centralからダウンロード（環境変数でバージョン指定）
+ARG SQS_BRIDGE_VERSION=1.0.4
+
+# Create lib directory
+RUN mkdir -p /app/lib
+
+# Copy local JAR if exists, otherwise download from Maven Central
+COPY sqs-redis-bridge-*-with-dependencies.jar* /tmp/
+RUN if [ -f "/tmp/sqs-redis-bridge-${SQS_BRIDGE_VERSION}-with-dependencies.jar" ]; then \
+        cp "/tmp/sqs-redis-bridge-${SQS_BRIDGE_VERSION}-with-dependencies.jar" /app/lib/sqs-redis-bridge.jar ; \
+    else \
+        curl -o /app/lib/sqs-redis-bridge.jar https://repo1.maven.org/maven2/net/kishax/api/sqs-redis-bridge/${SQS_BRIDGE_VERSION}/sqs-redis-bridge-${SQS_BRIDGE_VERSION}-with-dependencies.jar ; \
+    fi
+
+# Development stage - with sqs-redis-bridge JAR
+FROM dev-base AS development
 ENV NODE_ENV=development
 # Copy startup script
-COPY scripts/start-kishax-api.sh /app/scripts/
-RUN chmod +x /app/scripts/start-kishax-api.sh
+COPY scripts/start-kishax-aws.sh /app/scripts/
+RUN chmod +x /app/scripts/start-kishax-aws.sh
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
-# Production stage
+# Production stage - without sqs-redis-bridge JAR (ECS runs it independently)
 FROM base AS production
 ENV NODE_ENV=production
 
@@ -54,10 +60,6 @@ RUN npm run build
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy startup script and set permissions
-COPY scripts/start-kishax-api.sh /app/scripts/
-RUN chmod +x /app/scripts/start-kishax-api.sh
-
 # ファイルの所有権を変更
 RUN chown -R nextjs:nodejs /app
 USER nextjs
@@ -65,8 +67,8 @@ USER nextjs
 # ポート3000を公開
 EXPOSE 3000
 
-# アプリケーションを起動（kishax-apiワーカーも含む）
-CMD ["sh", "-c", "/app/scripts/start-kishax-api.sh & npm start"]
+# アプリケーションを起動（本番ではsqs-redis-bridgeを起動しない）
+CMD ["npm", "start"]
 
 # Default to production
 FROM production
