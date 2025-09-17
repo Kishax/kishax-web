@@ -16,4 +16,3 @@
   "include": ["src/scripts/redis-checker.ts", "src/lib/redis-checker.ts"],
   "exclude": ["node_modules", "dist", ".next", "**/*.test.ts", "**/*.spec.ts"]
 }
-
