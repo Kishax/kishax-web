@@ -72,7 +72,7 @@ services:
           sleep 2
         done
         echo 'Database is ready!'
-        npx prisma migrate dev && npm run dev
+        npx prisma migrate dev && npm run start
       "
     develop:
       watch:

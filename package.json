@@ -6,8 +6,9 @@
     "dev": "next dev --turbopack",
     "dev:full": "concurrently \"npm run dev\" \"npm run redis:checker\"",
     "redis:checker": "tsx src/scripts/redis-checker.ts",
-    "build": "next build",
-    "start": "next start",
+    "build": "next build && npm run build:scripts",
+    "build:scripts": "tsc -p tsconfig.build.json",
+    "start": "concurrently \"next start\" \"node dist/scripts/redis-checker.js\"",
     "lint": "next lint",
     "format": "biome format --write .",
     "check-types": "tsc --noEmit"
