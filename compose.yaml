@@ -16,61 +16,10 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    # not portforwarded: default 6379 in only internal container network
-    # ports:
-    #   - 6379:6379
-    volumes:
-      - redis-data:/data
-    environment:
-      TZ: Asia/Tokyo
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Development-only sqs-redis-bridge service (not used in production)
-  sqs-redis-bridge:
-    profiles:
-      - dev
-      - development
-    ports:
-      - ${AUTH_API_PORT:-8080}:8080
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev-base
-      args:
-        SQS_BRIDGE_VERSION: ${SQS_BRIDGE_VERSION:-1.0.4}
-    environment:
-      - AWS_REGION=${AWS_REGION:-ap-northeast-1}
-      - MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID}
-      - MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY}
-      - MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL}
-      - WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - QUEUE_MODE=${QUEUE_MODE:-WEB}
-      - SQS_BRIDGE_VERSION=${SQS_BRIDGE_VERSION:-1.0.4}
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
-      - AUTH_API_ENABLED=${AUTH_API_ENABLED:-true}
-      - AUTH_API_PORT=${AUTH_API_PORT:-8080}
-      - AUTH_API_KEY=${AUTH_API_KEY:-local-dev-api-key}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-kishax_db}
-      - TZ=Asia/Tokyo
-    command: |
-      java -jar /app/lib/sqs-redis-bridge.jar
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
   web:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
       args:
         NODE_ENV: development
     ports:
@@ -97,18 +46,8 @@ services:
       - EMAIL_USER=${EMAIL_USER:-}
       - EMAIL_PASS=${EMAIL_PASS:-}
       - EMAIL_FROM=${EMAIL_FROM:-}
-      - AWS_REGION=${AWS_REGION:-ap-northeast-1}
-      - MC_WEB_SQS_ACCESS_KEY_ID=${MC_WEB_SQS_ACCESS_KEY_ID:-}
-      - MC_WEB_SQS_SECRET_ACCESS_KEY=${MC_WEB_SQS_SECRET_ACCESS_KEY:-}
-      - WEB_TO_MC_QUEUE_URL=${WEB_TO_MC_QUEUE_URL:-}
-      - MC_TO_WEB_QUEUE_URL=${MC_TO_WEB_QUEUE_URL:-}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - QUEUE_MODE=${QUEUE_MODE:-WEB}
-      - SQS_BRIDGE_VERSION=${SQS_BRIDGE_VERSION:-1.0.4}
-      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - REDIS_URL=${REDIS_URL}
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:-local-dev-api-key}
-      - TZ=Asia/Tokyo
     depends_on:
       db:
         condition: service_healthy

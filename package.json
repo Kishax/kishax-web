@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\" \"npm run redis:checker\"",
+    "dev:full": "concurrently \"npm run dev\" \"npm run redis:checker\"",
     "redis:checker": "tsx src/scripts/redis-checker.ts",
-    "sqs:worker": "make run",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
