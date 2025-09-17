@@ -8,19 +8,21 @@ interface SendToMcRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    // 認証チェック - APIキー認証、内部認証、またはセッション認証
-    const apiKey = request.headers.get("X-API-Key");
-    const expectedApiKey = process.env.WEB_API_KEY;
+    // 認証チェック - 内部認証、またはセッション認証
     const internalToken = request.headers.get("X-Internal-Token");
     const expectedInternalToken =
       process.env.INTERNAL_API_KEY || "local-dev-api-key";
     let isAuthenticated = false;
 
-    // APIキー認証を試行
-    if (apiKey && expectedApiKey && apiKey === expectedApiKey) {
+    // 内部認証トークンによる認証
+    if (internalToken && internalToken === expectedInternalToken) {
       isAuthenticated = true;
-      console.log("API key auth successful");
-    } else if (apiKey && expectedApiKey && apiKey !== expectedApiKey) {
+      console.log("Internal token auth successful");
+    } else if (
+      internalToken &&
+      expectedInternalToken &&
+      internalToken !== expectedInternalToken
+    ) {
       // APIキーが提供されたが間違っている場合
       console.error("Invalid API key provided");
       return NextResponse.json(
@@ -30,19 +32,13 @@ export async function POST(request: NextRequest) {
         },
         { status: 401 },
       );
-    } else if (internalToken && internalToken === expectedInternalToken) {
-      // 内部認証トークンによる認証
-      isAuthenticated = true;
-      console.log("Internal token auth successful");
     } else {
-      // APIキーも内部トークンも提供されていない場合は認証失敗
+      // 何も提供されていない場合は認証失敗
       console.log("No API key or internal token provided");
     }
 
     if (!isAuthenticated) {
-      console.error(
-        "Authentication failed - no valid API key or internal token",
-      );
+      console.error("Authentication failed - no valid internal token");
       return NextResponse.json(
         {
           success: false,

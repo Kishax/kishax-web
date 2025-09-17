@@ -61,7 +61,7 @@ export class RedisMessageClient {
   }
 
   /**
-   * Connect and subscribe to MC→Web messages from kishax-aws
+   * Connect and subscribe to MC→Web messages from kishax-api
    */
   async subscribeToMcMessages() {
     try {
@@ -90,7 +90,7 @@ export class RedisMessageClient {
   }
 
   /**
-   * Publish Web→MC message (this will be picked up by kishax-aws)
+   * Publish Web→MC message (this will be picked up by kishax-api)
    */
   async publishToMc(messageType: string, data: Record<string, unknown>) {
     try {
