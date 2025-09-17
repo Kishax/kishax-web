@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\"",
+    "dev:full": "concurrently \"npm run dev\" \"npm run sqs:worker\" \"npm run redis:checker\"",
+    "redis:checker": "tsx src/scripts/redis-checker.ts",
     "sqs:worker": "make run",
     "build": "next build",
     "start": "next start",
@@ -51,6 +52,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "concurrently": "^9.2.1",
     "eslint": "^9",
+    "tsx": "^4.19.2",
     "eslint-config-next": "15.4.5",
     "playwright": "^1.54.2",
     "prisma": "^6.15.0",
