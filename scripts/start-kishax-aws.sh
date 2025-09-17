@@ -29,10 +29,6 @@ export AUTH_API_ENABLED=${AUTH_API_ENABLED:-true}
 export AUTH_API_PORT=${AUTH_API_PORT:-8080}
 export AUTH_API_KEY=${AUTH_API_KEY}
 
-# Web API Configuration
-export WEB_API_KEY=${WEB_API_KEY}
-export WEB_API_URL=${WEB_API_URL:-http://localhost:3000}
-
 # Database Configuration
 export DATABASE_URL=${DATABASE_URL}
 

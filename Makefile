@@ -8,8 +8,6 @@ run-local:
 	WEB_TO_MC_QUEUE_URL=$(WEB_TO_MC_QUEUE_URL) \
 	MC_TO_WEB_QUEUE_URL=$(MC_TO_WEB_QUEUE_URL) \
 	REDIS_URL=http://localhost:6379 \
-	WEB_API_URL=http://localhost:3000 \
-	WEB_API_KEY=$(WEB_API_KEY) \
 	LOG_LEVEL=$(LOG_LEVEL) \
 	QUEUE_MODE=$(QUEUE_MODE) \
 	java -jar ~/.m2/repository/net/kishax/aws/kishax-api/$(KISHAX_AWS_VERSION)/kishax-api-$(KISHAX_AWS_VERSION)-with-dependencies.jar
