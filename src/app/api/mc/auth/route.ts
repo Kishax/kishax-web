@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { McAuthRequestSchema, McAuthResponseSchema } from "@/lib/schemas";
 import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import jwt from "jsonwebtoken";
-import { sendSocketMessage } from "@/lib/socket-client";
 
 /**
  * @swagger
@@ -192,20 +191,6 @@ export async function POST(req: NextRequest) {
           "Failed to send Redis/SQS message, falling back to socket:",
           mcApiError,
         );
-
-        // Fallback to existing socket method
-        const message = {
-          web: {
-            confirm: {
-              who: {
-                name: mcid,
-                uuid: uuid,
-              },
-            },
-          },
-        };
-        await sendSocketMessage(JSON.stringify(message) + "\r\n");
-        console.log("Auth confirmation sent via socket");
       }
     } catch (error) {
       console.warn("Failed to send auth confirmation:", error);
