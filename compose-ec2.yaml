@@ -1,0 +1,35 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: kishax-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Database Configuration (RDS PostgreSQL)
+      - DATABASE_URL=${DATABASE_URL}
+      # NextAuth Configuration
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://kishax.net}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      # OAuth Configuration
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID}
+      - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET}
+      # Email Configuration
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_FROM=${EMAIL_FROM}
+      # Redis Configuration (i-b host Redis #2)
+      - REDIS_URL=${REDIS_URL:-redis://10.0.36.61:6380}
+      # Internal API Key
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+    restart: unless-stopped
