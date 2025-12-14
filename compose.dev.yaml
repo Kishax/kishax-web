@@ -1,6 +1,10 @@
 services:
   web:
-    image: kishax-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
     container_name: kishax-web
     ports:
       - "3000:3000"
