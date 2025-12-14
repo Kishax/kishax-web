@@ -14,43 +14,6 @@ const SendOtpRequestSchema = z.object({
   authToken: z.string(),
 });
 
-/**
- * @swagger
- * /api/mc/send-otp:
- *   post:
- *     summary: Send OTP to Minecraft server
- *     description: Generate OTP and send to MC server for display to player
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               authToken:
- *                 type: string
- *                 description: Authentication token from MC side
- *             required:
- *               - authToken
- *     responses:
- *       200:
- *         description: OTP sent successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *       400:
- *         description: Invalid request or expired token
- *       500:
- *         description: Internal server error
- *     tags:
- *       - Minecraft OTP
- */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

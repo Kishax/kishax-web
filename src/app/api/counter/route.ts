@@ -4,48 +4,6 @@ import { CounterQuerySchema, CounterResponseSchema } from "@/lib/schemas";
 import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import { format, subDays, startOfMonth, startOfYear, endOfDay } from "date-fns";
 
-/**
- * @swagger
- * /api/counter:
- *   get:
- *     summary: Get counter statistics
- *     description: Retrieve counter data for specified time period
- *     parameters:
- *       - in: query
- *         name: type
- *         schema:
- *           type: string
- *           enum: [year, month, last7days]
- *           default: last7days
- *         description: Time period for statistics
- *     responses:
- *       200:
- *         description: Counter data retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       date:
- *                         type: string
- *                         format: date
- *                       count:
- *                         type: number
- *                 error:
- *                   type: string
- *                   nullable: true
- *       400:
- *         description: Invalid request parameters
- *       500:
- *         description: Internal server error
- *     tags:
- *       - Statistics
- */
 export async function GET(req: NextRequest) {
   try {
     // Validate request
