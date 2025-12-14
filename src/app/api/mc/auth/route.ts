@@ -4,69 +4,6 @@ import { McAuthRequestSchema, McAuthResponseSchema } from "@/lib/schemas";
 import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import jwt from "jsonwebtoken";
 
-/**
- * @swagger
- * /api/mc/auth:
- *   post:
- *     summary: Authenticate Minecraft player
- *     description: Complete Minecraft player authentication with one-time password
- *     security:
- *       - sessionAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               token:
- *                 type: string
- *                 description: JWT token containing player info
- *               mcid:
- *                 type: string
- *                 description: Minecraft player ID
- *               uuid:
- *                 type: string
- *                 description: Minecraft player UUID
- *               pass:
- *                 type: string
- *                 pattern: '^\\d{6}$'
- *                 description: 6-digit one-time password
- *             required:
- *               - token
- *               - mcid
- *               - uuid
- *               - pass
- *     responses:
- *       200:
- *         description: Authentication successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                     mcid:
- *                       type: string
- *                     uuid:
- *                       type: string
- *       400:
- *         description: Invalid request or authentication failed
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- *     tags:
- *       - Minecraft
- */
 export async function POST(req: NextRequest) {
   try {
     // Get optional authentication (no requirement to be logged in)
