@@ -89,10 +89,38 @@ export class RedisChecker {
         `✅ Auth token saved to database for ${data.mcid} - Action: ${data.action}`,
       );
 
+      // MC側に保存完了を通知
+      await this.notifyTokenSaved(data.mcid, data.uuid, data.authToken);
+
       // 期限切れトークンのクリーンアップ（定期的に実行）
       await this.cleanupExpiredTokens();
     } catch (error) {
       console.error(`❌ Failed to handle auth token for ${data.mcid}:`, error);
+    }
+  }
+
+  /**
+   * MC側に認証トークン保存完了を通知
+   */
+  private async notifyTokenSaved(
+    mcid: string,
+    uuid: string,
+    authToken: string,
+  ) {
+    try {
+      const redisClient = getRedisClient();
+      await redisClient.publishToMc("mc_auth_token_saved", {
+        mcid,
+        uuid,
+        authToken,
+        savedAt: new Date().toISOString(),
+      });
+      console.log(`📤 Notified MC that auth token is saved for ${mcid}`);
+    } catch (error) {
+      console.error(
+        `❌ Failed to notify MC about token save for ${mcid}:`,
+        error,
+      );
     }
   }
 
