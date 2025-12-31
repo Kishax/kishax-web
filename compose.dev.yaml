@@ -1,9 +1,13 @@
 services:
   web:
-    image: kishax-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
     container_name: kishax-web
     ports:
-      - "80:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       # Database Configuration (RDS PostgreSQL)

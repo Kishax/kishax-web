@@ -6,43 +6,6 @@ import { validateRequest, createErrorResponse } from "@/lib/api-middleware";
 import fs from "fs/promises";
 import path from "path";
 
-/**
- * @swagger
- * /api/avatar:
- *   get:
- *     summary: Get user avatar
- *     description: Retrieve user avatar image. Returns custom avatar for authenticated users, random default for others.
- *     parameters:
- *       - in: query
- *         name: userId
- *         schema:
- *           type: string
- *         description: Optional user ID to get specific user's avatar
- *     responses:
- *       200:
- *         description: Avatar image
- *         content:
- *           image/png:
- *             schema:
- *               type: string
- *               format: binary
- *           image/jpeg:
- *             schema:
- *               type: string
- *               format: binary
- *           image/gif:
- *             schema:
- *               type: string
- *               format: binary
- *       302:
- *         description: Redirect to external avatar URL
- *       404:
- *         description: Avatar not found
- *       500:
- *         description: Internal server error
- *     tags:
- *       - User
- */
 export async function GET(req: NextRequest) {
   try {
     // Get current session
