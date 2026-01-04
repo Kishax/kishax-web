@@ -1,7 +1,7 @@
 # Web Server Makefile
 # S3へのDockerイメージアップロード
 
-.PHONY: build-image upload-image help
+.PHONY: build-image upload-image load-image help
 
 IMAGE_NAME := kishax-web
 IMAGE_TAG := latest
@@ -12,8 +12,9 @@ AWS_PROFILE := AdministratorAccess-126112056177
 help:
 	@echo "Available targets:"
 	@echo "  build-image          - Build Docker image (linux/amd64)"
-	@echo "  upload-image   - Upload Docker image to S3"
-	@echo "  deploy-image            - Build and upload Docker image"
+	@echo "  upload-image         - Upload Docker image to S3"
+	@echo "  load-image           - Download and load Docker image from S3"
+	@echo "  deploy-image         - Build and upload Docker image"
 
 build-image:
 	@echo "Building Docker image for linux/amd64..."
@@ -30,5 +31,16 @@ upload-image:
 	@echo "Cleaning up local tar.gz file..."
 	rm $(IMAGE_NAME)-$(IMAGE_TAG).tar.gz
 	@echo "Upload complete!"
+
+load-image:
+	@echo "Downloading Docker image from S3..."
+	aws s3 cp \
+		s3://$(S3_BUCKET)/$(S3_PATH)/$(IMAGE_NAME)-$(IMAGE_TAG).tar.gz \
+		$(IMAGE_NAME)-$(IMAGE_TAG).tar.gz
+	@echo "Loading Docker image..."
+	gunzip -c $(IMAGE_NAME)-$(IMAGE_TAG).tar.gz | docker load
+	@echo "Cleaning up downloaded tar.gz file..."
+	rm $(IMAGE_NAME)-$(IMAGE_TAG).tar.gz
+	@echo "Load complete: $(IMAGE_NAME):$(IMAGE_TAG)"
 
 deploy-image: build-image upload-image
